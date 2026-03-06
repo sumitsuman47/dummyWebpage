@@ -787,23 +787,23 @@
 <div class="mo" id="contactMo">
   <div class="md" style="max-width:470px">
     <div class="mhd dk">
-      <div class="mtg">&#128222; Contact</div>
+      <div class="mtg" data-i18n="cp_tg">&#128222; Contact</div>
       <h3 id="cpTitle">Contact Provider</h3>
-      <p>Your message goes directly to the provider.</p>
+      <p data-i18n="cp_s">Your message goes directly to the provider.</p>
       <button class="mcl" onclick="closeCont()">&#10005;</button>
     </div>
     <div class="mb" id="cpbody">
-      <div class="mdc"><strong>Reminder:</strong> Any agreement you make is directly with this independent provider. Lumitya is not a party to any arrangement.</div>
-      <div class="fg"><label>Your Name<span class="rq">*</span></label><input type="text" id="cpnm" placeholder="e.g. Carlos Mendoza"></div>
-      <div class="fg"><label>Phone<span class="rq">*</span></label><input type="tel" id="cpph" placeholder="+52 33 1234 5678"></div>
-      <div class="fg"><label>Email (optional)</label><input type="email" id="cpem" placeholder="you@email.com"></div>
-      <div class="fg"><label>Message<span class="rq">*</span></label><textarea id="cpmg" placeholder="Describe your project briefly..."></textarea></div>
+      <div class="mdc"><strong data-i18n="cp_dn_b">Reminder:</strong> <span data-i18n="cp_dn">Any agreement you make is directly with this independent provider. Lumitya is not a party to any arrangement.</span></div>
+      <div class="fg"><label><span data-i18n="f_nm">Your Name</span><span class="rq">*</span></label><input type="text" id="cpnm" placeholder="e.g. Carlos Mendoza"></div>
+      <div class="fg"><label><span data-i18n="f_ph">Phone</span><span class="rq">*</span></label><input type="tel" id="cpph" placeholder="+52 33 1234 5678"></div>
+      <div class="fg"><label><span data-i18n="f_em">Email</span> <span style="font-size:.67rem;color:var(--gr)">(optional)</span></label><input type="email" id="cpem" placeholder="you@email.com"></div>
+      <div class="fg"><label><span data-i18n="cp_mg">Message</span><span class="rq">*</span></label><textarea id="cpmg" placeholder="Describe your project briefly..."></textarea></div>
       <div class="fsr">
         <span class="fn">&#128274; Private.</span>
-        <button class="bsb" id="cpbtn" onclick="submitCont()"><span class="btn-lbl">Send Message &#8594;</span><span class="sp"></span></button>
+        <button class="bsb" id="cpbtn" onclick="submitCont()"><span class="btn-lbl" data-i18n="cp_b">Send Message &#8594;</span><span class="sp"></span></button>
       </div>
     </div>
-    <div class="msuc" id="cpsuc"><div class="sico">&#9989;</div><h3>Message Sent!</h3><p>The provider will contact you directly. Always conduct your own due diligence before hiring.</p><button class="bco" onclick="closeCont()">Close</button></div>
+    <div class="msuc" id="cpsuc"><div class="sico">&#9989;</div><h3 data-i18n="cp_h">Message Sent!</h3><p data-i18n="cp_p">The provider will contact you directly. Always conduct your own due diligence before hiring.</p><button class="bco" onclick="closeCont()" data-i18n="cl">Close</button></div>
   </div>
 </div>
 
@@ -812,20 +812,20 @@
   <div class="md" style="max-width:520px">
     <div class="mhd bl">
       <div class="mtg">&#128640; Get Listed</div>
-      <h3>How would you like to join Lumitya?</h3>
-      <p>Choose the option that best describes your business.</p>
+      <h3 data-i18n="apc_h">How would you like to join Lumitya?</h3>
+      <p data-i18n="apc_s">Choose the option that best describes your business.</p>
       <button class="mcl" onclick="closeApplyChoice()">&#10005;</button>
     </div>
     <div class="apc-grid">
       <div class="apc-card" onclick="hideModal('applyChoiceMo');openProv()">
         <span class="apc-ico">&#128119;</span>
-        <div class="apc-ttl">Contractor</div>
-        <div class="apc-dsc">I provide home services like plumbing, electrical, roofing, renovation, painting, etc.</div>
+        <div class="apc-ttl" data-i18n="apc_con">Contractor</div>
+        <div class="apc-dsc" data-i18n="apc_con_d">I provide home services like plumbing, electrical, roofing, renovation, painting, etc.</div>
       </div>
       <div class="apc-card" onclick="hideModal('applyChoiceMo');openSupplier()">
         <span class="apc-ico">&#129521;</span>
-        <div class="apc-ttl">Supplier</div>
-        <div class="apc-dsc">I supply building materials like cement, steel, sand, concrete, hardware, etc.</div>
+        <div class="apc-ttl" data-i18n="apc_sup">Supplier</div>
+        <div class="apc-dsc" data-i18n="apc_sup_d">I supply building materials like cement, steel, sand, concrete, hardware, etc.</div>
       </div>
     </div>
   </div>
@@ -835,23 +835,23 @@
 <div class="mo" id="notifyMo">
   <div class="md" style="max-width:520px">
     <div class="mhd dk">
-      <div class="mtg">&#128276; Premium Plan</div>
-      <h3>Get Notified When Premium Launches</h3>
-      <p>Leave your details and we'll reach out as soon as it's available.</p>
+      <div class="mtg" data-i18n="nf_tg">&#128276; Premium Plan</div>
+      <h3 data-i18n="nf_h">Get Notified When Premium Launches</h3>
+      <p data-i18n="nf_s">Leave your details and we'll reach out as soon as it's available.</p>
       <button class="mcl" onclick="closeNotify()">&#10005;</button>
     </div>
     <div class="nf-wrap" id="nfbody">
       <div class="merr" id="nferr"></div>
       <div class="nf-row">
-        <div class="fg"><label>Full Name<span class="rq">*</span></label><input type="text" id="nfnm" placeholder="e.g. Carlos Mendoza"></div>
-        <div class="fg"><label>Phone<span class="rq">*</span></label><input type="tel" id="nfph" placeholder="+52 33 1234 5678"></div>
+        <div class="fg"><label><span data-i18n="f_nm">Full Name</span><span class="rq">*</span></label><input type="text" id="nfnm" placeholder="e.g. Carlos Mendoza"></div>
+        <div class="fg"><label><span data-i18n="f_ph">Phone</span><span class="rq">*</span></label><input type="tel" id="nfph" placeholder="+52 33 1234 5678"></div>
       </div>
       <div class="nf-row">
-        <div class="fg"><label>Email<span class="rq">*</span></label><input type="email" id="nfem" placeholder="you@email.com"></div>
-        <div class="fg"><label>WhatsApp Number<span class="rq">*</span></label><input type="tel" id="nfwa" placeholder="+52 33 1234 5678"></div>
+        <div class="fg"><label><span data-i18n="f_em">Email</span><span class="rq">*</span></label><input type="email" id="nfem" placeholder="you@email.com"></div>
+        <div class="fg"><label><span data-i18n="nf_wa">WhatsApp Number</span><span class="rq">*</span></label><input type="tel" id="nfwa" placeholder="+52 33 1234 5678"></div>
       </div>
       <div class="nf-full">
-        <div class="fg"><label>Type of Service You Provide<span class="rq">*</span></label>
+        <div class="fg"><label><span data-i18n="nf_svc">Type of Service You Provide</span><span class="rq">*</span></label>
           <select id="nfsvc">
             <option value="" disabled selected>Select your service type</option>
             <option>Architecture &amp; Design</option>

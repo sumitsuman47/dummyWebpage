@@ -606,6 +606,12 @@ en:{
   cp_mg:'Message',cp_b:'Send Message →',cp_h:'Message Sent!',
   cp_p:'The provider will contact you directly. Always do your own due diligence before hiring.',
   prof_id:'ID Checked',prof_top:'Top Rated',prof_jobs:'Jobs',prof_revs:'Reviews',prof_contact:'Contact',prof_view:'View',
+  err_ph:'Invalid phone number.',err_em:'Invalid email address.',
+  nf_tg:'Premium Plan',nf_h:'Get Notified When Premium Launches',nf_s:'Leave your details and we\u2019ll reach out as soon as it\u2019s available.',
+  nf_wa:'WhatsApp',nf_svc:'Service Type',nf_b:'Notify Me \u2192',nf_h2:'Registered!',nf_p:'We\u2019ll let you know when the Premium Plan is available.',
+  apc_h:'How would you like to join Lumitya?',apc_s:'Choose the option that best describes your business.',
+  apc_con:'Contractor',apc_con_d:'I provide home services like plumbing, electrical, roofing, renovation, painting, etc.',
+  apc_sup:'Supplier',apc_sup_d:'I supply building materials like cement, steel, sand, concrete, hardware, etc.',
 },
 es:{
   ab_b:'Lumitya es una plataforma digital de listado y conexión.',ab_t:' Conectamos propietarios con contratistas independientes. No supervisamos ni garantizamos ningún trabajo.',
@@ -727,6 +733,12 @@ es:{
   cp_mg:'Mensaje',cp_b:'Enviar Mensaje →',cp_h:'¡Mensaje Enviado!',
   cp_p:'El proveedor te contactará directamente. Realiza tu propia investigación antes de contratar.',
   prof_id:'ID Verificado',prof_top:'Mejor Calificado',prof_jobs:'Trabajos',prof_revs:'Reseñas',prof_contact:'Contactar',prof_view:'Ver',
+  err_ph:'Número de teléfono inválido.',err_em:'Correo electrónico inválido.',
+  nf_tg:'Plan Premium',nf_h:'Recibe Notificación Cuando Esté Disponible',nf_s:'Deja tus datos y te contactaremos cuando esté disponible.',
+  nf_wa:'WhatsApp',nf_svc:'Tipo de Servicio',nf_b:'Notificarme →',nf_h2:'¡Registrado!',nf_p:'Te avisaremos cuando el Plan Premium esté disponible.',
+  apc_h:'¿Cómo te gustaría unirte a Lumitya?',apc_s:'Elige la opción que mejor describa tu negocio.',
+  apc_con:'Contratista',apc_con_d:'Ofrezco servicios del hogar como plomería, electricidad, techos, renovación, pintura, etc.',
+  apc_sup:'Proveedor',apc_sup_d:'Suministro materiales de construcción como cemento, acero, arena, concreto, ferretería, etc.',
 }};
 
 /* ── PROVIDERS DATA (Loaded from Supabase) ── */
@@ -1210,7 +1222,7 @@ function tglSuppAg(){
 /* ── SUBMIT: SUPPLIER APPLICATION ── */
 async function submitSupp(){
   var nm=gv('snm'),bz=gv('sbz'),ph=gv('sph'),em=gv('sem'),ct=sv('scity'),col=sv('scol'),zn=sv('szn');
-  var ok=validate([['snm',nm],['sbz',bz],['sph',ph],['sem',em],['scity',ct],['scol',col],['szn',zn]]);
+  var ok=validateForm([['snm',nm],['sbz',bz],['sph',ph],['sem',em],['scity',ct],['scol',col],['szn',zn]],['sph'],[{id:'sem',req:true}]);
   var mats=getMaterials();
   var materr=document.getElementById('materr');
   if(!mats.length){if(materr) materr.style.display='block';ok=false;}
@@ -1302,7 +1314,7 @@ function closeNotify(){
 /* ── SUBMIT NOTIFY FORM ── */
 async function submitNotify(){
   var nm=gv('nfnm'),ph=gv('nfph'),em=gv('nfem'),wa=gv('nfwa'),svc=sv('nfsvc');
-  if(!validate([['nfnm',nm],['nfph',ph],['nfem',em],['nfwa',wa],['nfsvc',svc]])) return;
+  if(!validateForm([['nfnm',nm],['nfph',ph],['nfem',em],['nfwa',wa],['nfsvc',svc]],['nfph','nfwa'],[{id:'nfem',req:true}])) return;
   var btn=document.getElementById('nfbtn');
   var errEl=document.getElementById('nferr');
   btn.classList.add('ld');btn.disabled=true;errEl.style.display='none';
@@ -1354,49 +1366,79 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeMatch(
 function gv(id){var el=document.getElementById(id);return el?el.value.trim():'';}
 function sv(id){var el=document.getElementById(id);return el?el.value:'';}
 function mk(id,bad){var el=document.getElementById(id);if(el) el.classList.toggle('er',bad);}
+function isValidPhone(v){var digits=v.replace(/[^0-9]/g,'');return digits.length===10;}
+function isValidEmail(v){return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);}
 function validate(fields){
   var ok=true;
   fields.forEach(function(f){mk(f[0],!f[1]);if(!f[1]) ok=false;});
   return ok;
 }
+function validateForm(fields, phones, emails){
+  var ok=validate(fields);
+  if(phones) phones.forEach(function(p){
+    var v=gv(p);
+    if(v&&!isValidPhone(v)){mk(p,true);ok=false;}
+  });
+  if(emails) emails.forEach(function(e){
+    var v=gv(e.id);
+    if(e.req){if(!v||!isValidEmail(v)){mk(e.id,true);ok=false;}}
+    else{if(v&&!isValidEmail(v)){mk(e.id,true);ok=false;}}
+  });
+  return ok;
+}
 
 async function submitMatch(){
-  var nm=gv('mnm'),ct=sv('mcity'),col=sv('mcol'),svc=sv('msvc'),ds=gv('mds'),ug=sv('mug'),ph=gv('mph');
-  if(!validate([['mnm',nm],['mcity',ct],['mcol',col],['msvc',svc],['mds',ds],['mug',ug],['mph',ph]])) return;
+  var nm=gv('mnm'),ct=sv('mcity'),col=sv('mcol'),svc=sv('msvc'),ds=gv('mds'),ug=sv('mug'),ph=gv('mph'),em=gv('mem'),bg=sv('mbg');
+  if(!validateForm([['mnm',nm],['mcity',ct],['mcol',col],['msvc',svc],['mds',ds],['mug',ug],['mph',ph]],['mph'],[{id:'mem',req:false}])) return;
   var btn=document.getElementById('mbtn');
   var errEl=document.getElementById('merr');
   btn.classList.add('ld');btn.disabled=true;errEl.style.display='none';
+
+  /* ── Save to Supabase service_requests table ── */
+  var row={
+    customer_name: nm,
+    customer_email: em||'',
+    customer_phone: ph,
+    service_category: svc,
+    service_description: ds+(ug?'\nTimeline: '+ug:''),
+    city: ct,
+    neighbourhood: col,
+    budget: bg||'',
+    provider_id: _matchProvId||null,
+    provider_name: _matchProvName||null,
+    status: 'pending',
+    preferred_date: mug
+  };
+  var res=await sbInsert('service_requests', row);
+  if(res.error){
+    errEl.textContent='Could not save request. Please email '+TO;
+    errEl.style.display='block';
+    btn.classList.remove('ld');btn.disabled=false;
+    return;
+  }
+
+  /* ── Also send email notification (best-effort) ── */
   var provLabel=_matchProvName?_matchProvName+' (ID: '+_matchProvId+')':'';
   var body=[
     '=== NEW HOMEOWNER REQUEST ===',
     provLabel?'Service request for: '+provLabel:'',
-    'Name: '+nm,
-    'Phone: '+ph,
-    'Email: '+(gv('mem')||'N/A'),
-    'City: '+ct+' / '+col,
-    'Service: '+svc,
-    'Timeline: '+ug,
-    'Budget: '+(sv('mbg')||'Not specified'),
-    '','--- DESCRIPTION ---',ds
+    'Name: '+nm,'Phone: '+ph,'Email: '+(em||'N/A'),
+    'City: '+ct+' / '+col,'Service: '+svc,'Timeline: '+ug,
+    'Budget: '+(bg||'Not specified'),'','--- DESCRIPTION ---',ds
   ].filter(Boolean).join('\n');
   var subj=provLabel?'Service Request for '+provLabel+' — '+svc+' ('+ct+')':'New Homeowner Request — '+svc+' ('+ct+')';
-  var params={name:nm,city:ct,neighbourhood:col,service:svc,description:ds,timeline:ug,phone:ph,budget:sv('mbg'),email_from:gv('mem')||'contact@lumitya.com',to_email:TO,subject:subj,body:body,provider_name:_matchProvName,provider_id:_matchProvId};
   try{
-    await emailjs.send(ES,ET_M,params);
-    document.getElementById('mmbody').style.display='none';
-    document.getElementById('mmsuc').style.display='block';
-    saveSubmissionToDB('match_requests',params);
-  }catch(e){
-    errEl.textContent='Something went wrong. Please email '+TO;
-    errEl.style.display='block';
-    btn.classList.remove('ld');btn.disabled=false;
-  }
+    if(typeof emailjs!=='undefined') await emailjs.send(ES,ET_M,{name:nm,city:ct,neighbourhood:col,service:svc,description:ds,timeline:ug,phone:ph,budget:bg,email_from:em||'contact@lumitya.com',to_email:TO,subject:subj,body:body,provider_name:_matchProvName,provider_id:_matchProvId});
+  }catch(ex){ console.warn('Email notification failed:',ex); }
+
+  document.getElementById('mmbody').style.display='none';
+  document.getElementById('mmsuc').style.display='block';
 }
 
 /* ── SUBMIT: CONTRACTOR APPLICATION ── */
 async function submitProv(){
   var nm=gv('pnm'),bz=gv('pbz'),ph=gv('pph'),em=gv('pem'),ct=sv('pcity'),col=sv('pcol'),zn=sv('pzn'),dsc=gv('pdsc');
-  var ok=validate([['pnm',nm],['pph',ph],['pem',em],['pcity',ct],['pcol',col],['pzn',zn],['pdsc',dsc]]);
+  var ok=validateForm([['pnm',nm],['pph',ph],['pem',em],['pcity',ct],['pcol',col],['pzn',zn],['pdsc',dsc]],['pph'],[{id:'pem',req:true}]);
   /* Check categories */
   var cats=[];
   document.querySelectorAll('#provMo .ck input:checked').forEach(function(c){cats.push(c.value);});
@@ -1437,7 +1479,7 @@ async function submitProv(){
 /* ── SUBMIT: CONTACT PROVIDER ── */
 async function submitCont(){
   var nm=gv('cpnm'),ph=gv('cpph'),mg=gv('cpmg');
-  if(!validate([['cpnm',nm],['cpph',ph],['cpmg',mg]])) return;
+  if(!validateForm([['cpnm',nm],['cpph',ph],['cpmg',mg]],['cpph'],[{id:'cpem',req:false}])) return;
   var btn=document.getElementById('cpbtn');
   btn.classList.add('ld');btn.disabled=true;
   try{
