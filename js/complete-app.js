@@ -1093,8 +1093,8 @@ function tglAg(){
 }
 
 /* ── MODAL OPEN/CLOSE ── */
-var _savedScrollY=0;
 var _scrollLocked=false;
+var _savedScrollY=0;
 function _syncScrollLock(){
   var anyModal=!!document.querySelector('.mo.on');
   var mn=document.getElementById('mobNav');
@@ -1102,19 +1102,19 @@ function _syncScrollLock(){
   var need=anyModal||mobOpen;
   if(need&&!_scrollLocked){
     _scrollLocked=true;
-    _savedScrollY=window.scrollY;
-    document.documentElement.style.overflow='hidden';
-    document.body.style.overflow='hidden';
+    _savedScrollY=window.scrollY||window.pageYOffset||0;
     document.body.style.position='fixed';
-    document.body.style.width='100%';
     document.body.style.top='-'+_savedScrollY+'px';
+    document.body.style.left='0';
+    document.body.style.right='0';
+    document.body.style.overflow='hidden';
   }else if(!need&&_scrollLocked){
     _scrollLocked=false;
-    document.documentElement.style.overflow='';
-    document.body.style.overflow='';
     document.body.style.position='';
-    document.body.style.width='';
     document.body.style.top='';
+    document.body.style.left='';
+    document.body.style.right='';
+    document.body.style.overflow='';
     window.scrollTo(0,_savedScrollY);
   }
 }
@@ -1122,6 +1122,8 @@ function showModal(id){
   var m=document.getElementById(id);
   if(!m) return;
   m.classList.add('on');
+  var d=m.querySelector('.md');
+  if(d) d.scrollTop=0;
   _syncScrollLock();
 }
 function hideModal(id){
@@ -1130,16 +1132,7 @@ function hideModal(id){
   m.classList.remove('on');
   _syncScrollLock();
 }
-/* iOS: block body scroll-through while allowing scroll inside .md / .mob-drawer */
-document.addEventListener('touchmove',function(e){
-  if(!_scrollLocked) return;
-  var t=e.target;
-  while(t&&t!==document){
-    if(t.classList&&(t.classList.contains('md')||t.classList.contains('mob-drawer'))) return;
-    t=t.parentElement;
-  }
-  e.preventDefault();
-},{passive:false});
+
 var _matchProvName='',_matchProvId=0;
 function openMatch(provName,provId){
   _matchProvName=provName||'';_matchProvId=provId||0;
@@ -1407,7 +1400,7 @@ async function submitMatch(){
     provider_id: _matchProvId||null,
     provider_name: _matchProvName||null,
     status: 'pending',
-    preferred_date: mug
+    preferred_date: ug||null
   };
   var res=await sbInsert('service_requests', row);
   if(res.error){
@@ -1463,17 +1456,42 @@ async function submitProv(){
   var btn=document.getElementById('pbtn');
   var errEl=document.getElementById('perr');
   btn.classList.add('ld');btn.disabled=true;errEl.style.display='none';
-  var params={name:nm,business:bz,phone:ph,email_from:em||'no-reply@lumitya.com',city:ct,neighbourhood:col,zone:zn,website:gv('pwb'),team:sv('ptm'),categories:cats.join(', '),experience:yrVal,description:dsc,to_email:'contact@lumitya.com',subject:'New Contractor Application — '+(bz||nm),body:fullBody};
-  try{
-    await emailjs.send(ES,ET_P,params);
-    document.getElementById('pmbody').style.display='none';
-    document.getElementById('pmsuc').style.display='block';
-    saveSubmissionToDB('contractor_applications',params);
-  }catch(e){
-    errEl.textContent='Something went wrong. Please email contact@lumitya.com';
+
+  /* ── Save to Supabase contractor_applications table ── */
+  var init=nm?nm.split(' ').slice(0,2).map(function(w){return (w[0]||'').toUpperCase();}).join(''):'';
+  var row={
+    name: nm,
+    phone: ph,
+    email: em,
+    title_en: bz||'',
+    title_es: '',
+    categories: cats,
+    city: ct,
+    neighbourhood: col,
+    years_exp: yrVal||'',
+    color: '#2B4DB3',
+    initials: init,
+    tags_en: [],
+    tags_es: [],
+    description: dsc+(zn?'\nCoverage: '+zn:'')+(gv('pwb')?'\nWebsite: '+gv('pwb'):'')+(sv('ptm')?'\nTeam: '+sv('ptm'):''),
+    status: 'pending'
+  };
+  var res=await sbInsert('contractor_applications', row);
+  if(res.error){
+    errEl.textContent='Could not save application. Please email contact@lumitya.com';
     errEl.style.display='block';
     btn.classList.remove('ld');btn.disabled=false;
+    return;
   }
+
+  /* ── Also send email notification (best-effort) ── */
+  var params={name:nm,business:bz,phone:ph,email_from:em||'no-reply@lumitya.com',city:ct,neighbourhood:col,zone:zn,website:gv('pwb'),team:sv('ptm'),categories:cats.join(', '),experience:yrVal,description:dsc,to_email:'contact@lumitya.com',subject:'New Contractor Application — '+(bz||nm),body:fullBody};
+  try{
+    if(typeof emailjs!=='undefined') await emailjs.send(ES,ET_P,params);
+  }catch(ex){ console.warn('Email notification failed:',ex); }
+
+  document.getElementById('pmbody').style.display='none';
+  document.getElementById('pmsuc').style.display='block';
 }
 
 /* ── SUBMIT: CONTACT PROVIDER ── */

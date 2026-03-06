@@ -345,10 +345,12 @@ footer ul li a:hover{color:#fff}
 .lbk:hover{background:var(--bl);color:#fff}
 
 /* MODALS */
-.mo{position:fixed;inset:0;z-index:1000;background:rgba(15,31,75,.72);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .3s,visibility 0s .3s}
-.mo.on{opacity:1;visibility:visible;pointer-events:all;transition:opacity .3s,visibility 0s 0s}
-.md{background:#fff;border-radius:18px;width:100%;max-width:620px;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;box-shadow:0 24px 62px rgba(15,31,75,.24);transform:translateY(22px) scale(.97);transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
-.mo.on .md{transform:translateY(0) scale(1)}
+.mo{display:none;position:fixed;inset:0;z-index:1000;background:rgba(15,31,75,.72);align-items:center;justify-content:center;padding:20px}
+.mo.on{display:flex;animation:moIn .25s ease}
+@keyframes moIn{from{opacity:0}to{opacity:1}}
+.md{background:#fff;border-radius:18px;width:100%;max-width:620px;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;box-shadow:0 24px 62px rgba(15,31,75,.24)}
+.mo.on .md{animation:mdIn .3s cubic-bezier(.34,1.56,.64,1)}
+@keyframes mdIn{from{transform:translateY(22px) scale(.97)}to{transform:translateY(0) scale(1)}}
 .mhd{padding:22px 26px 18px;border-radius:18px 18px 0 0;position:relative}
 .mhd.bl{background:linear-gradient(135deg,var(--bl) 0%,#3B5FC0 100%)}
 .mhd.dk{background:linear-gradient(135deg,#0F1F4B 0%,var(--bl) 100%)}
