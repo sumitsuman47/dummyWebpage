@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Lumitya - Password Gate Test</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'DM Sans', sans-serif; }
+
+/* SITE GATE */
+#siteGate {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: linear-gradient(135deg, #0F1F4B 0%, #2B4DB3 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Sans', sans-serif;
+  transition: opacity 0.35s;
+}
+
+#siteGate.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.gate-box {
+  background: #fff;
+  border-radius: 18px;
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 400px;
+  margin: 16px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  text-align: center;
+}
+
+.gate-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.gate-logo-icon {
+  width: 46px;
+  height: 46px;
+  background: #2B4DB3;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gate-logo-text {
+  text-align: left;
+  line-height: 1;
+}
+
+.gate-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: #2B4DB3;
+  text-transform: uppercase;
+}
+
+.gate-subtitle {
+  font-size: 0.55rem;
+  color: #6B7280;
+  margin-top: 2px;
+  letter-spacing: 0.05em;
+}
+
+.gate-lock-icon {
+  width: 48px;
+  height: 48px;
+  background: #EEF2FF;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+h2 {
+  font-family: 'Sora', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0F1F4B;
+  margin-bottom: 6px;
+}
+
+p {
+  font-size: 0.78rem;
+  color: #6B7280;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.input-wrapper {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+input[type="password"],
+input[type="text"] {
+  width: 100%;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  padding: 13px 48px 13px 16px;
+  border: 1.5px solid #E5E9F5;
+  border-radius: 10px;
+  background: #F5F7FF;
+  color: #374151;
+  outline: none;
+  transition: border 0.2s;
+}
+
+input:focus {
+  border-color: #2B4DB3;
+  background: #fff;
+}
+
+.toggle-button {
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9CA3AF;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.toggle-button:hover {
+  color: #2B4DB3;
+}
+
+.error-message {
+  display: none;
+  font-size: 0.74rem;
+  color: #DC2626;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.error-message.show {
+  display: block;
+  animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+.submit-button {
+  width: 100%;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+  background: #2B4DB3;
+  border: none;
+  border-radius: 10px;
+  padding: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(43, 77, 179, 0.3);
+}
+
+.submit-button:hover:not(:disabled) {
+  background: #3B5FC0;
+  transform: translateY(-1px);
+}
+
+.submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.footer-text {
+  font-size: 0.68rem;
+  color: #9CA3AF;
+  margin-top: 18px;
+}
+
+/* SUCCESS CONTENT */
+.success-content {
+  display: none;
+  padding: 40px;
+  text-align: center;
+}
+
+.success-content.show {
+  display: block;
+}
+
+.success-icon {
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+
+.success-content h3 {
+  font-size: 1.5rem;
+  color: #2B4DB3;
+  margin-bottom: 10px;
+}
+
+.success-content p {
+  color: #6B7280;
+  font-size: 1rem;
+}
+</style>
+</head>
+<body>
+
+<!-- PASSWORD GATE -->
+<div id="siteGate">
+  <div class="gate-box">
+    <!-- Logo -->
+    <div class="gate-logo">
+      <div class="gate-logo-icon">🏠</div>
+      <div class="gate-logo-text">
+        <div class="gate-title">Lumitya</div>
+        <div class="gate-subtitle">Test Gate</div>
+      </div>
+    </div>
+
+    <!-- Lock Icon -->
+    <div class="gate-lock-icon">🔒</div>
+
+    <!-- Heading -->
+    <h2>Private Access</h2>
+    <p>This site is password protected.<br>Enter your access password to continue.</p>
+
+    <!-- Error Message -->
+    <div class="error-message" id="gateErr">❌ Incorrect password. Please try again.</div>
+
+    <!-- Password Input -->
+    <div class="input-wrapper">
+      <input
+        type="password"
+        id="gateInput"
+        placeholder="Enter password"
+        autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')checkGate()"
+      >
+      <button type="button" class="toggle-button" onclick="toggleGatePw()" aria-label="Toggle password visibility">
+        <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Submit Button -->
+    <button type="button" class="submit-button" id="gateBtn" onclick="checkGate()">Enter →</button>
+
+    <!-- Footer -->
+    <p class="footer-text">🔒 Secured with SHA-256 · Password never stored in plain text</p>
+  </div>
+</div>
+
+<!-- SUCCESS MESSAGE (shown after unlock) -->
+<div id="successContent" class="success-content">
+  <div class="success-icon">✅</div>
+  <h3>Access Granted!</h3>
+  <p>Welcome! You have successfully unlocked the site.</p>
+  <p style="margin-top: 20px; font-size: 0.9rem;">
+    Password used: <code id="usedPassword" style="background: #f0f0f0; padding: 4px 8px; border-radius: 4px;"></code>
+  </p>
+  <p style="margin-top: 20px; color: #9CA3AF; font-size: 0.8rem;">
+    <strong>Debug Info:</strong> Check browser console (F12) for detailed logs.
+  </p>
+</div>
+
+<!-- INLINE JAVASCRIPT -->
+<script>
+console.log('=== LUMITYA PASSWORD GATE TEST ===');
+
+// Configuration
+const SITE_HASH = 'ce5fe72586b7b07039f6bf9aa17657414c8380ecb6d1efe6832ac706c8ec2d68'; // admin123
+const SITE_SESSION_KEY = 'lumitya_auth';
+
+// SHA-256 Hash Function
+async function _siteHash(str) {
+  console.log('🔄 Hashing password...');
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  const hash = Array.from(new Uint8Array(buf))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+  console.log('✓ Hash generated:', hash.substring(0, 16) + '...');
+  return hash;
+}
+
+// Check if already unlocked
+(function() {
+  try {
+    if (sessionStorage.getItem(SITE_SESSION_KEY) === SITE_HASH) {
+      console.log('✓ Session found - auto-unlocking...');
+      unlockGate();
+    }
+  } catch (e) {
+    console.log('⚠ SessionStorage not available:', e.message);
+  }
+})();
+
+// Main gate checking function
+async function checkGate() {
+  console.log('🔐 checkGate() called');
+  
+  const btn = document.getElementById('gateBtn');
+  const inp = document.getElementById('gateInput');
+  const err = document.getElementById('gateErr');
+  const pw = inp.value;
+
+  if (!pw) {
+    console.log('❌ No password entered');
+    return;
+  }
+
+  console.log('📝 Password length:', pw.length);
+  
+  // Disable button and show loading
+  btn.textContent = '⏳ Checking…';
+  btn.disabled = true;
+
+  try {
+    const hash = await _siteHash(pw);
+    console.log('✓ Generated hash:', hash.substring(0, 16) + '...');
+    console.log('✓ Stored hash:   ', SITE_HASH.substring(0, 16) + '...');
+    console.log('✓ Match:', hash === SITE_HASH);
+
+    if (hash === SITE_HASH) {
+      console.log('✅ PASSWORD CORRECT!');
+      try {
+        sessionStorage.setItem(SITE_SESSION_KEY, SITE_HASH);
+        console.log('✓ Session saved');
+      } catch (e) {
+        console.log('⚠ Could not save session:', e.message);
+      }
+      unlockGate();
+    } else {
+      console.log('❌ PASSWORD INCORRECT');
+      showError(err, inp, btn);
+    }
+  } catch (e) {
+    console.error('❌ Error during hash:', e);
+    showError(err, inp, btn);
+  }
+}
+
+// Unlock gate (fade out)
+function unlockGate() {
+  console.log('🔓 Unlocking gate...');
+  const gate = document.getElementById('siteGate');
+  const success = document.getElementById('successContent');
+  const inp = document.getElementById('gateInput');
+  
+  gate.style.transition = 'opacity 0.35s';
+  gate.style.opacity = '0';
+  
+  // Show success message
+  document.getElementById('usedPassword').textContent = inp.value;
+  success.classList.add('show');
+  
+  setTimeout(() => {
+    gate.classList.add('hidden');
+    console.log('✓ Gate hidden');
+  }, 350);
+}
+
+// Show error
+function showError(err, inp, btn) {
+  console.log('⚠ Showing error message');
+  err.classList.add('show');
+  inp.value = '';
+  inp.style.borderColor = '#DC2626';
+  inp.focus();
+  
+  setTimeout(() => {
+    inp.style.borderColor = '';
+    err.classList.remove('show');
+    btn.textContent = 'Enter →';
+    btn.disabled = false;
+    console.log('✓ Error cleared');
+  }, 2000);
+}
+
+// Toggle password visibility
+function toggleGatePw() {
+  console.log('👁 toggleGatePw() called');
+  const inp = document.getElementById('gateInput');
+  const icon = document.getElementById('eyeIcon');
+  
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    console.log('✓ Password visible');
+    // Eye off icon
+    icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19M9.9 4.24L4.24 9.9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="2"/>';
+  } else {
+    inp.type = 'password';
+    console.log('✓ Password hidden');
+    // Eye icon
+    icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+  }
+}
+
+// Log initial state
+console.log('✓ Script loaded');
+console.log('✓ Default password: admin123');
+console.log('✓ Functions available: checkGate, toggleGatePw');
+console.log('✓ Try entering "admin123" and clicking Enter');
+console.log('');
+</script>
+
+</body>
+</html>
