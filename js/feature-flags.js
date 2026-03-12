@@ -15,6 +15,14 @@ const FeatureFlags = {
     lastFetch: null,
     CACHE_DURATION: 5 * 60 * 1000, // 5 minutes
 
+    shouldUseCache(forceRefresh = false) {
+        if (forceRefresh) return false;
+
+        const host = window.location.hostname;
+        // Keep cache in local development for speed; always fetch fresh in production.
+        return host === 'localhost' || host === '127.0.0.1';
+    },
+
     getApiBase() {
         const raw = (window.LUMITYA_API_BASE || '').trim();
         if (!raw) return window.location.origin + '/api';
@@ -27,6 +35,8 @@ const FeatureFlags = {
      * Fetches from API or localStorage cache
      */
     async init(forceRefresh = false) {
+        const useCache = this.shouldUseCache(forceRefresh);
+
         // Prevent multiple simultaneous loads
         if (this.loading) {
             console.log('⏳ Feature flags already loading...');
@@ -34,7 +44,7 @@ const FeatureFlags = {
         }
 
         // Check if we have valid cache
-        if (!forceRefresh && this.loaded && this.lastFetch) {
+        if (useCache && this.loaded && this.lastFetch) {
             const age = Date.now() - this.lastFetch;
             if (age < this.CACHE_DURATION) {
                 console.log('📦 Using cached feature flags');
@@ -48,7 +58,7 @@ const FeatureFlags = {
         try {
             // Try to load from localStorage first (instant)
             const cached = this.loadFromCache();
-            if (cached && !forceRefresh) {
+            if (cached && useCache) {
                 this.flags = cached.flags;
                 this.lastFetch = cached.timestamp;
                 this.loaded = true;
