@@ -15,12 +15,26 @@ app.use(helmet({
 }));
 
 // CORS configuration
-const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'];
+const envOrigins = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map(o => o.trim())
+  .filter(Boolean);
+
+const renderExternalUrl = (process.env.RENDER_EXTERNAL_URL || '').trim();
+const allowedOrigins = Array.from(new Set([
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  ...envOrigins,
+  ...(renderExternalUrl ? [renderExternalUrl] : [])
+]));
+
+console.log('🌐 Allowed CORS origins:', allowedOrigins);
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
+      console.warn('❌ CORS blocked origin:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
