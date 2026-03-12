@@ -206,19 +206,19 @@ const supabaseService = {
   // FEATURE FLAGS METHODS
   // =============================================
 
-  // Get all enabled feature flags
-  async getEnabledFeatures() {
+  // Get all public feature flags with explicit enabled/disabled state
+  async getPublicFeatureFlags() {
     try {
       const features = await supabaseRequest(
         'feature_flags',
         'GET',
         null,
-        'is_enabled=eq.true&select=feature_key,feature_name,category,is_beta'
+        'select=feature_key,feature_name,category,is_beta,is_enabled'
       );
-      console.log(`✅ Fetched ${features.length} enabled features from Supabase`);
+      console.log(`✅ Fetched ${features.length} public feature flags from Supabase`);
       return features;
     } catch (error) {
-      console.error('❌ Error fetching enabled features:', error.message);
+      console.error('❌ Error fetching public feature flags:', error.message);
       throw error;
     }
   },

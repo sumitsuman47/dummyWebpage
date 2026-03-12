@@ -180,16 +180,16 @@ router.post('/notify', validateRequest([
 // FEATURE FLAGS ENDPOINTS
 // =============================================
 
-// Get all enabled feature flags
+// Get all public feature flags with explicit enabled/disabled state
 router.get('/features', async (req, res) => {
   try {
-    const features = await supabaseService.getEnabledFeatures();
+    const features = await supabaseService.getPublicFeatureFlags();
 
     // Return as object map for easy checking
     const featureMap = {};
     features.forEach(feature => {
       featureMap[feature.feature_key] = {
-        enabled: true,
+        enabled: feature.is_enabled === true,
         name: feature.feature_name,
         category: feature.category
       };
