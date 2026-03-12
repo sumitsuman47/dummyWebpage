@@ -7,4 +7,5 @@
  */
 
 // Default: same-origin '/api' (works when Express serves the site)
-window.LUMITYA_API_BASE = window.LUMITYA_API_BASE || '';
+// Public site should call the Render backend API.
+window.LUMITYA_API_BASE = 'https://lumitya-web.onrender.com';
