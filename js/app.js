@@ -1,0 +1,1439 @@
+/**
+ * Lumitya Platform - Optimized Frontend JS
+ * All API keys are hidden in backend
+ * Clean error handling and modular code
+ */
+
+// Configuration
+function getApiBase() {
+  const raw = (window.LUMITYA_API_BASE || '').trim();
+  if (!raw) return window.location.origin + '/api';
+
+  const withoutTrailingSlash = raw.replace(/\/+$/, '');
+  return withoutTrailingSlash.endsWith('/api') ? withoutTrailingSlash : withoutTrailingSlash + '/api';
+}
+
+const CONFIG = {
+  API_BASE: getApiBase(),
+  SITE_HASH: 'ce5fe72586b7b07039f6bf9aa17657414c8380ecb6d1efe6832ac706c8ec2d68',
+  SESSION_KEY: 'lumitya_auth'
+};
+
+// Utility functions
+const utils = {
+  async hash(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  },
+
+  showError(elementId, message) {
+    const el = document.getElementById(elementId);
+    if (el) {
+      el.textContent = message;
+      el.style.display = 'block';
+      setTimeout(() => el.style.display = 'none', 5000);
+    }
+  },
+
+  validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  },
+
+  validatePhone(phone) {
+    return /^\+?[\d\s\-()]+$/.test(phone) && phone.replace(/\D/g, '').length >= 10;
+  },
+
+  getFormData(ids) {
+    const data = {};
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) data[id] = el.value.trim();
+    });
+    return data;
+  },
+
+  clearFields(ids) {
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('er');
+      if (el.tagName === 'SELECT') {
+        el.selectedIndex = 0;
+      } else {
+        el.value = '';
+      }
+    });
+  }
+};
+
+// API Service
+const api = {
+  async request(endpoint, method = 'GET', data = null) {
+    const options = {
+      method,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    };
+
+    if (data && (method === 'POST' || method === 'PATCH')) {
+      options.body = JSON.stringify(data);
+    }
+
+    try {
+      const response = await fetch(`${CONFIG.API_BASE}${endpoint}`, options);
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Request failed');
+      }
+
+      return result;
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
+  },
+
+  submitServiceRequest(data) {
+    return this.request('/requests', 'POST', data);
+  },
+
+  submitProviderApplication(data) {
+    return this.request('/providers', 'POST', data);
+  },
+
+  submitSupplierApplication(data) {
+    return this.request('/suppliers', 'POST', data);
+  },
+
+  getProviders({ city, category, page = 1, limit = 12 } = {}) {
+    let query = `page=${page}&limit=${limit}`;
+    if (city) query += `&city=${encodeURIComponent(city)}`;
+    if (category) query += `&category=${encodeURIComponent(category)}`;
+    return this.request(`/providers?${query}`, 'GET');
+  },
+
+  submitContact(data) {
+    return this.request('/contact', 'POST', data);
+  },
+
+  subscribeNotification(data) {
+    return this.request('/notify', 'POST', data);
+  }
+};
+
+// Site Gate (Password Protection)
+const siteGate = {
+  init() {
+    try {
+      // If the gate feature is disabled, ensure the overlay is not shown.
+      // (Feature flags are initialized before this file's DOMContentLoaded handler.)
+      if (window.FeatureFlags && window.FeatureFlags.loaded && !window.FeatureFlags.isEnabled('password_gate')) {
+        try {
+          sessionStorage.setItem(CONFIG.SESSION_KEY, CONFIG.SITE_HASH);
+        } catch (e) { }
+
+        const gate = document.getElementById('siteGate');
+        if (gate) gate.style.display = 'none';
+        return;
+      }
+
+      if (sessionStorage.getItem(CONFIG.SESSION_KEY) === CONFIG.SITE_HASH) {
+        const gate = document.getElementById('siteGate');
+        if (gate) gate.style.display = 'none';
+      }
+    } catch (e) {
+      console.error('Session storage error:', e);
+    }
+  },
+
+  async check() {
+    const btn = document.getElementById('gateBtn');
+    const inp = document.getElementById('gateInput');
+    const err = document.getElementById('gateErr');
+    const pw = inp.value;
+
+    if (!pw) return;
+
+    btn.textContent = '⏳ Checking…';
+    btn.disabled = true;
+
+    const hash = await utils.hash(pw);
+
+    if (hash === CONFIG.SITE_HASH) {
+      try {
+        sessionStorage.setItem(CONFIG.SESSION_KEY, CONFIG.SITE_HASH);
+      } catch (e) { }
+
+      const gate = document.getElementById('siteGate');
+      gate.style.transition = 'opacity .35s';
+      gate.style.opacity = '0';
+      setTimeout(() => gate.style.display = 'none', 350);
+    } else {
+      err.style.display = 'block';
+      inp.value = '';
+      inp.style.borderColor = '#DC2626';
+      inp.focus();
+      setTimeout(() => {
+        inp.style.borderColor = '#E5E9F5';
+        err.style.display = 'none';
+      }, 2000);
+      btn.textContent = 'Enter →';
+      btn.disabled = false;
+    }
+  },
+
+  togglePassword() {
+    const inp = document.getElementById('gateInput');
+    const icon = document.getElementById('eyeIcon');
+    if (inp.type === 'password') {
+      inp.type = 'text';
+      icon.style.opacity = '0.5';
+    } else {
+      inp.type = 'password';
+      icon.style.opacity = '1';
+    }
+  }
+};
+
+// Modal Management
+const modals = {
+  show(id) {
+    console.log('📦 modals.show called with id:', id);
+    const m = document.getElementById(id);
+    if (!m) {
+      console.error('❌ Modal not found:', id);
+      return;
+    }
+    
+    console.log('✅ Modal found, adding on class');
+
+    // Close mobile nav if open
+    const mn = document.getElementById('mobNav');
+    if (mn && mn.classList.contains('open')) {
+      navigation.toggleMobile();
+    }
+
+    m.classList.add('on');
+    console.log('✅ on class added, checking classes:', m.className);
+    const d = m.querySelector('.md');
+    if (d) d.scrollTop = 0;
+    this.syncScrollLock();
+  },
+
+  hide(id) {
+    const m = document.getElementById(id);
+    if (!m) return;
+    m.classList.remove('on');
+    this.syncScrollLock();
+  },
+
+  syncScrollLock() {
+    const anyOpen = document.querySelector('.mo.on, .mob-nav.open');
+    document.body.style.overflow = anyOpen ? 'hidden' : '';
+  },
+
+  reset(bodyId, successId, errorId, buttonId) {
+    const body = document.getElementById(bodyId);
+    const success = document.getElementById(successId);
+    const error = document.getElementById(errorId);
+    const btn = document.getElementById(buttonId);
+
+    if (body) body.style.display = 'block';
+    if (success) success.style.display = 'none';
+    if (error) error.style.display = 'none';
+    if (btn) {
+      btn.disabled = false;
+      btn.classList.remove('ld');
+    }
+  }
+};
+
+// Navigation
+const navigation = {
+  toggleMobile() {
+    const nav = document.getElementById('mobNav');
+    const btn = document.getElementById('hbgBtn');
+    if (!nav || !btn) return;
+
+    nav.classList.toggle('open');
+    btn.classList.toggle('open');
+    modals.syncScrollLock();
+  }
+};
+
+// Service Request Form
+const serviceRequest = {
+  open(provName, provId) {
+    console.log('📝 serviceRequest.open() called with:', { provName, provId });
+    this.providerName = provName || '';
+    this.providerId = provId || 0;
+    console.log('✅ Opening matchMo modal');
+    modals.show('matchMo');
+  },
+
+  close() {
+    modals.hide('matchMo');
+    setTimeout(() => {
+      modals.reset('mmbody', 'mmsuc', 'merr', 'mbtn');
+      utils.clearFields(['mnm', 'mcity', 'mcol', 'msvc', 'mds', 'mbg', 'mug', 'mph', 'mem']);
+    }, 320);
+  },
+
+  async submit() {
+    const btn = document.getElementById('mbtn');
+    const errEl = document.getElementById('merr');
+
+    if (!btn || !errEl) {
+      console.error('Submit button or error element not found');
+      return;
+    }
+
+    // Hide any previous errors
+    errEl.style.display = 'none';
+    errEl.textContent = '';
+
+    // Get form elements
+    const nameEl = document.getElementById('mnm');
+    const cityEl = document.getElementById('mcity');
+    const colEl = document.getElementById('mcol');
+    const svcEl = document.getElementById('msvc');
+    const dsEl = document.getElementById('mds');
+    const bgEl = document.getElementById('mbg');
+    const ugEl = document.getElementById('mug');
+    const phEl = document.getElementById('mph');
+    const emEl = document.getElementById('mem');
+
+    if (!nameEl || !cityEl || !colEl || !svcEl || !dsEl || !ugEl || !phEl) {
+      console.error('One or more form elements not found');
+      utils.showError('merr', 'Form error. Please refresh the page.');
+      return;
+    }
+
+    const data = {
+      name: nameEl.value.trim(),
+      city: cityEl.value,
+      neighbourhood: colEl.value,
+      service: svcEl.value,
+      description: dsEl.value.trim(),
+      budget: bgEl?.value || null,
+      timeline: ugEl.value,
+      phone: phEl.value.trim(),
+      email: emEl?.value.trim() || null
+    };
+
+    // Validation
+    if (!data.name) {
+      utils.showError('merr', 'Please enter your name');
+      nameEl.focus();
+      return;
+    }
+
+    if (!data.city) {
+      utils.showError('merr', 'Please select a city');
+      cityEl.focus();
+      return;
+    }
+
+    if (!data.neighbourhood) {
+      utils.showError('merr', 'Please select a neighbourhood');
+      colEl.focus();
+      return;
+    }
+
+    if (!data.service) {
+      utils.showError('merr', 'Please select a service');
+      svcEl.focus();
+      return;
+    }
+
+    if (!data.description) {
+      utils.showError('merr', 'Please describe your project');
+      dsEl.focus();
+      return;
+    }
+
+    if (!data.timeline) {
+      utils.showError('merr', 'Please select a timeline');
+      ugEl.focus();
+      return;
+    }
+
+    if (!data.phone) {
+      utils.showError('merr', 'Please enter your phone number');
+      phEl.focus();
+      return;
+    }
+
+    if (!utils.validatePhone(data.phone)) {
+      utils.showError('merr', 'Please enter a valid phone number (at least 10 digits)');
+      phEl.focus();
+      return;
+    }
+
+    if (data.email && !utils.validateEmail(data.email)) {
+      utils.showError('merr', 'Please enter a valid email address');
+      emEl.focus();
+      return;
+    }
+
+    // Submit
+    btn.disabled = true;
+    btn.classList.add('ld');
+
+    console.log('Submitting service request:', data);
+
+    try {
+      const result = await api.submitServiceRequest(data);
+      console.log('Service request submitted successfully:', result);
+
+      // Also send email notification if EmailJS is configured
+      try {
+        if (window.EmailJSConfig) {
+          await EmailJSConfig.sendServiceRequest(data);
+          console.log('Email notification sent');
+        }
+      } catch (emailError) {
+        console.warn('Email notification failed (non-critical):', emailError.message);
+      }
+
+      document.getElementById('mmbody').style.display = 'none';
+      document.getElementById('mmsuc').style.display = 'block';
+    } catch (error) {
+      console.error('Service request submission error:', error);
+      utils.showError('merr', error.message || 'Failed to submit request. Please try again.');
+      btn.disabled = false;
+      btn.classList.remove('ld');
+    }
+  }
+};
+
+// Form Helpers
+const formHelpers = {
+  // Update neighbourhood based on city
+  updateNeighbourhood(colId, cityId) {
+    const cityEl = document.getElementById(cityId);
+    const colEl = document.getElementById(colId);
+
+    if (!cityEl || !colEl) return;
+
+    const city = cityEl.value;
+    const neighborhoods = {
+      'Guadalajara': ['Centro', 'Providencia', 'Chapalita', 'Americana', 'Lafayette', 'Ladron de Guevara', 'Colonia Moderna', 'Jardines del Bosque', 'Santa Teresita', 'Other'],
+      'Zapopan': ['Zapopan Centro', 'Andares', 'Puerta de Hierro', 'Real Acueducto', 'Tabachines', 'Bugambilias', 'Tesistan', 'Arcos', 'Other']
+    };
+
+    if (city && neighborhoods[city]) {
+      colEl.disabled = false;
+      colEl.innerHTML = '<option value="" disabled selected>Select neighbourhood</option>';
+      neighborhoods[city].forEach(n => {
+        colEl.innerHTML += `<option>${n}</option>`;
+      });
+    } else {
+      colEl.disabled = true;
+      colEl.innerHTML = '<option value="" disabled selected>Select city first</option>';
+    }
+  },
+
+  // Toggle checkbox
+  toggleCheckbox(labelEl) {
+    const input = labelEl.querySelector('input[type="checkbox"]');
+    if (input) {
+      input.checked = !input.checked;
+      labelEl.classList.toggle('on', input.checked);
+    }
+  },
+
+  // Pick year range
+  pickYear(el) {
+    document.querySelectorAll('.yc').forEach(y => y.classList.remove('on'));
+    el.classList.add('on');
+    el.dataset.selected = 'true';
+  },
+
+  // Toggle agreement checkbox
+  toggleAgreement() {
+    const chk = document.getElementById('agchk');
+    if (chk) {
+      chk.classList.toggle('on');
+      chk.dataset.checked = chk.classList.contains('on') ? 'true' : 'false';
+    }
+  },
+
+  // Toggle supplier agreement
+  toggleSupplierAgreement() {
+    const chk = document.getElementById('sagchk');
+    if (chk) {
+      chk.classList.toggle('on');
+      chk.dataset.checked = chk.classList.contains('on') ? 'true' : 'false';
+    }
+  },
+
+  // Add material row
+  addMaterialRow(name = '', unit = '', price = '') {
+    const container = document.getElementById('matRows');
+    if (!container) return;
+
+    const rowId = 'matRow' + Date.now();
+    const row = document.createElement('div');
+    row.className = 'mat-row';
+    row.id = rowId;
+    row.innerHTML = `
+      <input type="text" placeholder="e.g. Cement" value="${name}">
+      <select>
+        <option value="unit" ${unit === 'unit' ? 'selected' : ''}>unit</option>
+        <option value="bag" ${unit === 'bag' ? 'selected' : ''}>bag</option>
+        <option value="ton" ${unit === 'ton' ? 'selected' : ''}>ton</option>
+        <option value="m3" ${unit === 'm3' ? 'selected' : ''}>m³</option>
+        <option value="m2" ${unit === 'm2' ? 'selected' : ''}>m²</option>
+        <option value="kg" ${unit === 'kg' ? 'selected' : ''}>kg</option>
+      </select>
+      <input type="number" placeholder="0.00" value="${price}" step="0.01" min="0">
+      <button class="mat-rm" onclick="removeMatRow('${rowId}')" type="button">✕</button>
+    `;
+    container.appendChild(row);
+  },
+
+  // Remove material row
+  removeMaterialRow(rowId) {
+    const row = document.getElementById(rowId);
+    if (row) row.remove();
+  },
+
+  // Select delivery option
+  selectDelivery(option) {
+    document.querySelectorAll('.del-opt').forEach(opt => {
+      opt.classList.remove('sel');
+      delete opt.dataset.selected;
+    });
+    const selected = document.getElementById(`del-${option}`);
+    if (selected) {
+      selected.classList.add('sel');
+      selected.dataset.selected = option;
+    }
+
+    const details = document.getElementById('delDetails');
+    if (details) {
+      details.style.display = option === 'yes' ? 'block' : 'none';
+    }
+  }
+};
+
+// Directory/Provider Listing
+const directory = {
+  currentTab: 'contractors',
+  currentCategory: '',
+  cachedProviders: null,
+  cacheTimestamp: null,
+  CACHE_DURATION: 5 * 60 * 1000, // 5 minutes
+
+  // Fetch and cache providers
+  async fetchProviders(forceRefresh = false) {
+    const now = Date.now();
+
+    // Return cached data if valid
+    if (!forceRefresh && this.cachedProviders && this.cacheTimestamp) {
+      const age = now - this.cacheTimestamp;
+      if (age < this.CACHE_DURATION) {
+        console.log('📦 Using cached providers');
+        return this.cachedProviders;
+      }
+    }
+
+    // Fetch from API
+    console.log('🔄 Fetching providers from API...');
+    try {
+      const response = await api.getProviders({
+        page: 1,
+        limit: 100
+      });
+
+      if (response && response.success && Array.isArray(response.data)) {
+        this.cachedProviders = response.data;
+        this.cacheTimestamp = now;
+        console.log(`✅ Cached ${this.cachedProviders.length} providers`);
+        return this.cachedProviders;
+      } else {
+        throw new Error('Invalid API response');
+      }
+    } catch (error) {
+      console.error('❌ Error fetching providers:', error);
+      // Return stale cache if available
+      if (this.cachedProviders) {
+        console.log('⚠️ Using stale cache due to error');
+        return this.cachedProviders;
+      }
+      throw error;
+    }
+  },
+
+  setTab(tab) {
+    this.currentTab = tab;
+
+    // Update tab buttons
+    document.querySelectorAll('.dtab').forEach(t => t.classList.remove('on'));
+    const tabBtn = document.getElementById(tab === 'contractors' ? 'tabCon' : 'tabSup');
+    if (tabBtn) tabBtn.classList.add('on');
+
+    this.render();
+  },
+
+  setCategory(btnEl) {
+    document.querySelectorAll('.dch').forEach(c => c.classList.remove('on'));
+    btnEl.classList.add('on');
+    this.currentCategory = btnEl.dataset.cat || '';
+    this.render();
+  },
+
+  async render() {
+    console.log('Rendering directory:', this.currentTab, this.currentCategory);
+    const grid = document.getElementById('dgrid');
+    const count = document.getElementById('dcount');
+    const empty = document.getElementById('dempty');
+
+    if (!grid) {
+      console.error('Grid element not found');
+      return;
+    }
+
+    // Show loading state only if no cache
+    if (!this.cachedProviders) {
+      grid.innerHTML = '<p style="text-align:center;padding:40px;color:var(--gr)">Loading providers...</p>';
+      if (count) count.textContent = '';
+      if (empty) empty.style.display = 'none';
+    }
+
+    // Get filter values
+    const searchInput = document.getElementById('dsearch');
+    const citySelect = document.getElementById('dcity');
+    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+    const selectedCity = citySelect ? citySelect.value : '';
+
+    try {
+      // Get all providers from cache
+      const allProviders = await this.fetchProviders();
+
+      console.log(`Got ${allProviders.length} providers from cache`);
+
+      if (!Array.isArray(allProviders) || allProviders.length === 0) {
+        console.log('No providers in cache');
+        grid.innerHTML = '';
+        if (count) count.textContent = '0 providers found';
+        if (empty) empty.style.display = 'block';
+        return;
+      }
+
+      // Separate contractors and suppliers from ALL providers
+      const contractors = allProviders.filter(p => {
+        const isMaterialSupplier = p.categories && Array.isArray(p.categories) && p.categories.includes('Material Supply');
+        return !isMaterialSupplier;
+      });
+
+      const suppliers = allProviders.filter(p => {
+        const isMaterialSupplier = p.categories && Array.isArray(p.categories) && p.categories.includes('Material Supply');
+        return isMaterialSupplier;
+      });
+
+      // Update tab counts (showing total counts)
+      const tabConCnt = document.getElementById('tabConCnt');
+      const tabSupCnt = document.getElementById('tabSupCnt');
+
+      if (tabConCnt) {
+        tabConCnt.innerHTML = `${contractors.length} <span data-i18n="dir_listed">${i18n.get('dir_listed')}</span>`;
+      }
+
+      if (tabSupCnt) {
+        tabSupCnt.innerHTML = `<span style="color:#FF9800;font-weight:600">Coming Soon</span>`;
+      }
+
+      // If supplier tab is selected, show coming soon message
+      if (this.currentTab === 'suppliers') {
+        grid.innerHTML = `
+          <div style="text-align:center;padding:80px 40px;color:var(--gr)">
+            <div style="font-size:4rem;margin-bottom:24px">🔜</div>
+            <h2 style="font-family:var(--font-heading);font-size:1.8rem;font-weight:700;color:var(--dk);margin-bottom:12px">Coming Soon!</h2>
+            <p style="font-size:1rem;margin-bottom:8px">Material Suppliers feature is launching soon.</p>
+            <p style="font-size:0.9rem;color:var(--gr)">Check back later for access to material suppliers in your area.</p>
+          </div>
+        `;
+        if (count) count.textContent = '';
+        if (empty) empty.style.display = 'none';
+        return;
+      }
+
+      // Get current tab's list
+      let filtered = contractors;
+
+      // Apply category filter
+      if (this.currentCategory) {
+        // Support multiple category mappings (comma-separated)
+        const categoryMappings = this.currentCategory.split(',').map(c => c.trim());
+        filtered = filtered.filter(p => {
+          if (!p.categories || !Array.isArray(p.categories)) return false;
+          // Check if provider has any of the mapped categories
+          return p.categories.some(cat =>
+            categoryMappings.some(mapping =>
+              cat.toLowerCase() === mapping.toLowerCase()
+            )
+          );
+        });
+        console.log(`After category filter (${this.currentCategory}): ${filtered.length} providers`);
+      }
+
+      // Apply city filter
+      if (selectedCity) {
+        filtered = filtered.filter(p => p.city === selectedCity);
+        console.log(`After city filter (${selectedCity}): ${filtered.length} providers`);
+      }
+
+      // Apply search filter
+      if (searchTerm) {
+        filtered = filtered.filter(p => {
+          const name = (p.name || '').toLowerCase();
+          const titleEn = (p.title_en || '').toLowerCase();
+          const titleEs = (p.title_es || '').toLowerCase();
+          const categories = (p.categories || []).join(' ').toLowerCase();
+
+          return name.includes(searchTerm) ||
+            titleEn.includes(searchTerm) ||
+            titleEs.includes(searchTerm) ||
+            categories.includes(searchTerm);
+        });
+        console.log(`After search filter ("${searchTerm}"): ${filtered.length} providers`);
+      }
+
+      console.log(`Final filtered count: ${filtered.length} contractors`);
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        if (count) count.textContent = '0 providers found';
+        if (empty) empty.style.display = 'block';
+        return;
+      }
+
+      // Update count for filtered results
+      if (count) count.textContent = `${filtered.length} ${i18n.get('dir_listed')}`;
+
+      // Render provider cards
+      grid.innerHTML = filtered.map(provider => {
+        try {
+          return this.renderProviderCard(provider);
+        } catch (err) {
+          console.error('Error rendering card for provider:', provider, err);
+          return '';
+        }
+      }).join('');
+      if (empty) empty.style.display = 'none';
+
+    } catch (error) {
+      console.error('Failed to load providers:', error);
+      grid.innerHTML = '<p style="text-align:center;padding:40px;color:var(--gr)">Unable to load providers. Please try again later.</p>';
+      if (count) count.textContent = '';
+      if (empty) empty.style.display = 'none';
+    }
+  },
+
+  renderProviderCard(provider) {
+    const initial = provider.initials || provider.name?.substring(0, 2).toUpperCase() || '?';
+    const color = provider.color || '#2B4DB3';
+    const rating = provider.rating || 0;
+    const reviewCount = provider.reviews || 0;
+    const categories = Array.isArray(provider.categories) ? provider.categories : [];
+    const displayName = provider.name || 'Unknown Provider';
+    const title = provider.title_en || provider.title_es || '';
+    const location = `${provider.neighbourhood || ''}, ${provider.city || 'Guadalajara'}`.trim().replace(/^,\s*/, '');
+    const jobs = provider.jobs || 0;
+    const experience = provider.years_exp || 0;
+
+    // Determine ID verification status
+    let verificationStatus = 'id_pending';
+    let verificationColor = '#FFC107'; // Yellow - pending
+    if (provider.Identity_checked === true) {
+      verificationStatus = 'id_verified';
+      verificationColor = '#4CAF50'; // Green - verified
+    } else if (provider.Identity_checked === 'in_process' || provider.Identity_checked === 'in-process') {
+      verificationStatus = 'id_in_process';
+      verificationColor = '#FF9800'; // Orange - in process
+    }
+    const verificationText = i18n.get(verificationStatus);
+
+    // Generate dynamic stars based on rating
+    const fullStars = Math.floor(rating);
+    const halfStar = rating % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+    const starsHTML = '★'.repeat(fullStars) + (halfStar ? '☆' : '') + '☆'.repeat(emptyStars);
+
+    return `
+      <div class="pvc">
+        <div class="pv-badge" style="background:${verificationColor}">${verificationText}</div>
+        <div class="pv-av" style="background:${color}">${initial}</div>
+        <div class="pv-nm">${displayName}</div>
+        <div class="pv-title">${title || 'Service Provider'}</div>
+        
+        ${categories.length > 0 ? `
+          <div class="pv-tags">
+            ${categories.slice(0, 2).map(cat => `<span class="pv-tag">${cat}</span>`).join('')}
+          </div>
+        ` : ''}
+        
+        <div class="pv-location">
+          <span class="pin-icon">📍</span>
+          <span>${location}</span>
+        </div>
+        
+        ${rating > 0 ? `
+          <div class="pv-rt">
+            <span class="rt-st">${starsHTML}</span>
+            <span class="rt-sc">${rating.toFixed(1)}</span>
+            <span class="rt-cn">(${reviewCount} ${i18n.get('reviews_text')})</span>
+          </div>
+        ` : ''}
+        
+        <div class="pv-stats">
+          <div class="pv-stat">
+            <div class="stat-val">${jobs}</div>
+            <div class="stat-lbl">${i18n.get('stat_jobs')}</div>
+          </div>
+          <div class="pv-stat">
+            <div class="stat-val">${reviewCount}</div>
+            <div class="stat-lbl">${i18n.get('stat_reviews')}</div>
+          </div>
+          <div class="pv-stat">
+            <div class="stat-val">${experience}yr</div>
+            <div class="stat-lbl">${i18n.get('stat_exp')}</div>
+          </div>
+        </div>
+        
+        <div class="pv-divider"></div>
+        
+        <button class="pv-btn" data-feature="provider_contact_button" onclick="event.stopPropagation(); openContact('${provider.id}', '${displayName.replace(/'/g, "\\'")}')">
+          ${i18n.get('contact_btn')}
+        </button>
+      </div>
+    `;
+  }
+};
+
+// Contact provider modal
+const contactProvider = {
+  providerId: null,
+  providerName: null,
+
+  open(providerId, providerName) {
+    this.providerId = providerId;
+    this.providerName = providerName;
+    const title = document.getElementById('cpTitle');
+    if (title) title.textContent = `Request Quote from ${providerName || 'Contractor'}`;
+    modals.show('contactMo');
+  },
+
+  close() {
+    modals.hide('contactMo');
+    setTimeout(() => {
+      modals.reset('cpbody', 'cpsuc', 'cperr', 'cpbtn');
+      // Reset form fields
+      document.getElementById('cpnm').value = '';
+      document.getElementById('cpcity').value = '';
+      document.getElementById('cpcol').value = '';
+      document.getElementById('cpsvc').value = '';
+      document.getElementById('cpmg').value = '';
+      document.getElementById('cpph').value = '';
+      document.getElementById('cpem').value = '';
+    }, 320);
+    this.providerId = null;
+    this.providerName = null;
+  },
+
+  async submit() {
+    const btn = document.getElementById('cpbtn');
+    const errEl = document.getElementById('cperr');
+    if (!btn) return;
+
+    const timelineValue = document.getElementById('cptimeline')?.value || 'Soon – within 1 month';
+
+    const data = {
+      name: document.getElementById('cpnm')?.value.trim(),
+      phone: document.getElementById('cpph')?.value.trim(),
+      email: document.getElementById('cpem')?.value.trim(),
+      city: document.getElementById('cpcity')?.value,
+      neighbourhood: document.getElementById('cpcol')?.value,
+      service: document.getElementById('cpsvc')?.value,
+      description: document.getElementById('cpmg')?.value.trim(),
+      budget: document.getElementById('cpbg')?.value || '',
+      timeline: timelineValue,
+      preferred_date: null, // Will be parsed from timeline in Supabase service
+      provider_id: this.providerId,
+      provider_name: this.providerName
+    };
+
+    // Validation
+    if (!data.name || !data.phone || !data.city || !data.neighbourhood || !data.service || !data.description) {
+      if (errEl) {
+        errEl.textContent = 'Please fill all required fields';
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
+    btn.disabled = true;
+    btn.classList.add('ld');
+
+    try {
+      // Submit as service request with provider_id
+      await api.submitServiceRequest(data);
+
+      // Also send email notification if EmailJS is configured
+      try {
+        if (window.EmailJSConfig) {
+          await EmailJSConfig.sendServiceRequest(data);
+          console.log('Email notification sent');
+        }
+      } catch (emailError) {
+        console.warn('Email notification failed (non-critical):', emailError.message);
+      }
+
+      document.getElementById('cpbody').style.display = 'none';
+      document.getElementById('cpsuc').style.display = 'block';
+    } catch (error) {
+      if (errEl) {
+        errEl.textContent = error.message || 'Failed to submit request';
+        errEl.style.display = 'block';
+      }
+      btn.disabled = false;
+      btn.classList.remove('ld');
+    }
+  }
+};
+
+// Notify modal
+const notifySubmit = {
+  async submit() {
+    const btn = document.getElementById('nfbtn');
+    const errEl = document.getElementById('nferr');
+
+    if (!btn) return;
+
+    const data = {
+      name: document.getElementById('nfnm')?.value.trim(),
+      phone: document.getElementById('nfph')?.value.trim(),
+      email: document.getElementById('nfem')?.value.trim(),
+      whatsapp: document.getElementById('nfwa')?.value.trim(),
+      service: document.getElementById('nfsvc')?.value
+    };
+
+    if (!data.name || !data.phone || !data.email || !data.whatsapp || !data.service) {
+      if (errEl) {
+        errEl.textContent = 'Please fill all required fields';
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
+    btn.disabled = true;
+    btn.classList.add('ld');
+
+    try {
+      await api.subscribeNotification(data);
+
+      // Also send email notification if EmailJS is configured
+      try {
+        if (window.EmailJSConfig) {
+          await EmailJSConfig.sendNotifyRequest(data);
+          console.log('Email notification sent');
+        }
+      } catch (emailError) {
+        console.warn('Email notification failed (non-critical):', emailError.message);
+      }
+
+      document.getElementById('nfbody').style.display = 'none';
+      document.getElementById('nfsuc').style.display = 'block';
+    } catch (error) {
+      if (errEl) {
+        errEl.textContent = error.message || 'Failed to submit';
+        errEl.style.display = 'block';
+      }
+      btn.disabled = false;
+      btn.classList.remove('ld');
+    }
+  }
+};
+
+// Provider application submission
+const providerSubmit = {
+  async submit() {
+    const btn = document.getElementById('pbtn');
+    const errEl = document.getElementById('perr');
+
+    if (!btn) return;
+
+    // Get form data
+    const data = {
+      name: document.getElementById('pnm')?.value.trim(),
+      business: document.getElementById('pbz')?.value.trim(),
+      phone: document.getElementById('pph')?.value.trim(),
+      email: document.getElementById('pem')?.value.trim(),
+      city: document.getElementById('pcity')?.value,
+      neighbourhood: document.getElementById('pcol')?.value,
+      website: document.getElementById('pwb')?.value.trim(),
+      teamSize: document.getElementById('ptm')?.value,
+      categories: [],
+      experience: '',
+      description: document.getElementById('pdsc')?.value.trim(),
+      coverage: document.getElementById('pzn')?.value,
+      agreed: document.getElementById('agchk')?.classList.contains('on')
+    };
+
+    // Get selected categories
+    document.querySelectorAll('.ck input:checked').forEach(cb => {
+      data.categories.push(cb.value);
+    });
+
+    // Get experience
+    const expEl = document.querySelector('.yc.on');
+    if (expEl) data.experience = expEl.dataset.v;
+
+    // Basic validation
+    if (!data.name || !data.phone || !data.email || !data.city || !data.neighbourhood) {
+      if (errEl) {
+        errEl.textContent = 'Please fill all required fields';
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
+    if (data.categories.length === 0) {
+      if (errEl) {
+        errEl.textContent = 'Please select at least one service category';
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
+    if (!data.agreed) {
+      if (errEl) {
+        errEl.textContent = 'You must agree to the terms before submitting';
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
+    btn.disabled = true;
+    btn.classList.add('ld');
+
+    // Map to backend field names
+    const payload = {
+      name: data.name,
+      business_name: data.business,
+      phone: data.phone,
+      email: data.email,
+      city: data.city,
+      neighbourhood: data.neighbourhood,
+      website: data.website,
+      team_size: data.teamSize,
+      services: data.categories,
+      years_experience: data.experience,
+      description: data.description,
+      coverage: data.coverage
+    };
+
+    try {
+      await api.submitProviderApplication(payload);
+
+      // Also send email notification if EmailJS is configured
+      try {
+        if (window.EmailJSConfig) {
+          await EmailJSConfig.sendProviderApplication(data);
+          console.log('Email notification sent');
+        }
+      } catch (emailError) {
+        console.warn('Email notification failed (non-critical):', emailError.message);
+      }
+
+      document.getElementById('pmbody').style.display = 'none';
+      document.getElementById('pmsuc').style.display = 'block';
+    } catch (error) {
+      if (errEl) {
+        errEl.textContent = error.message || 'Failed to submit application';
+        errEl.style.display = 'block';
+      }
+      btn.disabled = false;
+      btn.classList.remove('ld');
+    }
+  }
+};
+
+// Supplier application submission
+const supplierSubmit = {
+  async submit() {
+    const btn = document.getElementById('sbtn');
+    const errEl = document.getElementById('serr');
+
+    if (!btn) return;
+
+    // Get materials
+    const materials = [];
+    document.querySelectorAll('.mat-row').forEach(row => {
+      const inputs = row.querySelectorAll('input, select');
+      if (inputs.length >= 3) {
+        materials.push({
+          name: inputs[0].value.trim(),
+          unit: inputs[1].value,
+          price: inputs[2].value
+        });
+      }
+    });
+
+    const data = {
+      name: document.getElementById('snm')?.value.trim(),
+      business: document.getElementById('sbz')?.value.trim(),
+      phone: document.getElementById('sph')?.value.trim(),
+      email: document.getElementById('sem')?.value.trim(),
+      city: document.getElementById('scity')?.value,
+      neighbourhood: document.getElementById('scol')?.value,
+      website: document.getElementById('swb')?.value.trim(),
+      materials: materials,
+      delivery: document.querySelector('.del-opt.sel')?.dataset.selected || 'no',
+      coverage: document.getElementById('szn')?.value,
+      description: document.getElementById('sdsc')?.value.trim(),
+      agreed: document.getElementById('sagchk')?.classList.contains('on')
+    };
+
+    if (data.delivery === 'yes') {
+      data.deliveryDetails = {
+        type: document.getElementById('delCostType')?.value,
+        cost: document.getElementById('delCostVal')?.value.trim(),
+        maxKm: document.getElementById('delMaxKm')?.value,
+        minOrder: document.getElementById('delMinOrd')?.value.trim()
+      };
+    }
+
+    // Basic validation
+    if (!data.name || !data.business || !data.phone || !data.email || !data.city) {
+      if (errEl) {
+        errEl.textContent = 'Please fill all required fields';
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
+    if (materials.length === 0) {
+      if (errEl) {
+        errEl.textContent = 'Please add at least one material';
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
+    if (!data.agreed) {
+      if (errEl) {
+        errEl.textContent = 'You must agree to the terms before submitting';
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
+    btn.disabled = true;
+    btn.classList.add('ld');
+
+    // Map to backend field names
+    const payload = {
+      name: data.name,
+      business_name: data.business,
+      phone: data.phone,
+      email: data.email,
+      city: data.city,
+      neighbourhood: data.neighbourhood,
+      website: data.website,
+      materials: data.materials,
+      description: data.description,
+      delivery_available: data.delivery === 'yes',
+      delivery_cost: data.deliveryDetails?.cost || null,
+      delivery_max_km: data.deliveryDetails?.maxKm || null,
+      min_order: data.deliveryDetails?.minOrder || null,
+      coverage: data.coverage
+    };
+
+    try {
+      await api.submitSupplierApplication(payload);
+
+      // Also send email notification if EmailJS is configured
+      try {
+        if (window.EmailJSConfig) {
+          await EmailJSConfig.sendSupplierApplication(data);
+          console.log('Email notification sent');
+        }
+      } catch (emailError) {
+        console.warn('Email notification failed (non-critical):', emailError.message);
+      }
+
+      document.getElementById('smbody').style.display = 'none';
+      document.getElementById('smsuc').style.display = 'block';
+    } catch (error) {
+      if (errEl) {
+        errEl.textContent = error.message || 'Failed to submit application';
+        errEl.style.display = 'block';
+      }
+      btn.disabled = false;
+      btn.classList.remove('ld');
+    }
+  }
+};
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', () => {
+  siteGate.init();
+
+  // Sync featured provider list height to the left column
+  let fpSyncTimer;
+  const syncFeaturedProviderList = () => {
+    const fpGrid = document.querySelector('section.fp .fpi');
+    if (!fpGrid || fpGrid.children.length < 2) return;
+
+    const leftCol = fpGrid.children[0];
+    const list = fpGrid.querySelector('.pvlist');
+
+    const listVisible = !!(list && getComputedStyle(list).display !== 'none');
+    fpGrid.classList.toggle('fp-single', !listVisible);
+
+    if (!listVisible) return;
+
+    const leftHeight = leftCol.getBoundingClientRect().height;
+    const target = Math.max(260, Math.floor(leftHeight));
+    list.style.maxHeight = `${target}px`;
+  };
+
+  // Run after feature flags apply and layout settles
+  setTimeout(syncFeaturedProviderList, 0);
+  setTimeout(syncFeaturedProviderList, 250);
+  window.addEventListener('lumitya:featureflags-applied', syncFeaturedProviderList);
+  window.addEventListener('resize', () => {
+    clearTimeout(fpSyncTimer);
+    fpSyncTimer = setTimeout(syncFeaturedProviderList, 120);
+  });
+
+  // Initialize EmailJS
+  if (typeof EmailJSConfig !== 'undefined') {
+    EmailJSConfig.init();
+  }
+
+  // Initialize material rows for supplier form
+  const matContainer = document.getElementById('matRows');
+  if (matContainer) {
+    // Add default material rows
+    formHelpers.addMaterialRow('Cement 50kg', 'bag', '');
+    formHelpers.addMaterialRow('Sand', 'm3', '');
+    formHelpers.addMaterialRow('Gravel', 'm3', '');
+  }
+
+  // Escape key handler
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const mn = document.getElementById('mobNav');
+      if (mn && mn.classList.contains('open')) {
+        navigation.toggleMobile();
+        return;
+      }
+      serviceRequest.close();
+    }
+  });
+});
+
+// Page Navigation
+const pageNavigation = {
+  currentPage: 'home',
+
+  go(pageId) {
+    // Hide all pages
+    document.querySelectorAll('.page').forEach(page => {
+      page.classList.remove('active');
+    });
+
+    // Show target page
+    const targetPage = document.getElementById(`page-${pageId}`);
+    if (targetPage) {
+      targetPage.classList.add('active');
+      this.currentPage = pageId;
+      window.scrollTo(0, 0);
+
+      // Initialize directory when navigating to it
+      if (pageId === 'directory') {
+        directory.render();
+      }
+    }
+  }
+};
+
+// Provider/Supplier Applications
+const providerApp = {
+  open() {
+    console.log('🏗️ providerApp.open() called');
+    // Check if contractor joining is enabled via feature flag
+    const flags = window.FeatureFlags;
+    console.log('window.FeatureFlags:', flags ? 'defined' : 'undefined');
+    if (flags && !flags.isEnabled('contractor_joining')) {
+      console.warn('🚫 Contractor application is disabled');
+      return;
+    }
+    console.log('✅ contractor_joining is enabled or flags not loaded');
+    modals.show('provMo');
+  },
+
+  close() {
+    modals.hide('provMo');
+    setTimeout(() => {
+      modals.reset('pmbody', 'pmsuc', 'perr', 'pbtn');
+    }, 320);
+  }
+};
+
+const supplierApp = {
+  open() {
+    // Check if supplier joining is enabled via feature flag
+    const flags = window.FeatureFlags;
+    if (flags && !flags.isEnabled('supplier_joining')) {
+      console.warn('🚫 Supplier application is disabled');
+      return;
+    }
+    modals.show('suppMo');
+  },
+
+  close() {
+    modals.hide('suppMo');
+    setTimeout(() => {
+      modals.reset('smbody', 'smsuc', 'serr', 'sbtn');
+    }, 320);
+  }
+};
+
+const applyChoice = {
+  open() {
+    console.log('📋 applyChoice.open() called');
+    // Check if join modal is enabled
+    const flags = window.FeatureFlags;
+    console.log('window.FeatureFlags:', flags ? 'defined' : 'undefined');
+    if (flags && !flags.isEnabled('join_modal')) {
+      console.warn('🚫 Join modal is disabled');
+      return;
+    }
+
+    console.log('✅ join_modal is enabled or flags not loaded');
+    // Show modal
+    modals.show('applyChoiceMo');
+
+    // Apply join modal logic (show/hide cards based on feature flags)
+    if (flags && flags.applyJoinModalLogic) {
+      flags.applyJoinModalLogic();
+    }
+  },
+
+  close() {
+    modals.hide('applyChoiceMo');
+  }
+};
+
+const notifyModal = {
+  open() {
+    modals.show('notifyMo');
+  },
+
+  close() {
+    modals.hide('notifyMo');
+    setTimeout(() => {
+      modals.reset('nfbody', 'nfsuc', 'nferr', 'nfbtn');
+    }, 320);
+  }
+};
+
+// Language switching
+const language = {
+  current: 'en',
+
+  set(lang) {
+    this.current = lang;
+
+    // Update HTML lang attribute
+    document.documentElement.lang = lang === 'es' ? 'es' : 'en';
+
+    // Use i18n system
+    if (typeof i18n !== 'undefined') {
+      i18n.setLanguage(lang);
+    }
+
+    // Update button states
+    document.querySelectorAll('.lb').forEach(btn => {
+      btn.classList.remove('on');
+    });
+
+    // Activate selected language buttons
+    document.querySelectorAll(`#ben, #bes, #mben, #mbes, #mben2, #mbes2`).forEach(btn => {
+      if ((lang === 'en' && btn.id.includes('en')) || (lang === 'es' && btn.id.includes('es'))) {
+        btn.classList.add('on');
+      }
+    });
+
+    console.log('✓ Language switched to:', lang);
+  },
+
+  syncButtons(lang) {
+    this.set(lang);
+  }
+};
+
+// Helper function to close mobile nav
+const closeMobNav = () => {
+  navigation.toggleMobile();
+};
+
+// Global functions for onclick handlers
+window.checkGate = () => siteGate.check();
+window.toggleGatePw = () => siteGate.togglePassword();
+window.toggleMobNav = () => navigation.toggleMobile();
+window.closeMobNav = () => closeMobNav();
+window.openMatch = (name, id) => {
+  console.log('🔔 openMatch called with:', name, id);
+  serviceRequest.open(name, id);
+};
+window.closeMatch = () => serviceRequest.close();
+window.submitMatch = () => serviceRequest.submit();
+window.go = (page) => pageNavigation.go(page);
+window.openSupplier = () => {
+  console.log('🔔 openSupplier called');
+  supplierApp.open();
+};
+window.closeSupp = () => supplierApp.close();
+window.openProv = () => {
+  console.log('🔔 openProv called');
+  providerApp.open();
+};
+window.closeProv = () => providerApp.close();
+window.openApplyChoice = () => {
+  console.log('🔔 openApplyChoice called');
+  applyChoice.open();
+};
+window.closeApplyChoice = () => applyChoice.close();
+window.openNotify = () => notifyModal.open();
+window.closeNotify = () => notifyModal.close();
+window.setLang = (lang) => language.set(lang);
+window.syncLangBtns = (lang) => language.syncButtons(lang);
+window.hideModal = (id) => {
+  console.log('🔔 hideModal called with:', id);
+  modals.hide(id);
+};
+window.updCol = (colId, cityId) => formHelpers.updateNeighbourhood(colId, cityId);
+window.tglCk = (el) => formHelpers.toggleCheckbox(el);
+window.pickYr = (el) => formHelpers.pickYear(el);
+window.tglAg = () => formHelpers.toggleAgreement();
+window.tglSuppAg = () => formHelpers.toggleSupplierAgreement();
+window.addMatRow = (name, unit, price) => formHelpers.addMaterialRow(name, unit, price);
+window.removeMatRow = (id) => formHelpers.removeMaterialRow(id);
+window.selDel = (option) => formHelpers.selectDelivery(option);
+window.renderDir = () => directory.render();
+window.setDirTab = (tab) => directory.setTab(tab);
+window.setCat = (btn) => directory.setCategory(btn);
+window.openContact = (id, name) => contactProvider.open(id, name);
+window.closeCont = () => contactProvider.close();
+window.submitCont = () => contactProvider.submit();
+window.submitNotify = () => notifySubmit.submit();
+window.submitProv = () => providerSubmit.submit();
+window.submitSupp = () => supplierSubmit.submit();
