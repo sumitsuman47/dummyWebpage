@@ -127,6 +127,11 @@ const FeatureFlags = {
             return true; // Fail-open: show features by default
         }
 
+        if (!Object.prototype.hasOwnProperty.call(this.flags, featureKey)) {
+            console.warn(`⚠️ Unknown feature flag: ${featureKey}. Defaulting to enabled.`);
+            return true; // Fail-open for unknown keys to avoid hiding UI accidentally
+        }
+
         const enabled = this.flags[featureKey]?.enabled === true;
         return enabled;
     },
