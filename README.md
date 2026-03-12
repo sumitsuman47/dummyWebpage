@@ -71,6 +71,7 @@ Edit `.env` with your actual credentials:
 # Supabase Configuration
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your_actual_anon_key_here
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
 
 # Site Configuration  
 SITE_PASSWORD_HASH=ce5fe72586b7b07039f6bf9aa17657414c8380ecb6d1efe6832ac706c8ec2d68
@@ -91,6 +92,10 @@ ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 4. Copy:
    - **Project URL** → `SUPABASE_URL`
    - **anon public key** → `SUPABASE_ANON_KEY`
+  - **service_role key** → `SUPABASE_SERVICE_ROLE_KEY`
+
+Security note:
+- `SUPABASE_SERVICE_ROLE_KEY` is backend-only and must never be exposed in the frontend.
 
 ### 4. Start the Server
 

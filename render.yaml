@@ -16,6 +16,8 @@ services:
         sync: false         # means: set it in the Render dashboard, not here
       - key: SUPABASE_ANON_KEY
         sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false         # required for admin feature-flag writes; set in Render dashboard
       - key: ALLOWED_ORIGINS
         value: https://www.lumitya.com,https://sumitsuman47.github.io
       - key: ADMIN_TOKEN

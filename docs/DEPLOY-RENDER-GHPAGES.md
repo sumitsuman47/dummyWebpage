@@ -28,6 +28,7 @@ This project is designed to run as:
 Set these:
 - `SUPABASE_URL` = your Supabase Project URL
 - `SUPABASE_ANON_KEY` = your Supabase anon key
+- `SUPABASE_SERVICE_ROLE_KEY` = your Supabase service role key (required for admin feature-flag writes)
 - `NODE_ENV` = `production`
 - `PORT` = (Render provides `PORT` automatically; you can omit it)
 - `ALLOWED_ORIGINS` = your GitHub Pages origin, for example:
@@ -35,6 +36,10 @@ Set these:
   - If using a project page: `https://<your-github-user>.github.io/<repo-name>`
   - If using a custom domain: `https://yourdomain.com`
 - `ADMIN_TOKEN` = a long random secret (protects admin endpoints + `admin-features.html`)
+
+Important:
+- Keep `SUPABASE_SERVICE_ROLE_KEY` only in Render Environment Variables.
+- Do **not** commit it to git and do **not** expose it in frontend files.
 
 After deploy, note your Render URL, e.g.:
 - `https://your-service.onrender.com`
