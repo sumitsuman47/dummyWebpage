@@ -613,9 +613,22 @@
                     })
                 });
 
-                const data = await response.json();
+                const raw = await response.text();
+                let data = null;
+                try {
+                    data = raw ? JSON.parse(raw) : null;
+                } catch (e) {
+                    data = null;
+                }
 
-                if (data.success) {
+                if (!response.ok) {
+                    const detail = (data && (data.message || data.error))
+                        ? `${data.error || 'Request failed'}: ${data.message || ''}`.trim()
+                        : `HTTP ${response.status} ${response.statusText} - ${raw || 'No response body'}`;
+                    throw new Error(detail);
+                }
+
+                if (data && data.success) {
                     console.log(`✅ ${data.message}`);
 
                     // Update local data
@@ -629,7 +642,7 @@
                     // Show notification
                     showNotification(`Feature ${enabled ? 'enabled' : 'disabled'}: ${featureKey}`);
                 } else {
-                    const detail = data.message ? `${data.error}: ${data.message}` : (data.error || 'Unknown error');
+                    const detail = data && data.message ? `${data.error}: ${data.message}` : (data && data.error ? data.error : 'Unknown error');
                     throw new Error(detail);
                 }
             } catch (error) {
