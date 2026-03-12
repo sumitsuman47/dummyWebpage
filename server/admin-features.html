@@ -629,11 +629,12 @@
                     // Show notification
                     showNotification(`Feature ${enabled ? 'enabled' : 'disabled'}: ${featureKey}`);
                 } else {
-                    throw new Error(data.error);
+                    const detail = data.message ? `${data.error}: ${data.message}` : (data.error || 'Unknown error');
+                    throw new Error(detail);
                 }
             } catch (error) {
                 console.error('Error toggling feature:', error);
-                alert('Failed to toggle feature. Please try again.');
+                alert(`Failed to toggle feature. ${error.message || 'Please try again.'}`);
                 // Reload to reset the toggle
                 loadFeatures();
             }

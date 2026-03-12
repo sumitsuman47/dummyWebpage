@@ -1,5 +1,6 @@
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   throw new Error('Missing Supabase configuration. Please set SUPABASE_URL and SUPABASE_ANON_KEY in .env file');
@@ -15,6 +16,35 @@ const supabaseRequest = async (table, method = 'GET', body = null, query = '') =
       'Content-Type': 'application/json',
       'apikey': SUPABASE_ANON_KEY,
       'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      'Prefer': 'return=representation'
+    }
+  };
+
+  if (body && (method === 'POST' || method === 'PATCH')) {
+    options.body = JSON.stringify(body);
+  }
+
+  const response = await fetch(url, options);
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Supabase API error: ${response.status} - ${error}`);
+  }
+
+  return response.json();
+};
+
+// Admin helper: prefers service-role key for admin-protected operations.
+const supabaseAdminRequest = async (table, method = 'GET', body = null, query = '') => {
+  const url = `${SUPABASE_URL}/rest/v1/${table}${query ? '?' + query : ''}`;
+  const key = SUPABASE_SERVICE_ROLE_KEY || SUPABASE_ANON_KEY;
+
+  const options = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': key,
+      'Authorization': `Bearer ${key}`,
       'Prefer': 'return=representation'
     }
   };
@@ -189,7 +219,7 @@ const supabaseService = {
   // Get all feature flags (including disabled)
   async getAllFeatureFlags() {
     try {
-      const features = await supabaseRequest(
+      const features = await supabaseAdminRequest(
         'feature_flags',
         'GET',
         null,
@@ -206,7 +236,7 @@ const supabaseService = {
   // Toggle feature flag
   async toggleFeatureFlag(featureKey, isEnabled, updatedBy = 'admin') {
     try {
-      const result = await supabaseRequest(
+      const result = await supabaseAdminRequest(
         'feature_flags',
         'PATCH',
         {
@@ -227,7 +257,7 @@ const supabaseService = {
   // Get feature flag audit log
   async getFeatureAuditLog(limit = 50) {
     try {
-      const audit = await supabaseRequest(
+      const audit = await supabaseAdminRequest(
         'feature_flag_audit',
         'GET',
         null,
