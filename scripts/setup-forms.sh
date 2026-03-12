@@ -17,13 +17,13 @@ if [ -f ".env" ]; then
     echo "✅ .env file exists"
     
     # Check if keys are configured
-    if grep -q "SUPABASE_URL=https://qylfvajhihlxrpmztpou.supabase.co" .env; then
+    if grep -qE "SUPABASE_URL=https://[a-z]+\.supabase\.co" .env; then
         echo "✅ Supabase URL configured"
     else
         echo "⚠️  Supabase URL not configured"
     fi
     
-    if grep -q "SUPABASE_ANON_KEY=sb_publishable" .env; then
+    if grep -qE "SUPABASE_ANON_KEY=.{20,}" .env; then
         echo "✅ Supabase key configured"
     else
         echo "⚠️  Supabase key not configured"

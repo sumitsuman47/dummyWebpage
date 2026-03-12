@@ -50,9 +50,9 @@ cp .env.example .env
 Edit `.env` with your decoded values:
 
 ```env
-SUPABASE_URL=https://qylfvajhihlxrpmztpou.supabase.co
-SUPABASE_ANON_KEY=sb_publishable_ioe97cM9lH6fzpEGndfEPw_pWFRuZKZ
-SITE_PASSWORD_HASH=ce5fe72586b7b07039f6bf9aa17657414c8380ecb6d1efe6832ac706c8ec2d68
+SUPABASE_URL=https://your-project-id.supabase.co
+SUPABASE_ANON_KEY=your-supabase-anon-key
+SITE_PASSWORD_HASH=your-sha256-password-hash
 PORT=3000
 NODE_ENV=development
 ALLOWED_ORIGINS=http://localhost:3000
