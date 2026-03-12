@@ -37,7 +37,11 @@ const supabaseRequest = async (table, method = 'GET', body = null, query = '') =
 // Admin helper: prefers service-role key for admin-protected operations.
 const supabaseAdminRequest = async (table, method = 'GET', body = null, query = '') => {
   const url = `${SUPABASE_URL}/rest/v1/${table}${query ? '?' + query : ''}`;
-  const key = SUPABASE_SERVICE_ROLE_KEY || SUPABASE_ANON_KEY;
+  const key = SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!key) {
+    throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY in server environment. Add it in Render Environment Variables and redeploy.');
+  }
 
   const options = {
     method,
@@ -57,6 +61,9 @@ const supabaseAdminRequest = async (table, method = 'GET', body = null, query = 
 
   if (!response.ok) {
     const error = await response.text();
+    if (response.status === 401 || response.status === 403) {
+      throw new Error(`Supabase admin auth failed (${response.status}). Verify SUPABASE_SERVICE_ROLE_KEY value and RLS policies for admin writes.`);
+    }
     throw new Error(`Supabase API error: ${response.status} - ${error}`);
   }
 
