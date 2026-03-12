@@ -132,7 +132,7 @@
       <button class="nbtn" id="nvp" onclick="go('pricing')" data-i18n="forContractors" data-feature="pricing_page">For
         Contractors</button>
       <button class="nbtn-primary" onclick="openSupplier()" data-i18n="joinSupplier"
-        data-feature="supplier_joining">&#129521; Join as Supplier</button>
+        data-feature="supplier_application">&#129521; Join as Supplier</button>
       <button class="nbtn-cta" onclick="openMatch()" data-i18n="getMatched" data-feature="service_request_form">Get
         Matched</button>
     </div>
@@ -178,7 +178,7 @@
           data-feature="pricing_page">For
           Contractors</button>
         <button class="nbtn-primary" id="mob-nsup" onclick="closeMobNav();openSupplier()" data-i18n="joinSupplier"
-          data-feature="supplier_joining">&#129521; Join as Supplier</button>
+          data-feature="supplier_application">&#129521; Join as Supplier</button>
         <div class="mob-dvd"></div>
         <button class="nbtn-cta" onclick="closeMobNav();openMatch()" data-i18n="getMatched"
           data-feature="service_request_form">Get Matched</button>
@@ -204,7 +204,7 @@
               Listings</button>
           </div>
         </div>
-        <div class="hv" data-feature="enablePriorityListing">
+        <div class="hv" data-feature="premium_featured_listing">
           <div class="hcs">
             <div class="hc">
               <div class="hcl">Homeowner Request</div>
@@ -277,7 +277,7 @@
       </div>
     </section>
 
-    <section class="svc" data-feature="isBrowseByCategoryEnable">
+    <section class="svc" data-feature="category_chips">
       <div class="si">
         <span class="stg" data-i18n="cat_title">Service Categories</span>
         <h2 data-i18n="cat_title">Browse by Category</h2>
@@ -386,10 +386,10 @@
             <div style="display:flex;gap:11px;flex-wrap:wrap">
               <button class="bh" onclick="go('pricing')" data-i18n="list_btn1">See Plans &amp; Pricing</button>
               <button class="bho" onclick="openSupplier()" data-i18n="joinSupplier"
-                data-feature="supplier_joining">&#129521; Join as Supplier</button>
+                data-feature="supplier_application">&#129521; Join as Supplier</button>
             </div>
           </div>
-          <div class="pvlist" data-feature="poviderLeatureListing" aria-label="Featured providers">
+          <div class="pvlist" data-feature="premium_featured_listing" aria-label="Featured providers">
             <div class="pvc pvc--promo">
               <div class="pvh">
                 <div class="pvav">AM</div>
@@ -1084,7 +1084,7 @@
           <p>Disputes resolved in Guadalajara, Jalisco, Mexico under Mexican law.</p>
           <div class="lbx" style="margin-top:26px"><strong>Ready to apply?</strong> By submitting your application, you
             confirm you have read and agree to this agreement.<br><br><button class="bh" onclick="openSupplier()"
-              data-i18n="joinSupplier" data-feature="supplier_joining">&#129521; Join as Supplier</button></div>
+              data-i18n="joinSupplier" data-feature="supplier_application">&#129521; Join as Supplier</button></div>
         </div>
       </div>
       <footer>
@@ -1377,7 +1377,7 @@
     </div>
 
     <!-- MODAL: SUPPLIER / MATERIAL PROVIDER -->
-    <div class="mo" id="suppMo" data-feature="supplier_joining">
+    <div class="mo" id="suppMo" data-feature="supplier_application">
       <div class="md" style="max-width:680px">
         <div class="mhd dk">
           <div class="mtg" data-i18n="sm_tg">&#129521; Join as Supplier</div>
@@ -1630,7 +1630,7 @@
           <div class="apc-dsc" data-i18n="apc_con_d">I provide home services like plumbing, electrical, roofing,
             renovation, painting, etc.</div>
         </div>
-        <div class="apc-card" onclick="hideModal('applyChoiceMo');openSupplier()" data-feature="supplier_joining">
+        <div class="apc-card" onclick="hideModal('applyChoiceMo');openSupplier()" data-feature="supplier_application">
           <span class="apc-ico">&#129521;</span>
           <div class="apc-ttl" data-i18n="apc_sup">Supplier</div>
           <div class="apc-dsc" data-i18n="apc_sup_d">I supply building materials like cement, steel, sand, concrete,
