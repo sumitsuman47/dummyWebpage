@@ -365,7 +365,7 @@ const FeatureFlags = {
         }
 
         if (supplierCard) {
-            const supplierEnabled = this.isEnabled('supplier_joining');
+            const supplierEnabled = this.isEnabled('supplier_application');
             supplierCard.style.display = supplierEnabled ? '' : 'none';
             supplierCard.style.opacity = supplierEnabled ? '1' : '0.5';
             supplierCard.style.pointerEvents = supplierEnabled ? 'auto' : 'none';
@@ -374,7 +374,7 @@ const FeatureFlags = {
             }
         }
 
-        console.log(`📋 Join Modal: Contractor=${this.isEnabled('contractor_joining')} | Supplier=${this.isEnabled('supplier_joining')}`);
+        console.log(`📋 Join Modal: Contractor=${this.isEnabled('contractor_joining')} | Supplier=${this.isEnabled('supplier_application')}`);
     }
 };
 

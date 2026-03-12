@@ -1291,7 +1291,7 @@ const supplierApp = {
   open() {
     // Check if supplier joining is enabled via feature flag
     const flags = window.FeatureFlags;
-    if (flags && !flags.isEnabled('supplier_joining')) {
+    if (flags && !flags.isEnabled('supplier_application')) {
       console.warn('🚫 Supplier application is disabled');
       return;
     }
