@@ -1,0 +1,220 @@
+/* Provider Card Styles - Left-aligned layout */
+.pvc {
+    background: var(--bg);
+    border-radius: 18px;
+    padding: 24px;
+    border: 1px solid var(--bd);
+    transition: all var(--transition-fast);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.pvc:hover {
+    border-color: var(--bm);
+    box-shadow: 0 4px 12px rgba(43, 77, 179, 0.08);
+}
+
+.pv-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: inline-block;
+    padding: 4px 12px;
+    font-size: 0.55rem;
+    font-weight: 700;
+    color: #fff;
+    border-radius: 20px;
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+    line-height: 1.2;
+}
+
+.pv-av {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.8rem;
+    flex-shrink: 0;
+    margin-bottom: 16px;
+}
+
+.pv-nm {
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--dk);
+    margin-bottom: 4px;
+    line-height: 1.3;
+    text-align: left;
+}
+
+.pv-title {
+    font-size: 0.88rem;
+    color: var(--bl);
+    font-weight: 500;
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.pv-tags {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.pv-tag {
+    background: #EEF2FF;
+    color: #4F46E5;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    border: 1px solid #E0E7FF;
+}
+
+.pv-location {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: var(--gr);
+    margin-bottom: 12px;
+}
+
+.pin-icon {
+    font-size: 0.9rem;
+}
+
+.pv-rt {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--bd);
+}
+
+.rt-st {
+    color: #FFA000;
+    font-size: 1rem;
+    letter-spacing: 2px;
+}
+
+.rt-sc {
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--dk);
+}
+
+.rt-cn {
+    font-size: 0.78rem;
+    color: var(--gr);
+}
+
+.pv-stats {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 20px;
+}
+
+.pv-stat {
+    text-align: left;
+}
+
+.stat-val {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--dk);
+    line-height: 1.2;
+}
+
+.stat-lbl {
+    font-size: 0.7rem;
+    color: var(--gr);
+    margin-top: 2px;
+    text-transform: capitalize;
+}
+
+.pv-divider {
+    height: 1px;
+    background: var(--bd);
+    margin: 0 0 16px 0;
+}
+
+.pv-btn {
+    width: 100%;
+    padding: 12px 20px;
+    background: var(--bl);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--font-heading);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.pv-btn:hover {
+    background: var(--bm);
+    transform: translateY(-1px);
+}
+
+/* Featured provider list (Home: "List Your Services on Lumitya") */
+.pvlist {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+    max-height: 480px;
+    padding-right: 6px;
+    overscroll-behavior: contain;
+}
+
+.pvc.pvc--promo {
+    padding: 14px;
+    border-radius: 14px;
+}
+
+.pvc.pvc--promo .pvh {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    gap: 10px;
+}
+
+.pvc.pvc--promo .pvav {
+    width: 34px;
+    height: 34px;
+    font-size: .72rem;
+}
+
+.pvc.pvc--promo .pvst {
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.pvc.pvc--promo .pvs {
+    padding: 8px;
+}
+
+.pvc.pvc--promo .pvsn {
+    font-size: 1.05rem;
+}
+
+.pvc.pvc--promo .pvdn {
+    margin-top: 8px;
+    padding: 6px 8px;
+    font-size: .64rem;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}

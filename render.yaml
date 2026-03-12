@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: lumitya-api
+    env: node
+    region: oregon          # closest to Mexico/LATAM; change to 'frankfurt' for EU
+    plan: free
+    buildCommand: npm install --omit=dev
+    startCommand: node server/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # ── Secrets: set these manually in the Render dashboard → Environment ──
+      # Do NOT paste real values here — this file is committed to git.
+      - key: SUPABASE_URL
+        sync: false         # means: set it in the Render dashboard, not here
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: https://www.lumitya.com,https://sumitsuman47.github.io
+      - key: ADMIN_TOKEN
+        sync: false         # set this in Render dashboard — keep it secret

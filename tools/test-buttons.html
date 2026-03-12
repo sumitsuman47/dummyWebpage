@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Button Test - Lumitya</title>
+<style>
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  padding: 40px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+h1 { color: #2B4DB3; }
+.test-section {
+  margin: 30px 0;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+button {
+  margin: 5px;
+  padding: 10px 20px;
+  background: #2B4DB3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+button:hover {
+  background: #3B5FC0;
+}
+#output {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f3f4f6;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 13px;
+}
+</style>
+</head>
+<body>
+<h1>🔧 Lumitya Button Test</h1>
+<p>This page tests if all button functions are working correctly.</p>
+
+<div class="test-section">
+  <h2>Navigation Buttons</h2>
+  <button onclick="go('home')">Go Home</button>
+  <button onclick="go('pricing')">Go Pricing</button>
+  <button onclick="go('directory')">Go Directory</button>
+  <button onclick="go('terms')">Go Terms</button>
+</div>
+
+<div class="test-section">
+  <h2>Modal Buttons</h2>
+  <button onclick="openMatch()">Open Service Request</button>
+  <button onclick="openSupplier()">Open Supplier Form</button>
+  <button onclick="openProv()">Open Provider Form</button>
+  <button onclick="openApplyChoice()">Open Apply Choice</button>
+  <button onclick="openNotify()">Open Notify Modal</button>
+</div>
+
+<div class="test-section">
+  <h2>Language Buttons</h2>
+  <button onclick="setLang('en')">Set English</button>
+  <button onclick="setLang('es')">Set Spanish</button>
+</div>
+
+<div class="test-section">
+  <h2>Form Helper Tests</h2>
+  <select id="testCity" onchange="updCol('testCol', 'testCity')">
+    <option value="">Select city</option>
+    <option>Guadalajara</option>
+    <option>Zapopan</option>
+  </select>
+  <select id="testCol" disabled>
+    <option value="">Select neighbourhood</option>
+  </select>
+</div>
+
+<div id="output">
+  <strong>Console Output:</strong><br>
+  <div id="log">Waiting for button clicks...</div>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+// Override console.log to show in page
+const originalLog = console.log;
+const logDiv = document.getElementById('log');
+console.log = function(...args) {
+  originalLog.apply(console, args);
+  logDiv.innerHTML += '<br>' + args.join(' ');
+};
+
+// Test if functions exist
+window.addEventListener('DOMContentLoaded', () => {
+  const functions = [
+    'go', 'openMatch', 'openSupplier', 'openProv', 'openApplyChoice', 
+    'openNotify', 'setLang', 'updCol', 'submitMatch', 'submitProv', 'submitSupp'
+  ];
+  
+  console.log('=== Function Availability Test ===');
+  functions.forEach(fn => {
+    const exists = typeof window[fn] === 'function';
+    console.log(`${fn}: ${exists ? '✅ Available' : '❌ Missing'}`);
+  });
+  
+  console.log('\n=== Ready to Test ===');
+  console.log('Click buttons above to test functionality');
+});
+</script>
+</body>
+</html>
