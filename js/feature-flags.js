@@ -14,6 +14,7 @@ const FeatureFlags = {
     loading: false,
     lastFetch: null,
     CACHE_DURATION: 5 * 60 * 1000, // 5 minutes
+    pollIntervalId: null,
 
     shouldUseCache(forceRefresh = false) {
         if (forceRefresh) return false;
@@ -21,6 +22,20 @@ const FeatureFlags = {
         const host = window.location.hostname;
         // Keep cache in local development for speed; always fetch fresh in production.
         return host === 'localhost' || host === '127.0.0.1';
+    },
+
+    getPollIntervalMs() {
+        const host = window.location.hostname;
+        const isLocal = host === 'localhost' || host === '127.0.0.1';
+
+        // Allow runtime override for quick experiments.
+        const override = Number(window.LUMITYA_FLAGS_POLL_MS);
+        if (Number.isFinite(override) && override >= 15000) {
+            return override;
+        }
+
+        // Default: 30s local, 60s production.
+        return isLocal ? 30000 : 60000;
     },
 
     getApiBase() {
@@ -277,6 +292,23 @@ const FeatureFlags = {
         await this.init(true);
     },
 
+    startAutoRefresh() {
+        if (this.pollIntervalId) return;
+
+        const intervalMs = this.getPollIntervalMs();
+        this.pollIntervalId = setInterval(async () => {
+            try {
+                // Skip when tab is hidden to avoid unnecessary traffic.
+                if (typeof document !== 'undefined' && document.hidden) return;
+                await this.init(true);
+            } catch (e) {
+                console.warn('Feature flag auto-refresh failed:', e);
+            }
+        }, intervalMs);
+
+        console.log(`⏱️ Feature flags auto-refresh started (${intervalMs / 1000}s)`);
+    },
+
     /**
      * Get all enabled features
      */
@@ -345,10 +377,11 @@ const FeatureFlags = {
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', async () => {
         await FeatureFlags.init();
+        FeatureFlags.startAutoRefresh();
     });
 } else {
     // DOM already loaded
-    FeatureFlags.init();
+    FeatureFlags.init().then(() => FeatureFlags.startAutoRefresh());
 }
 
 // Make available globally
