@@ -86,7 +86,7 @@ const supabaseService = {
       }
     }
 
-    return supabaseRequest('service_requests', 'POST', {
+    const payload = {
       customer_name: data.name,
       customer_email: data.email || '',
       customer_phone: data.phone,
@@ -101,7 +101,21 @@ const supabaseService = {
       timeline_text: timelineText,
       attachment_urls: data.attachment_urls || [],
       status: 'pending'
-    });
+    };
+
+    try {
+      return await supabaseRequest('service_requests', 'POST', payload);
+    } catch (error) {
+      const msg = String(error && error.message ? error.message : error);
+
+      // Backward compatibility: older deployments may not yet have timeline_text.
+      if (msg.includes("'timeline_text' column") || msg.includes('timeline_text')) {
+        const { timeline_text, ...legacyPayload } = payload;
+        return supabaseRequest('service_requests', 'POST', legacyPayload);
+      }
+
+      throw error;
+    }
   },
 
   // Create provider application (using contractor_join_requests table)
