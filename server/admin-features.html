@@ -280,6 +280,17 @@
             color: #9ca3af;
         }
 
+        .error-box {
+            margin: 16px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            border: 1px solid #fecaca;
+            background: #fef2f2;
+            color: #991b1b;
+            font-size: 0.9rem;
+            line-height: 1.45;
+        }
+
         .empty-icon {
             font-size: 3rem;
             margin-bottom: 16px;
@@ -376,6 +387,8 @@
                 <div class="empty-icon">🏁</div>
                 <p>No features found</p>
             </div>
+
+            <div id="errorState" class="error-box" style="display: none;"></div>
 
             <table id="featureTable" style="display: none;">
                 <thead>
@@ -524,7 +537,12 @@
                 ]);
 
                 if (!allData.success) {
-                    showEmpty();
+                    showErrorState(allData.message || allData.error || 'Failed to load feature flags.');
+                    return;
+                }
+
+                if (usedData && usedData.success === false) {
+                    showErrorState(usedData.message || usedData.error || 'Failed to load used feature flags.');
                     return;
                 }
 
@@ -540,7 +558,7 @@
                 renderTable(sorted);
             } catch (error) {
                 console.error('Error loading features:', error);
-                showEmpty();
+                showErrorState(error.message || 'Failed to load feature flags.');
             }
         }
 
@@ -717,18 +735,30 @@
         function showLoading() {
             document.getElementById('loadingState').style.display = 'block';
             document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'none';
             document.getElementById('featureTable').style.display = 'none';
         }
 
         function hideLoading() {
             document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'none';
             document.getElementById('featureTable').style.display = 'table';
         }
 
         function showEmpty() {
             document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('errorState').style.display = 'none';
             document.getElementById('emptyState').style.display = 'block';
             document.getElementById('featureTable').style.display = 'none';
+        }
+
+        function showErrorState(message) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('featureTable').style.display = 'none';
+            const box = document.getElementById('errorState');
+            box.textContent = `Failed to load feature flags: ${message}`;
+            box.style.display = 'block';
         }
 
         function showNotification(message) {

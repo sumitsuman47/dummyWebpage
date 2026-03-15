@@ -833,13 +833,10 @@ const contactProvider = {
     setTimeout(() => {
       modals.reset('cpbody', 'cpsuc', 'cperr', 'cpbtn');
       // Reset form fields
-      document.getElementById('cpnm').value = '';
-      document.getElementById('cpcity').value = '';
-      document.getElementById('cpcol').value = '';
-      document.getElementById('cpsvc').value = '';
-      document.getElementById('cpmg').value = '';
-      document.getElementById('cpph').value = '';
-      document.getElementById('cpem').value = '';
+      ['cpnm', 'cpcity', 'cpcol', 'cpsvc', 'cpmg', 'cpph', 'cpem', 'cpbg', 'cptimeline'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
     }, 320);
     this.providerId = null;
     this.providerName = null;
@@ -1213,10 +1210,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Initialize EmailJS
-  if (typeof EmailJSConfig !== 'undefined') {
-    EmailJSConfig.init();
-  }
-
   // Initialize material rows for supplier form
   const matContainer = document.getElementById('matRows');
   if (matContainer) {
@@ -1234,7 +1227,10 @@ document.addEventListener('DOMContentLoaded', () => {
         navigation.toggleMobile();
         return;
       }
-      serviceRequest.close();
+      const openModal = document.querySelector('.mo.on');
+      if (openModal) {
+        modals.hide(openModal.id);
+      }
     }
   });
 });
@@ -1382,7 +1378,10 @@ const language = {
 
 // Helper function to close mobile nav
 const closeMobNav = () => {
-  navigation.toggleMobile();
+  const nav = document.getElementById('mobNav');
+  if (nav && nav.classList.contains('open')) {
+    navigation.toggleMobile();
+  }
 };
 
 // Global functions for onclick handlers

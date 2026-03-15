@@ -188,9 +188,7 @@ const FeatureFlags = {
                 // that rely on an inline display like display:flex, e.g. #siteGate).
                 if (el.hasAttribute('data-original-display')) {
                     el.style.display = el.getAttribute('data-original-display') || '';
-                } else if (el.style.display === 'none') {
-                    // Was hidden via inline style but not tracked; clear so CSS decides.
-                    el.style.display = '';
+                    el.removeAttribute('data-original-display');
                 }
                 el.removeAttribute('hidden');
                 shownCount++;

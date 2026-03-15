@@ -3,7 +3,8 @@
  *
  * Set `window.LUMITYA_API_BASE` to your backend API root.
  * Example:
- *   window.LUMITYA_API_BASE = 'https://your-service.onrender.com/api';
+ *   window.LUMITYA_API_BASE = 'https://lumitya-web.onrender.com';
+ *   // '/api' is appended automatically by feature-flags.js
  */
 
 // Default: same-origin '/api' (works when Express serves the site)
