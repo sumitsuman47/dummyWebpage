@@ -925,6 +925,13 @@ const directory = {
           return '';
         }
       }).join('');
+
+      // Provider cards are rendered dynamically, so re-apply feature flags
+      // to ensure controls like provider_contact_button are respected.
+      if (window.FeatureFlags && typeof window.FeatureFlags.applyFeatureFlags === 'function') {
+        window.FeatureFlags.applyFeatureFlags();
+      }
+
       if (empty) empty.style.display = 'none';
 
     } catch (error) {
