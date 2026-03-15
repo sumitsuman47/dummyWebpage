@@ -411,6 +411,179 @@ const serviceRequest = {
 
 // Form Helpers
 const formHelpers = {
+  cityNeighborhoodMap: {
+    Guadalajara: [
+      'Analco',
+      'Americana',
+      'Arcos Vallarta',
+      'Atlas',
+      'Autocinema',
+      'Atemajac',
+      'Balcones de Huentitan',
+      'Barrio de Analco',
+      'Belisario Dominguez',
+      'Bosque de la Cantera',
+      'Centro',
+      'Chapalita',
+      'Circunvalacion Country',
+      'Colinas de la Normal',
+      'Colonia Independencia',
+      'Colomos Independencia',
+      'Del Fresno',
+      'El Retiro',
+      'El Santuario',
+      'Estadio Poniente',
+      'Fabrica de Atemajac',
+      'Fidel Velazquez',
+      'Guadalupana Norte',
+      'Guadalupana Sur',
+      'Huentitan El Alto',
+      'Independencia',
+      'Independencia Norte',
+      'Independencia Oriente',
+      'Independencia Poniente',
+      'Independencia Sur',
+      'Jardines Alcalde',
+      'Jardines de Atemajac',
+      'Jardines del Bosque',
+      'Jardines del Country',
+      'La Coronilla',
+      'La Normal',
+      'La Perla',
+      'Lomas de Independencia',
+      'Mezquitan',
+      'Mezquitan Country',
+      'Mezquitan Oriente',
+      'Miraflores',
+      'Monumental',
+      'Ninos Heroes',
+      'Oblatos',
+      'Panoramica de Huentitan',
+      'Providencia',
+      'Ramon Corona',
+      'San Bernardo',
+      'San Juan de Dios',
+      'San Miguel de Mezquitan',
+      'Santa Elena Alcalde',
+      'Santa Monica',
+      'Santa Teresita',
+      'Sagrado Corazon',
+      'Simon Bolivar',
+      'Vallarta Country',
+      'Vallarta Norte',
+      'Vallarta Poniente',
+      'Vallarta San Jorge',
+      'Villas de Guadalupe',
+      'Villas de San Juan',
+      'Zona Centro'
+    ],
+    Zapopan: [
+      '12 de Diciembre',
+      '27 de Septiembre',
+      '5 de Noviembre',
+      'Abadia',
+      'Acacias',
+      'Agraria',
+      'Agricola',
+      'Agua Blanca',
+      'Agua Blanca Industrial',
+      'Agua Blanca Sur',
+      'Agua Fria',
+      'Alamedas de Tesistan',
+      'Alianza de Cazadores Diana',
+      'Altabrisa',
+      'Altagracia',
+      'Altamira',
+      'Altaterra',
+      'Altaterra II',
+      'Altavista Residencial',
+      'Altus Quintas',
+      'Alviento Residencial',
+      'Amaranto Residencial',
+      'Ampliacion Santa Lucia',
+      'Arauca',
+      'Arauca II',
+      'Arboledas 1a Seccion',
+      'Arboledas 2a Seccion',
+      'Arboledas Residencial',
+      'Arboreto Residencial',
+      'Arcos de Guadalupe',
+      'Arcos de Zapopan',
+      'Arenales Tapatios',
+      'Argenta Mirador',
+      'Armonia Habitat',
+      'Arrayanes',
+      'Arroyo Hondo',
+      'Arroyo Hondo 2a Seccion',
+      'Auditorio',
+      'Balcones de la Cantera',
+      'Balcones de Santa Maria',
+      'Base Aerea',
+      'Bosques de San Isidro',
+      'Bosques Vallarta',
+      'Bugambilias',
+      'Campo Real',
+      'Capital Norte',
+      'Ciudad Bugambilias',
+      'Ciudad Granja',
+      'Ciudad del Sol',
+      'Colinas de Atemajac',
+      'Colinas de San Javier',
+      'Colinas del Rey',
+      'Constitucion',
+      'El Batan',
+      'El Briseno',
+      'El Campanario',
+      'El Colli Urbano',
+      'El Fortin',
+      'El Tigre',
+      'Estancia Bosque',
+      'Estancia Residencial',
+      'Jardines Universidad',
+      'Jardin Real',
+      'La Calma',
+      'La Cima',
+      'La Estancia',
+      'La Mojonera',
+      'La Primavera',
+      'La Tuzania',
+      'Las Aguilas',
+      'Las Canadas',
+      'Las Fuentes',
+      'Las Lomas',
+      'Lomas de Zapopan',
+      'Lomas del Colli',
+      'Lomas del Valle',
+      'Los Robles',
+      'Los Girasoles',
+      'Mariano Otero',
+      'Mesa Colorada',
+      'Miramar',
+      'Nuevo Mexico',
+      'Parques del Auditorio',
+      'Parques Vallarta',
+      'Paseos del Sol',
+      'Puerta de Hierro',
+      'Real de Valdepenas',
+      'San Juan de Ocotan',
+      'San Isidro',
+      'San Nicolas',
+      'Santa Margarita',
+      'Santa Lucia',
+      'Santa Ana Tepetitlan',
+      'Tabachines',
+      'Tesistan',
+      'Valle Imperial',
+      'Valle Real',
+      'Valdepenas',
+      'Villa Universitaria',
+      'Villas de Guadalupe',
+      'Villas del Ixtepete',
+      'Villas Tepeyac',
+      'Zapopan Centro'
+    ]
+  },
+
   // Update neighbourhood based on city
   updateNeighbourhood(colId, cityId) {
     const cityEl = document.getElementById(cityId);
@@ -418,22 +591,50 @@ const formHelpers = {
 
     if (!cityEl || !colEl) return;
 
-    const city = cityEl.value;
-    const neighborhoods = {
-      'Guadalajara': ['Centro', 'Providencia', 'Chapalita', 'Americana', 'Lafayette', 'Ladron de Guevara', 'Colonia Moderna', 'Jardines del Bosque', 'Santa Teresita', 'Other'],
-      'Zapopan': ['Zapopan Centro', 'Andares', 'Puerta de Hierro', 'Real Acueducto', 'Tabachines', 'Bugambilias', 'Tesistan', 'Arcos', 'Other']
-    };
+    const cityRaw = (cityEl.value || '').trim();
+    const city = Object.keys(this.cityNeighborhoodMap).find(key => key.toLowerCase() === cityRaw.toLowerCase());
 
-    if (city && neighborhoods[city]) {
+    if (city && this.cityNeighborhoodMap[city]) {
+      const previousValue = colEl.value;
       colEl.disabled = false;
       colEl.innerHTML = '<option value="" disabled selected>Select neighbourhood</option>';
-      neighborhoods[city].forEach(n => {
+      this.cityNeighborhoodMap[city].forEach(n => {
         colEl.innerHTML += `<option>${n}</option>`;
       });
+
+      if (previousValue && this.cityNeighborhoodMap[city].includes(previousValue)) {
+        colEl.value = previousValue;
+      }
     } else {
       colEl.disabled = true;
       colEl.innerHTML = '<option value="" disabled selected>Select city first</option>';
     }
+  },
+
+  bindCityNeighbourhoodDropdowns() {
+    const pairs = [
+      { cityId: 'mcity', colId: 'mcol' },
+      { cityId: 'pcity', colId: 'pcol' },
+      { cityId: 'scity', colId: 'scol' },
+      { cityId: 'cpcity', colId: 'cpcol' }
+    ];
+
+    pairs.forEach(({ cityId, colId }) => {
+      const cityEl = document.getElementById(cityId);
+      const colEl = document.getElementById(colId);
+      if (!cityEl || !colEl) return;
+
+      const refresh = () => this.updateNeighbourhood(colId, cityId);
+
+      // Keep options synced whether city is typed/selected via mouse, keyboard, or mobile picker.
+      cityEl.addEventListener('change', refresh);
+      cityEl.addEventListener('input', refresh);
+
+      // Populate options when user opens the neighbourhood field.
+      colEl.addEventListener('focus', refresh);
+      colEl.addEventListener('click', refresh);
+      colEl.addEventListener('touchstart', refresh, { passive: true });
+    });
   },
 
   // Toggle checkbox
@@ -1180,6 +1381,7 @@ const supplierSubmit = {
 // Initialize on load
 document.addEventListener('DOMContentLoaded', () => {
   siteGate.init();
+  formHelpers.bindCityNeighbourhoodDropdowns();
 
   // Sync featured provider list height to the left column
   let fpSyncTimer;
