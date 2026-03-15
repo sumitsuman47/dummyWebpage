@@ -642,14 +642,19 @@ const formHelpers = {
     const input = labelEl.querySelector('input[type="checkbox"]');
     if (input) {
       input.checked = !input.checked;
-      labelEl.classList.toggle('on', input.checked);
+      labelEl.classList.toggle('sel', input.checked);
+      labelEl.classList.toggle('on', input.checked); // Legacy compatibility
     }
   },
 
   // Pick year range
   pickYear(el) {
-    document.querySelectorAll('.yc').forEach(y => y.classList.remove('on'));
-    el.classList.add('on');
+    document.querySelectorAll('.yc').forEach(y => {
+      y.classList.remove('sel');
+      y.classList.remove('on'); // Legacy compatibility
+    });
+    el.classList.add('sel');
+    el.classList.add('on'); // Legacy compatibility
     el.dataset.selected = 'true';
   },
 
@@ -1195,7 +1200,7 @@ const providerSubmit = {
     });
 
     // Get experience
-    const expEl = document.querySelector('.yc.on');
+    const expEl = document.querySelector('.yc.sel, .yc.on');
     if (expEl) data.experience = expEl.dataset.v;
 
     // Basic validation

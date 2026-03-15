@@ -98,7 +98,6 @@ const supabaseService = {
       provider_name: data.provider_name || null,
       budget: data.budget || '',
       preferred_date: preferredDate,
-      timeline_text: timelineText,
       attachment_urls: data.attachment_urls || [],
       status: 'pending'
     };
