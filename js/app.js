@@ -120,8 +120,152 @@ const api = {
 
   subscribeNotification(data) {
     return this.request('/notify', 'POST', data);
+  },
+
+  getCategories() {
+    return this.request('/categories', 'GET');
   }
 };
+
+// =============================================
+// CATEGORIES
+// =============================================
+const categories = {
+  data: [],
+  loaded: false,
+
+  // Fetch from backend and populate all category UIs
+  async load() {
+    try {
+      const res = await api.getCategories();
+      this.data = Array.isArray(res.data) ? res.data : [];
+      this.loaded = true;
+    } catch (e) {
+      console.warn('Could not load categories from Supabase, using static fallback.', e);
+      this.data = [];
+      this.loaded = false;
+    }
+
+    this.populateAllSelects();
+    this.renderHomeSectionCards();
+    this.renderDirChips();
+    this.renderProviderCheckboxes();
+  },
+
+  _currentLang() {
+    return (document.documentElement.lang || 'en').toLowerCase().startsWith('es') ? 'es' : 'en';
+  },
+
+  _name(cat) {
+    const lang = this._currentLang();
+    return lang === 'es' ? (cat.name_es || cat.name_en) : (cat.name_en || cat.name_es);
+  },
+
+  _desc(cat) {
+    const lang = this._currentLang();
+    return lang === 'es' ? (cat.description_es || cat.description_en || '') : (cat.description_en || cat.description_es || '');
+  },
+
+  // Populate a <select> element with category options.
+  // addOther=true appends an "Other" option at the end.
+  populateSelect(selectId, addOther = true) {
+    const sel = document.getElementById(selectId);
+    if (!sel || this.data.length === 0) return;
+
+    // Keep the first disabled placeholder option
+    const placeholder = sel.querySelector('option[disabled]');
+    sel.innerHTML = '';
+    if (placeholder) sel.appendChild(placeholder);
+
+    // Only top-level categories (parent_id is null)
+    const top = this.data.filter(c => !c.parent_id);
+    top.forEach(cat => {
+      const opt = document.createElement('option');
+      opt.value = cat.name_en;
+      opt.textContent = this._name(cat);
+      sel.appendChild(opt);
+    });
+
+    if (addOther) {
+      const other = document.createElement('option');
+      other.value = 'Other';
+      other.textContent = this._currentLang() === 'es' ? 'Otro' : 'Other';
+      sel.appendChild(other);
+    }
+  },
+
+  // Populate all service-type selects in every form
+  populateAllSelects() {
+    // matchMo (service request), contactMo (contact provider), notifyMo (notify me)
+    ['msvc', 'cpsvc', 'nfsvc'].forEach(id => this.populateSelect(id, true));
+  },
+
+  // Render category cards in the home screen "Browse by Category" section
+  renderHomeSectionCards() {
+    const grid = document.getElementById('catCardGrid');
+    if (!grid || this.data.length === 0) return;
+
+    const top = this.data.filter(c => !c.parent_id);
+    grid.innerHTML = top.map(cat => {
+      const icon = cat.icon || '&#128296;';
+      const name = this._name(cat);
+      const desc = this._desc(cat);
+      return `<div class="sc">
+        <div class="sci">${icon}</div>
+        <h3>${name}</h3>
+        ${desc ? `<p>${desc}</p>` : ''}
+      </div>`;
+    }).join('');
+  },
+
+  // Render category filter chips in the directory
+  renderDirChips() {
+    const chips = document.getElementById('catChips');
+    if (!chips || this.data.length === 0) return;
+
+    const lang = this._currentLang();
+    const allLabel = lang === 'es' ? 'Todo' : 'All';
+
+    const top = this.data.filter(c => !c.parent_id);
+    const chipsHtml = top.map(cat => {
+      const name = this._name(cat);
+      const val = cat.slug || cat.name_en.toLowerCase();
+      return `<button class="dch" data-cat="${val}" onclick="setCat(this)">${name}</button>`;
+    }).join('');
+
+    chips.innerHTML = `<button class="dch on" data-cat="" onclick="setCat(this)">${allLabel}</button>${chipsHtml}`;
+  },
+
+  // Render checkboxes in the provider modal .cg grid
+  renderProviderCheckboxes() {
+    const grid = document.querySelector('#provMo .cg');
+    if (!grid || this.data.length === 0) return;
+
+    const checkSvg = `<svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+    const top = this.data.filter(c => !c.parent_id);
+    grid.innerHTML = top.map(cat => {
+      const icon = cat.icon || '&#128296;';
+      const name = this._name(cat);
+      return `<label class="ck" onclick="tglCk(this)">
+        <input type="checkbox" value="${cat.name_en}">
+        <span class="ckb">${checkSvg}</span>
+        <span style="font-size:.9rem">${icon}</span>
+        <span class="ckl">${name}</span>
+      </label>`;
+    }).join('');
+  }
+};
+
+// Re-render language-aware category UIs when language switches
+document.addEventListener('lumitya:lang-changed', () => {
+  if (categories.loaded && categories.data.length > 0) {
+    categories.renderHomeSectionCards();
+    categories.renderDirChips();
+    categories.renderProviderCheckboxes();
+    categories.populateAllSelects();
+  }
+});
 
 // Site Gate (Password Protection)
 const siteGate = {
@@ -1394,6 +1538,7 @@ const supplierSubmit = {
 document.addEventListener('DOMContentLoaded', () => {
   siteGate.init();
   formHelpers.bindCityNeighbourhoodDropdowns();
+  categories.load();
 
   // Sync featured provider list height to the left column
   let fpSyncTimer;
