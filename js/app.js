@@ -156,6 +156,29 @@ const categories = {
     return (document.documentElement.lang || 'en').toLowerCase().startsWith('es') ? 'es' : 'en';
   },
 
+  // Emoji fallbacks keyed by slug (used when icon field is blank in DB)
+  _iconMap: {
+    'air-conditioning': '&#10052;',
+    'construction':     '&#127959;',
+    'electrical':       '&#9889;',
+    'floor-installation': '&#129510;',
+    'garden-services':  '&#127807;',
+    'home-cleaning':    '&#129529;',
+    'painting':         '&#127912;',
+    'roof-repair':      '&#127968;',
+    'plumbing':         '&#128295;',
+    'architecture':     '&#127963;',
+    'carpentry':        '&#128296;',
+    'renovation':       '&#128296;',
+    'materials':        '&#129521;',
+    'hvac':             '&#10052;',
+  },
+
+  _icon(cat) {
+    if (cat.icon) return cat.icon;
+    return this._iconMap[cat.slug] || '&#128296;';
+  },
+
   _name(cat) {
     const lang = this._currentLang();
     return lang === 'es' ? (cat.name_es || cat.name_en) : (cat.name_en || cat.name_es);
@@ -207,7 +230,7 @@ const categories = {
 
     const top = this.data.filter(c => !c.parent_id);
     grid.innerHTML = top.map(cat => {
-      const icon = cat.icon || '&#128296;';
+      const icon = this._icon(cat);
       const name = this._name(cat);
       const desc = this._desc(cat);
       return `<div class="sc">
@@ -245,7 +268,7 @@ const categories = {
 
     const top = this.data.filter(c => !c.parent_id);
     grid.innerHTML = top.map(cat => {
-      const icon = cat.icon || '&#128296;';
+      const icon = this._icon(cat);
       const name = this._name(cat);
       return `<label class="ck" onclick="tglCk(this)">
         <input type="checkbox" value="${cat.name_en}">
