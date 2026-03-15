@@ -291,6 +291,23 @@ const supabaseService = {
     }
   },
 
+  // Get active categories
+  async getCategories() {
+    try {
+      const cats = await supabaseRequest(
+        'categories',
+        'GET',
+        null,
+        'select=id,name_en,name_es,slug,description_en,description_es,icon,parent_id&is_active=eq.true&order=name_en.asc'
+      );
+      console.log(`✅ Fetched ${cats.length} active categories from Supabase`);
+      return cats;
+    } catch (error) {
+      console.error('❌ Error fetching categories:', error.message);
+      throw error;
+    }
+  },
+
   // Check if a feature is enabled
   async isFeatureEnabled(featureKey) {
     try {

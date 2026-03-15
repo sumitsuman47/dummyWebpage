@@ -177,6 +177,25 @@ router.post('/notify', validateRequest([
 });
 
 // =============================================
+// CATEGORIES ENDPOINT
+// =============================================
+
+// Get active categories (public)
+router.get('/categories', async (req, res) => {
+  try {
+    const categories = await supabaseService.getCategories();
+    res.json({ success: true, data: categories });
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch categories',
+      message: error.message
+    });
+  }
+});
+
+// =============================================
 // FEATURE FLAGS ENDPOINTS
 // =============================================
 
