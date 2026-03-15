@@ -76,11 +76,19 @@ const EmailJSConfig = {
     }
   },
 
+  // Build consistent email subjects so inbox messages are never blank.
+  buildSubject(prefix, value) {
+    const clean = String(value || '').trim();
+    return clean ? `${prefix}: ${clean}` : prefix;
+  },
+
   // Send service request notification
   async sendServiceRequest(data) {
     const templateParams = {
+      from_name: data.name,
       name: data.name,
       phone: data.phone,
+      email: data.email || 'Not provided',
       email_from: data.email || 'Not provided',
       city: data.city,
       neighbourhood: data.neighbourhood,
@@ -88,6 +96,7 @@ const EmailJSConfig = {
       description: data.description,
       budget: data.budget || 'Not specified',
       timeline: data.timeline,
+      subject: this.buildSubject('New Service Request', data.name),
       to_email: 'info@lumitya.com' // Change to your email
     };
 
@@ -102,9 +111,11 @@ const EmailJSConfig = {
       .join(' ');
 
     const templateParams = {
+      from_name: data.name,
       name: data.name,
       business: data.business_name || data.business || 'N/A',
       phone: data.phone,
+      email: data.email,
       email_from: data.email,
       city: data.city,
       neighbourhood: data.neighbourhood,
@@ -114,6 +125,7 @@ const EmailJSConfig = {
       team: data.team_size || 'Not specified',
       website: data.website || 'Not provided',
       description: data.description || 'No description provided',
+      subject: this.buildSubject('New Provider Application', data.name),
       to_email: 'applications@lumitya.com' // Change to your email
     };
 
@@ -128,15 +140,18 @@ const EmailJSConfig = {
 
     const templateParams = {
       from_name: data.name,
+      name: data.name,
       business: data.business,
       phone: data.phone,
       email: data.email,
+      email_from: data.email,
       city: data.city,
       neighbourhood: data.neighbourhood,
       materials: materialsText,
       delivery: data.delivery === 'yes' ? 'Yes - ' + (data.deliveryDetails?.type || '') : 'No',
       coverage: data.coverage || 'Not specified',
       description: data.description || 'N/A',
+      subject: this.buildSubject('New Supplier Application', data.business || data.name),
       to_email: 'applications@lumitya.com' // Change to your email
     };
 
@@ -147,9 +162,12 @@ const EmailJSConfig = {
   async sendContactMessage(data, providerEmail) {
     const templateParams = {
       from_name: data.name,
+      name: data.name,
       phone: data.phone,
       email: data.email || 'Not provided',
+      email_from: data.email || 'Not provided',
       message: data.message,
+      subject: this.buildSubject('New Contact Request', data.name),
       provider_email: providerEmail,
       to_email: providerEmail
     };
@@ -161,10 +179,13 @@ const EmailJSConfig = {
   async sendNotifyRequest(data) {
     const templateParams = {
       from_name: data.name,
+      name: data.name,
       phone: data.phone,
       email: data.email,
+      email_from: data.email,
       whatsapp: data.whatsapp,
       service: data.service,
+      subject: this.buildSubject('Premium Plan Interest', data.name),
       to_email: 'premium@lumitya.com' // Change to your email
     };
 
@@ -183,8 +204,12 @@ const EmailJSConfig = {
     }
 
     try {
+      const safeParams = {
+        ...params,
+        subject: params.subject || 'Lumitya Notification'
+      };
       console.log('Sending email via EmailJS...');
-      const response = await emailjs.send(this.serviceId, templateId, params);
+      const response = await emailjs.send(this.serviceId, templateId, safeParams);
       console.log('✅ Email sent successfully:', response);
       return response;
     } catch (error) {
