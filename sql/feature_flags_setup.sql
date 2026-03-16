@@ -146,6 +146,7 @@ INSERT INTO feature_flags (feature_key, feature_name, feature_description, categ
 ('password_gate', 'Password Gate', 'Entry password protection on landing', 'core', true, 'system', 'Security feature'),
 ('provider_cache', 'Provider Data Caching', '5-minute cache for provider list with localStorage', 'core', true, 'system', 'Performance optimization'),
 ('mobile_responsive', 'Mobile Responsive Design', 'Mobile-optimized layout and hamburger menu', 'ui', true, 'system', 'Essential for mobile users'),
+('social_share_section', 'Social Share Section', 'Show social sharing section on homepage', 'ui', true, 'system', 'Controls visibility of social sharing buttons block'),
 
 -- Provider Directory Features
 ('provider_directory', 'Provider Directory', 'Browse contractors and suppliers listing page', 'pages', true, 'system', 'Main feature - contractor marketplace'),
