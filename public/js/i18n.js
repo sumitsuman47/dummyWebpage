@@ -12,6 +12,8 @@ const translations = {
         gateError: 'Incorrect password. Please try again.',
         gateBtn: 'Enter →',
         gateSecurity: '🔒 Secured with SHA-256 · Password never stored in plain text',
+        seo_title: 'Lumitya — Home Service & Materials Platform',
+        seo_description: 'Lumitya connects homeowners with independent contractors and material suppliers in Guadalajara and Zapopan.',
 
         // Header
         disclaimer: 'Lumitya is a digital listing & matching platform. We connect homeowners with independent contractors and material suppliers. We do not supervise, guarantee, or endorse any work or products.',
@@ -240,6 +242,21 @@ const translations = {
         footer_title: 'Need a Home Service Professional?',
         footer_desc: 'Submit your request in under 2 minutes. We forward it to listed professionals in your area.',
         footer_btn: 'Submit a Request',
+        share_tag: 'Share Lumitya',
+        share_title: 'Share Lumitya with your network',
+        share_title_short: 'Lumitya',
+        share_desc: 'Help more homeowners discover Lumitya on their favorite apps and social platforms.',
+        share_message: 'Discover Lumitya: connect with independent contractors and material suppliers in Guadalajara and Zapopan.',
+        share_native: 'Share',
+        share_copy: 'Copy Link',
+        share_facebook: 'Facebook',
+        share_whatsapp: 'WhatsApp',
+        share_telegram: 'Telegram',
+        share_x: 'X',
+        share_copied: 'Link copied. You can paste it anywhere.',
+        share_native_fallback: 'Native share is unavailable here. The link was copied instead.',
+        share_done: 'Share sheet opened.',
+        share_error: 'Could not share right now. Please try again.',
         footer_tagline: 'Connecting Local Expertise.',
         footer_location: 'Digital platform. Guadalajara & Zapopan, Mexico.',
         footer_disclaimer: 'Technology platform only. We do not employ, supervise, or endorse contractors. All agreements are solely between homeowners and independent providers.',
@@ -437,6 +454,8 @@ const translations = {
         gateError: 'Contraseña incorrecta. Por favor intenta de nuevo.',
         gateBtn: 'Entrar →',
         gateSecurity: '🔒 Asegurado con SHA-256 · Contraseña nunca se almacena en texto plano',
+        seo_title: 'Lumitya — Plataforma de Servicios para el Hogar y Materiales',
+        seo_description: 'Lumitya conecta propietarios con contratistas independientes y proveedores de materiales en Guadalajara y Zapopan.',
 
         // Encabezado
         disclaimer: 'Lumitya es una plataforma digital de listados y emparejamiento. Conectamos propietarios de casas con contratistas independientes y proveedores de materiales. No supervisamos, garantizamos ni respaldamos ningún trabajo o producto.',
@@ -665,6 +684,21 @@ const translations = {
         footer_title: '¿Necesitas un Profesional de Servicios para el Hogar?',
         footer_desc: 'Envía tu solicitud en menos de 2 minutos. La enviamos a profesionales listados en tu área.',
         footer_btn: 'Enviar una Solicitud',
+        share_tag: 'Comparte Lumitya',
+        share_title: 'Comparte Lumitya con tu red',
+        share_title_short: 'Lumitya',
+        share_desc: 'Ayuda a que más propietarios descubran Lumitya en sus apps y redes sociales favoritas.',
+        share_message: 'Descubre Lumitya: conecta con contratistas independientes y proveedores de materiales en Guadalajara y Zapopan.',
+        share_native: 'Compartir',
+        share_copy: 'Copiar enlace',
+        share_facebook: 'Facebook',
+        share_whatsapp: 'WhatsApp',
+        share_telegram: 'Telegram',
+        share_x: 'X',
+        share_copied: 'Enlace copiado. Puedes pegarlo donde quieras.',
+        share_native_fallback: 'La opción de compartir nativa no está disponible aquí. El enlace se copió en su lugar.',
+        share_done: 'Se abrió la hoja de compartir.',
+        share_error: 'No se pudo compartir en este momento. Inténtalo de nuevo.',
         footer_tagline: 'Conectando Experiencia Local.',
         footer_location: 'Plataforma digital. Guadalajara y Zapopan, México.',
         footer_disclaimer: 'Solo plataforma tecnológica. No empleamos, supervisamos ni respaldamos contratistas. Todos los acuerdos son únicamente entre propietarios y proveedores independientes.',
@@ -860,10 +894,13 @@ const i18n = {
     currentLang: 'es',
 
     init() {
+        const urlLang = new URLSearchParams(window.location.search).get('lang');
         const savedLang = localStorage.getItem('lumityaLang');
         const hasExplicitChoice = localStorage.getItem('lumityaLangChosen') === '1';
-        const initialLang = hasExplicitChoice && translations[savedLang] ? savedLang : 'es';
-        this.setLanguage(initialLang, hasExplicitChoice);
+        const initialLang = translations[urlLang]
+            ? urlLang
+            : (hasExplicitChoice && translations[savedLang] ? savedLang : 'es');
+        this.setLanguage(initialLang, hasExplicitChoice && !translations[urlLang]);
     },
 
     setLanguage(lang, persist = true) {
@@ -880,6 +917,10 @@ const i18n = {
             localStorage.setItem('lumityaLangChosen', '1');
         }
         this.updateDOM();
+
+        document.dispatchEvent(new CustomEvent('lumitya:lang-changed', {
+            detail: { lang }
+        }));
 
         // Update language button states
         document.querySelectorAll('.lb').forEach(btn => {

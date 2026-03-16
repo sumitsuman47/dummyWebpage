@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -7,6 +8,52 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const SITE_URL = (process.env.SITE_URL || 'https://www.lumitya.com').replace(/\/$/, '');
+const INDEX_FILE = path.join(process.cwd(), 'public', 'index.html');
+const INDEX_TEMPLATE = fs.readFileSync(INDEX_FILE, 'utf8');
+
+const SEO_BY_LANG = {
+  en: {
+    htmlLang: 'en',
+    locale: 'en_US',
+    title: 'Lumitya — Home Service & Materials Platform',
+    description: 'Lumitya connects homeowners with independent contractors and material suppliers in Guadalajara and Zapopan.'
+  },
+  es: {
+    htmlLang: 'es',
+    locale: 'es_MX',
+    title: 'Lumitya — Plataforma de Servicios para el Hogar y Materiales',
+    description: 'Lumitya conecta propietarios con contratistas independientes y proveedores de materiales en Guadalajara y Zapopan.'
+  }
+};
+
+function getRequestedLang(req) {
+  const queryLang = String(req.query.lang || '').toLowerCase();
+  if (queryLang === 'en' || queryLang === 'es') return queryLang;
+
+  const acceptLanguage = String(req.get('accept-language') || '').toLowerCase();
+  return acceptLanguage.includes('en') && !acceptLanguage.includes('es') ? 'en' : 'es';
+}
+
+function renderLocalizedIndex(req, res) {
+  const lang = getRequestedLang(req);
+  const seo = SEO_BY_LANG[lang] || SEO_BY_LANG.es;
+  const sharedUrl = `${SITE_URL}/?lang=${lang}`;
+
+  let html = INDEX_TEMPLATE;
+  html = html.replace('<html lang="es" id="htmlLang">', `<html lang="${seo.htmlLang}" id="htmlLang">`);
+  html = html.replace(/<title>.*?<\/title>/, `<title>${seo.title}</title>`);
+  html = html.replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${seo.description}">`);
+  html = html.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${sharedUrl}">`);
+  html = html.replace(/<meta property="og:url" content="[^"]*">/, `<meta property="og:url" content="${sharedUrl}">`);
+  html = html.replace(/<meta property="og:locale" content="[^"]*">/, `<meta property="og:locale" content="${seo.locale}">`);
+  html = html.replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${seo.title}">`);
+  html = html.replace(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${seo.description}">`);
+  html = html.replace(/<meta name="twitter:title" content="[^"]*">/, `<meta name="twitter:title" content="${seo.title}">`);
+  html = html.replace(/<meta name="twitter:description" content="[^"]*">/, `<meta name="twitter:description" content="${seo.description}">`);
+
+  res.type('html').send(html);
+}
 
 // Security middleware
 app.use(helmet({
@@ -90,6 +137,8 @@ function requireAdmin(req, res, next) {
 app.get('/admin-features.html', requireAdmin, (req, res) => {
   res.sendFile(path.join(__dirname, './admin-features.html'));
 });
+
+app.get(['/', '/index.html'], renderLocalizedIndex);
 
 // Serve static files
 app.use(express.static('public'));

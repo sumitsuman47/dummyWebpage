@@ -5,6 +5,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Lumitya — Home Service & Materials Platform</title>
+  <meta name="description" content="Lumitya connects homeowners with independent contractors and material suppliers in Guadalajara and Zapopan.">
+  <link rel="canonical" href="https://www.lumitya.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.lumitya.com/">
+  <meta property="og:site_name" content="Lumitya">
+  <meta property="og:locale" content="es_MX">
+  <meta property="og:title" content="Lumitya — Home Service & Materials Platform">
+  <meta property="og:description" content="Lumitya connects homeowners with independent contractors and material suppliers in Guadalajara and Zapopan.">
+  <meta property="og:image" content="https://www.lumitya.com/images/blueLumityaLogo.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Lumitya — Home Service & Materials Platform">
+  <meta name="twitter:description" content="Lumitya connects homeowners with independent contractors and material suppliers in Guadalajara and Zapopan.">
+  <meta name="twitter:image" content="https://www.lumitya.com/images/blueLumityaLogo.svg">
   <link
     href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap"
     rel="stylesheet">
@@ -573,6 +586,35 @@
       <p data-i18n="footer_desc">Submit your request in under 2 minutes. We forward it to listed professionals in your
         area.</p>
       <button class="bcw" onclick="openMatch()" data-i18n="footer_btn">Submit a Request</button>
+    </section>
+
+    <section class="share-sec" data-feature="home_page">
+      <div class="share-wrap">
+        <span class="share-tag" data-i18n="share_tag">Share Lumitya</span>
+        <h2 data-i18n="share_title">Share Lumitya with your network</h2>
+        <p data-i18n="share_desc">Help more homeowners discover Lumitya on their favorite apps and social platforms.</p>
+        <div class="share-grid">
+          <button class="share-btn share-native" type="button" onclick="shareSite('native')">
+            <span class="share-ico">↗</span><span data-i18n="share_native">Share</span>
+          </button>
+          <button class="share-btn share-copy" type="button" onclick="shareSite('copy')">
+            <span class="share-ico">⎘</span><span data-i18n="share_copy">Copy Link</span>
+          </button>
+          <button class="share-btn share-facebook" type="button" onclick="shareSite('facebook')">
+            <span class="share-ico">f</span><span data-i18n="share_facebook">Facebook</span>
+          </button>
+          <button class="share-btn share-whatsapp" type="button" onclick="shareSite('whatsapp')">
+            <span class="share-ico">✆</span><span data-i18n="share_whatsapp">WhatsApp</span>
+          </button>
+          <button class="share-btn share-telegram" type="button" onclick="shareSite('telegram')">
+            <span class="share-ico">✈</span><span data-i18n="share_telegram">Telegram</span>
+          </button>
+          <button class="share-btn share-x" type="button" onclick="shareSite('x')">
+            <span class="share-ico">X</span><span data-i18n="share_x">X</span>
+          </button>
+        </div>
+        <p class="share-feedback" id="shareFeedback" aria-live="polite"></p>
+      </div>
     </section>
 
     <footer>
