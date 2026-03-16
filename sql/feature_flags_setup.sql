@@ -147,6 +147,7 @@ INSERT INTO feature_flags (feature_key, feature_name, feature_description, categ
 ('provider_cache', 'Provider Data Caching', '5-minute cache for provider list with localStorage', 'core', true, 'system', 'Performance optimization'),
 ('mobile_responsive', 'Mobile Responsive Design', 'Mobile-optimized layout and hamburger menu', 'ui', true, 'system', 'Essential for mobile users'),
 ('social_share_section', 'Social Share Section', 'Show social sharing section on homepage', 'ui', true, 'system', 'Controls visibility of social sharing buttons block'),
+('home_join_provider_button', 'Home Join Provider Button', 'Show "Join as Provider" hero button on homepage', 'ui', true, 'system', 'Controls visibility of homepage join provider CTA'),
 
 -- Provider Directory Features
 ('provider_directory', 'Provider Directory', 'Browse contractors and suppliers listing page', 'pages', true, 'system', 'Main feature - contractor marketplace'),
