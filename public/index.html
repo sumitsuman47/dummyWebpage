@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" id="htmlLang">
+<html lang="es" id="htmlLang">
 
 <head>
   <meta charset="UTF-8">
@@ -123,8 +123,8 @@
     </div>
     <div class="nr">
       <div class="ls">
-        <button class="lb on" id="ben" onclick="setLang('en')" data-feature="language_switcher">EN</button>
-        <button class="lb" id="bes" onclick="setLang('es')" data-feature="language_switcher">ES</button>
+        <button class="lb" id="ben" onclick="setLang('en')" data-feature="language_switcher">EN</button>
+        <button class="lb on" id="bes" onclick="setLang('es')" data-feature="language_switcher">ES</button>
       </div>
       <button class="nbtn" id="nvd" onclick="go('directory')" data-i18n="findProviders"
         data-feature="provider_directory">&#128269; Find
@@ -138,8 +138,8 @@
     </div>
     <!-- Mobile language switcher: visible only on mobile (displayed between logo and hamburger) -->
     <div class="mob-lang-sw" id="mobLangSw">
-      <button class="lb on" id="mben2" onclick="setLang('en')" data-feature="language_switcher">EN</button>
-      <button class="lb" id="mbes2" onclick="setLang('es')" data-feature="language_switcher">ES</button>
+      <button class="lb" id="mben2" onclick="setLang('en')" data-feature="language_switcher">EN</button>
+      <button class="lb on" id="mbes2" onclick="setLang('es')" data-feature="language_switcher">ES</button>
     </div>
     <button class="hbg" id="hbgBtn" onclick="toggleMobNav()" aria-label="Menu" data-feature="mobile_responsive">
       <span></span><span></span><span></span>
@@ -165,9 +165,9 @@
           <span style="font-size:.76rem;font-weight:600;color:var(--gr);text-transform:uppercase;letter-spacing:.06em"
             data-i18n-mob-lang="true">Language</span>
           <div class="ls" style="transform:scale(1.15)">
-            <button class="lb on" id="mben" onclick="setLang('en');syncLangBtns('en')"
+            <button class="lb" id="mben" onclick="setLang('en');syncLangBtns('en')"
               data-feature="language_switcher">EN</button>
-            <button class="lb" id="mbes" onclick="setLang('es');syncLangBtns('es')"
+            <button class="lb on" id="mbes" onclick="setLang('es');syncLangBtns('es')"
               data-feature="language_switcher">ES</button>
           </div>
         </div>

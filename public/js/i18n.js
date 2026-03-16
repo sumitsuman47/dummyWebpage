@@ -855,20 +855,28 @@ const translations = {
 
 // Initialize i18n system
 const i18n = {
-    currentLang: localStorage.getItem('lumityaLang') || 'en',
+    currentLang: 'es',
 
     init() {
-        this.setLanguage(this.currentLang);
+        const savedLang = localStorage.getItem('lumityaLang');
+        const hasExplicitChoice = localStorage.getItem('lumityaLangChosen') === '1';
+        const initialLang = hasExplicitChoice && translations[savedLang] ? savedLang : 'es';
+        this.setLanguage(initialLang, hasExplicitChoice);
     },
 
-    setLanguage(lang) {
+    setLanguage(lang, persist = true) {
         if (!translations[lang]) {
             console.warn(`Language ${lang} not found, defaulting to English`);
             lang = 'en';
         }
 
         this.currentLang = lang;
-        localStorage.setItem('lumityaLang', lang);
+        document.documentElement.lang = lang === 'es' ? 'es' : 'en';
+
+        if (persist) {
+            localStorage.setItem('lumityaLang', lang);
+            localStorage.setItem('lumityaLangChosen', '1');
+        }
         this.updateDOM();
 
         // Update language button states
