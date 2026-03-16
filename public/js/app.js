@@ -1812,7 +1812,22 @@ const sharing = {
   },
 
   openPopup(url) {
-    window.open(url, '_blank', 'noopener,noreferrer,width=720,height=760');
+    const popup = window.open(url, '_blank', 'noopener,noreferrer,width=720,height=760');
+    if (!popup) {
+      window.location.href = url;
+    }
+  },
+
+  isMobileDevice() {
+    return /Android|iPhone|iPad|iPod|IEMobile|Opera Mini/i.test(navigator.userAgent || '');
+  },
+
+  openShareTarget(url, sameTab = false) {
+    if (sameTab) {
+      window.location.href = url;
+      return;
+    }
+    this.openPopup(url);
   },
 
   async share(network) {
@@ -1837,7 +1852,11 @@ const sharing = {
           this.setFeedback(i18n.get('share_copied'));
           break;
         case 'facebook':
-          this.openPopup(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`);
+          {
+            const fbDesktop = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(message)}`;
+            const fbMobile = `https://m.facebook.com/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(message)}`;
+            this.openShareTarget(this.isMobileDevice() ? fbMobile : fbDesktop, this.isMobileDevice());
+          }
           break;
         case 'whatsapp':
           this.openPopup(`https://wa.me/?text=${encodeURIComponent(combined)}`);
