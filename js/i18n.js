@@ -184,6 +184,7 @@ const translations = {
         h_notice: 'Platform notice: Lumitya provides a listing and matching service only. We do not supervise, guarantee, or endorse any work. All agreements are made directly between homeowners and providers.',
         h_btn1: 'Find a Professional',
         h_btn2: 'Browse Listings',
+        h_btn3: 'Join as Provider',
 
         // How It Works
         how_title: 'How It Works',
@@ -626,6 +627,7 @@ const translations = {
         h_notice: 'Aviso de plataforma: Lumitya proporciona solo un servicio de listado y emparejamiento. No supervisamos, garantizamos ni respaldamos ningún trabajo. Todos los acuerdos se realizan directamente entre propietarios y proveedores.',
         h_btn1: 'Encontrar un Profesional',
         h_btn2: 'Ver Listados',
+        h_btn3: 'Únete como Proveedor',
 
         // Cómo Funciona
         how_title: 'Cómo Funciona',
