@@ -1562,6 +1562,7 @@ document.addEventListener('DOMContentLoaded', () => {
   siteGate.init();
   formHelpers.bindCityNeighbourhoodDropdowns();
   categories.load();
+  shareMeta.update();
 
   // Sync featured provider list height to the left column
   let fpSyncTimer;
@@ -1758,6 +1759,135 @@ const language = {
   }
 };
 
+// Social sharing
+const sharing = {
+  getSiteUrl() {
+    const canonical = document.querySelector('link[rel="canonical"]');
+    const baseUrl = canonical?.href || 'https://www.lumitya.com/';
+    const lang = document.documentElement.lang === 'en' ? 'en' : 'es';
+    const url = new URL(baseUrl, window.location.origin);
+    url.searchParams.set('lang', lang);
+    return url.toString();
+  },
+
+  getMessage() {
+    if (typeof i18n !== 'undefined') {
+      return i18n.get('share_message');
+    }
+    return 'Discover Lumitya: connect with independent contractors and material suppliers in Guadalajara and Zapopan.';
+  },
+
+  getTitle() {
+    if (typeof i18n !== 'undefined') {
+      return i18n.get('share_title_short');
+    }
+    return 'Lumitya';
+  },
+
+  setFeedback(message) {
+    const el = document.getElementById('shareFeedback');
+    if (!el) return;
+    el.textContent = message;
+    clearTimeout(this._feedbackTimer);
+    this._feedbackTimer = setTimeout(() => {
+      el.textContent = '';
+    }, 3200);
+  },
+
+  async copyText(text) {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+
+    const input = document.createElement('textarea');
+    input.value = text;
+    input.setAttribute('readonly', 'readonly');
+    input.style.position = 'absolute';
+    input.style.left = '-9999px';
+    document.body.appendChild(input);
+    input.select();
+    document.execCommand('copy');
+    document.body.removeChild(input);
+  },
+
+  openPopup(url) {
+    window.open(url, '_blank', 'noopener,noreferrer,width=720,height=760');
+  },
+
+  async share(network) {
+    const url = this.getSiteUrl();
+    const message = this.getMessage();
+    const title = this.getTitle();
+    const combined = `${message} ${url}`;
+
+    try {
+      switch (network) {
+        case 'native':
+          if (navigator.share) {
+            await navigator.share({ title, text: message, url });
+            this.setFeedback(i18n.get('share_done'));
+          } else {
+            await this.copyText(url);
+            this.setFeedback(i18n.get('share_native_fallback'));
+          }
+          break;
+        case 'copy':
+          await this.copyText(url);
+          this.setFeedback(i18n.get('share_copied'));
+          break;
+        case 'facebook':
+          this.openPopup(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`);
+          break;
+        case 'whatsapp':
+          this.openPopup(`https://wa.me/?text=${encodeURIComponent(combined)}`);
+          break;
+        case 'telegram':
+          this.openPopup(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(message)}`);
+          break;
+        case 'x':
+          this.openPopup(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(message)}`);
+          break;
+        default:
+          await this.copyText(url);
+          this.setFeedback(i18n.get('share_copied'));
+      }
+    } catch (error) {
+      if (error?.name === 'AbortError') return;
+      console.error('Share failed:', error);
+      this.setFeedback(i18n.get('share_error'));
+    }
+  }
+};
+
+const shareMeta = {
+  update() {
+    if (typeof i18n === 'undefined') return;
+
+    const title = i18n.get('seo_title');
+    const description = i18n.get('seo_description');
+    const lang = document.documentElement.lang === 'es' ? 'es' : 'en';
+
+    document.title = title;
+
+    const setMeta = (selector, value) => {
+      const el = document.querySelector(selector);
+      if (el) el.setAttribute('content', value);
+    };
+
+    setMeta('meta[name="description"]', description);
+    setMeta('meta[property="og:title"]', title);
+    setMeta('meta[property="og:description"]', description);
+    setMeta('meta[property="og:locale"]', lang === 'es' ? 'es_MX' : 'en_US');
+    setMeta('meta[name="twitter:title"]', title);
+    setMeta('meta[name="twitter:description"]', description);
+  }
+};
+
+document.addEventListener('lumitya:lang-changed', () => {
+  shareMeta.update();
+});
+
 // Helper function to close mobile nav
 const closeMobNav = () => {
   const nav = document.getElementById('mobNav');
@@ -1797,6 +1927,7 @@ window.openNotify = () => notifyModal.open();
 window.closeNotify = () => notifyModal.close();
 window.setLang = (lang) => language.set(lang);
 window.syncLangBtns = (lang) => language.syncButtons(lang);
+window.shareSite = (network) => sharing.share(network);
 window.hideModal = (id) => {
   console.log('🔔 hideModal called with:', id);
   modals.hide(id);
