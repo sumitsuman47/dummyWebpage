@@ -19,6 +19,6 @@ services:
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false         # required for admin feature-flag writes; set in Render dashboard
       - key: ALLOWED_ORIGINS
-        value: https://www.lumitya.com,https://sumitsuman47.github.io
+        value: https://lumitya.com,https://www.lumitya.com,https://sumitsuman47.github.io
       - key: ADMIN_TOKEN
         sync: false         # set this in Render dashboard — keep it secret
