@@ -15,8 +15,7 @@ function getApiBase() {
 
 const CONFIG = {
   API_BASE: getApiBase(),
-  SITE_HASH: 'ce5fe72586b7b07039f6bf9aa17657414c8380ecb6d1efe6832ac706c8ec2d68',
-  SESSION_KEY: 'lumitya_auth'
+  SITE_HASH: 'ce5fe72586b7b07039f6bf9aa17657414c8380ecb6d1efe6832ac706c8ec2d68'
 };
 
 // Utility functions
@@ -297,21 +296,12 @@ const siteGate = {
       // If the gate feature is disabled, ensure the overlay is not shown.
       // (Feature flags are initialized before this file's DOMContentLoaded handler.)
       if (window.FeatureFlags && window.FeatureFlags.loaded && !window.FeatureFlags.isEnabled('password_gate')) {
-        try {
-          sessionStorage.setItem(CONFIG.SESSION_KEY, CONFIG.SITE_HASH);
-        } catch (e) { }
-
         const gate = document.getElementById('siteGate');
         if (gate) gate.style.display = 'none';
         return;
       }
-
-      if (sessionStorage.getItem(CONFIG.SESSION_KEY) === CONFIG.SITE_HASH) {
-        const gate = document.getElementById('siteGate');
-        if (gate) gate.style.display = 'none';
-      }
     } catch (e) {
-      console.error('Session storage error:', e);
+      console.error('Password gate init error:', e);
     }
   },
 
@@ -329,10 +319,6 @@ const siteGate = {
     const hash = await utils.hash(pw);
 
     if (hash === CONFIG.SITE_HASH) {
-      try {
-        sessionStorage.setItem(CONFIG.SESSION_KEY, CONFIG.SITE_HASH);
-      } catch (e) { }
-
       const gate = document.getElementById('siteGate');
       gate.style.transition = 'opacity .35s';
       gate.style.opacity = '0';
@@ -1558,15 +1544,7 @@ const supplierSubmit = {
 };
 
 // Initialize on load
-document.addEventListener('DOMContentLoaded', async () => {
-  if (window.FeatureFlags && typeof window.FeatureFlags.boot === 'function') {
-    try {
-      await window.FeatureFlags.boot();
-    } catch (error) {
-      console.warn('Feature flag boot completed with an error:', error);
-    }
-  }
-
+document.addEventListener('DOMContentLoaded', () => {
   siteGate.init();
   formHelpers.bindCityNeighbourhoodDropdowns();
   categories.load();

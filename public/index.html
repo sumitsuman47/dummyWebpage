@@ -23,18 +23,58 @@
     rel="stylesheet">
   <link rel="stylesheet" href="css/complete-styles.css">
   <link rel="stylesheet" href="css/provider-card-styles.css">
-  <style>
-    html[data-app-boot="loading"] body {
-      visibility: hidden;
-      overflow: hidden;
-    }
-
-    html[data-app-boot="ready"] body {
-      visibility: visible;
-    }
-  </style>
   <script>
-    document.documentElement.setAttribute('data-app-boot', 'loading');
+    (function preloadFeatureFlags() {
+      const CACHE_KEY = 'lumitya_feature_flags';
+      const CACHE_DURATION = 5 * 60 * 1000;
+
+      function readCache(storage) {
+        try {
+          const raw = storage.getItem(CACHE_KEY);
+          if (!raw) return null;
+
+          const parsed = JSON.parse(raw);
+          if (!parsed || !parsed.flags || !parsed.timestamp) return null;
+
+          if (Date.now() - parsed.timestamp > CACHE_DURATION) {
+            storage.removeItem(CACHE_KEY);
+            return null;
+          }
+
+          return parsed;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function buildPreloadCss(flags) {
+        const rules = [];
+
+        Object.keys(flags).forEach((featureKey) => {
+          const isEnabled = flags[featureKey] && flags[featureKey].enabled === true;
+          if (isEnabled) {
+            rules.push('[data-feature-disabled="' + featureKey + '"]{display:none !important;}');
+          } else {
+            rules.push('[data-feature="' + featureKey + '"]{display:none !important;}');
+          }
+        });
+
+        return rules.join('\n');
+      }
+
+      const cached = readCache(window.sessionStorage) || readCache(window.localStorage);
+      if (!cached) return;
+
+      window.__LUMITYA_PRELOADED_FLAGS__ = cached;
+
+      const css = buildPreloadCss(cached.flags);
+      if (!css) return;
+
+      const preloadStyle = document.createElement('style');
+      preloadStyle.id = 'lumitya-feature-flags-preload';
+      preloadStyle.textContent = css;
+      document.head.appendChild(preloadStyle);
+    })();
   </script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script src="js/runtime-config.js"></script>
@@ -49,8 +89,8 @@
   <!-- ══ FULL-PAGE PASSWORD GATE ══
      The entire site is hidden behind this overlay until the correct
      password is entered. The password is stored ONLY as a SHA-256 hash —
-     it never appears in source code. Session is kept in sessionStorage
-     so the user only enters it once per browser tab.
+      it never appears in source code. The gate is shown again on refresh
+      whenever the password_gate feature flag is enabled.
 -->
   <div id="siteGate" data-feature="password_gate" style="
   position:fixed;inset:0;z-index:99999;
