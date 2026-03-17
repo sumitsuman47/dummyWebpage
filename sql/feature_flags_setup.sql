@@ -163,6 +163,8 @@ INSERT INTO feature_flags (feature_key, feature_name, feature_description, categ
 ('service_request_form', 'Service Request Form', 'Main "Get Matched" service request form', 'forms', true, 'system', 'Primary lead capture form'),
 ('service_request_budget', 'Budget Field', 'Budget selection dropdown in service request forms', 'forms', true, 'system', 'Added for better matching'),
 ('service_request_timeline', 'Timeline Field', 'Preferred timeline/start date in service request', 'forms', true, 'system', 'Urgency indicator'),
+('timeline_urgent_option', 'Timeline – Urgent Option', 'Show "Urgent – within 1 week" option in timeline dropdowns', 'forms', false, 'system', 'Controls visibility of urgent timeline option'),
+('timeline_soon_option', 'Timeline – Soon Option', 'Show "Soon – within 1 month" option in timeline dropdowns', 'forms', false, 'system', 'Controls visibility of soon timeline option'),
 ('service_request_neighbourhood', 'Dynamic Neighbourhood Dropdown', 'City-based neighbourhood selection', 'forms', true, 'system', 'Location precision'),
 ('service_request_validation', 'Form Validation', 'Client-side validation for service request forms', 'forms', true, 'system', 'Data quality'),
 

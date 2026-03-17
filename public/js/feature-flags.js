@@ -183,6 +183,14 @@ const FeatureFlags = {
             const shouldShow = inverse ? !enabled : enabled;
 
             if (shouldShow) {
+                // <option> elements: re-insert from stored position
+                if (el.tagName === 'OPTION' && el._ffRemovedFrom) {
+                    const { parent, nextSibling } = el._ffRemovedFrom;
+                    parent.insertBefore(el, nextSibling || null);
+                    delete el._ffRemovedFrom;
+                    shownCount++;
+                    return;
+                }
                 // If we previously hid this element, restore its prior *inline* display.
                 // Otherwise, do not touch the current inline display (important for elements
                 // that rely on an inline display like display:flex, e.g. #siteGate).
@@ -193,6 +201,14 @@ const FeatureFlags = {
                 el.removeAttribute('hidden');
                 shownCount++;
             } else {
+                // <option> elements: remove from DOM for cross-browser reliability
+                if (el.tagName === 'OPTION' && el.parentNode) {
+                    el._ffRemovedFrom = { parent: el.parentNode, nextSibling: el.nextSibling };
+                    el.parentNode.removeChild(el);
+                    hiddenCount++;
+                    console.log(`🚫 Feature disabled: ${featureKey}`);
+                    return;
+                }
                 // Store original *inline* display only (empty string means "no inline display")
                 if (!el.hasAttribute('data-original-display')) {
                     el.setAttribute('data-original-display', el.style.display || '');

@@ -90,12 +90,64 @@ SET
   updated_by = 'system';
 
 -- =============================================
+-- Add timeline_urgent_option flag
+-- =============================================
+
+INSERT INTO feature_flags (
+  feature_key,
+  feature_name,
+  feature_description,
+  category,
+  is_enabled,
+  updated_by,
+  notes
+) VALUES (
+  'timeline_urgent_option',
+  'Timeline – Urgent Option',
+  'Show "Urgent – within 1 week" option in timeline dropdowns',
+  'forms',
+  false,
+  'system',
+  'Controls visibility of the urgent timeline option in service request forms'
+)
+ON CONFLICT (feature_key) DO UPDATE 
+SET 
+  updated_at = now(),
+  updated_by = 'system';
+
+-- =============================================
+-- Add timeline_soon_option flag
+-- =============================================
+
+INSERT INTO feature_flags (
+  feature_key,
+  feature_name,
+  feature_description,
+  category,
+  is_enabled,
+  updated_by,
+  notes
+) VALUES (
+  'timeline_soon_option',
+  'Timeline – Soon Option',
+  'Show "Soon – within 1 month" option in timeline dropdowns',
+  'forms',
+  false,
+  'system',
+  'Controls visibility of the soon timeline option in service request forms'
+)
+ON CONFLICT (feature_key) DO UPDATE 
+SET 
+  updated_at = now(),
+  updated_by = 'system';
+
+-- =============================================
 -- VERIFICATION
 -- =============================================
 -- Run this query to verify the new flag was added:
 -- SELECT feature_key, feature_name, is_enabled, category 
 -- FROM feature_flags 
--- WHERE feature_key IN ('language_switcher', 'social_share_section', 'home_join_provider_button')
+-- WHERE feature_key IN ('language_switcher', 'social_share_section', 'home_join_provider_button', 'timeline_urgent_option', 'timeline_soon_option')
 -- ORDER BY feature_key;
 
 -- =============================================
