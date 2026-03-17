@@ -12,9 +12,31 @@ const FeatureFlags = {
     flags: {},
     loaded: false,
     loading: false,
+    bootCompleted: false,
+    bootPromise: null,
     lastFetch: null,
     CACHE_DURATION: 5 * 60 * 1000, // 5 minutes
     pollIntervalId: null,
+
+    isDomReady() {
+        return typeof document !== 'undefined' && document.readyState !== 'loading';
+    },
+
+    whenDomReady() {
+        if (this.isDomReady()) return Promise.resolve();
+
+        return new Promise(resolve => {
+            document.addEventListener('DOMContentLoaded', resolve, { once: true });
+        });
+    },
+
+    finalizeInitialBoot() {
+        if (this.bootCompleted || typeof document === 'undefined') return;
+
+        this.bootCompleted = true;
+        document.documentElement.setAttribute('data-app-boot', 'ready');
+        window.dispatchEvent(new CustomEvent('lumitya:feature-flags-ready'));
+    },
 
     shouldUseCache(forceRefresh = false) {
         if (forceRefresh) return false;
@@ -77,7 +99,9 @@ const FeatureFlags = {
                 this.flags = cached.flags;
                 this.lastFetch = cached.timestamp;
                 this.loaded = true;
-                this.applyFeatureFlags();
+                if (this.isDomReady()) {
+                    this.applyFeatureFlags();
+                }
                 console.log('💾 Loaded feature flags from localStorage');
             }
 
@@ -94,7 +118,9 @@ const FeatureFlags = {
                 this.saveToCache();
 
                 // Apply feature flags to DOM
-                this.applyFeatureFlags();
+                if (this.isDomReady()) {
+                    this.applyFeatureFlags();
+                }
 
                 console.log(`✅ Feature flags loaded: ${data.count} features enabled`);
                 console.log('Features:', Object.keys(this.flags));
@@ -116,6 +142,27 @@ const FeatureFlags = {
         } finally {
             this.loading = false;
         }
+    },
+
+    async boot() {
+        if (this.bootPromise) {
+            return this.bootPromise;
+        }
+
+        this.bootPromise = (async () => {
+            try {
+                await Promise.all([this.init(), this.whenDomReady()]);
+                this.applyFeatureFlags();
+                this.startAutoRefresh();
+                this.finalizeInitialBoot();
+                return this.flags;
+            } catch (error) {
+                this.finalizeInitialBoot();
+                throw error;
+            }
+        })();
+
+        return this.bootPromise;
     },
 
     /**
@@ -392,19 +439,13 @@ const FeatureFlags = {
     }
 };
 
-// Auto-initialize on DOM ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', async () => {
-        await FeatureFlags.init();
-        FeatureFlags.startAutoRefresh();
-    });
-} else {
-    // DOM already loaded
-    FeatureFlags.init().then(() => FeatureFlags.startAutoRefresh());
-}
-
 // Make available globally
 window.FeatureFlags = FeatureFlags;
+
+// Start initial boot as early as possible.
+FeatureFlags.boot().catch(error => {
+    console.error('Initial feature flag boot failed:', error);
+});
 
 // Export for modules
 if (typeof module !== 'undefined' && module.exports) {
