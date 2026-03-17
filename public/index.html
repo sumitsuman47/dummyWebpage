@@ -23,6 +23,19 @@
     rel="stylesheet">
   <link rel="stylesheet" href="css/complete-styles.css">
   <link rel="stylesheet" href="css/provider-card-styles.css">
+  <style>
+    html[data-app-boot="loading"] body {
+      visibility: hidden;
+      overflow: hidden;
+    }
+
+    html[data-app-boot="ready"] body {
+      visibility: visible;
+    }
+  </style>
+  <script>
+    document.documentElement.setAttribute('data-app-boot', 'loading');
+  </script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script src="js/runtime-config.js"></script>
   <script src="js/feature-flags.js"></script>

@@ -1558,7 +1558,15 @@ const supplierSubmit = {
 };
 
 // Initialize on load
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  if (window.FeatureFlags && typeof window.FeatureFlags.boot === 'function') {
+    try {
+      await window.FeatureFlags.boot();
+    } catch (error) {
+      console.warn('Feature flag boot completed with an error:', error);
+    }
+  }
+
   siteGate.init();
   formHelpers.bindCityNeighbourhoodDropdowns();
   categories.load();
