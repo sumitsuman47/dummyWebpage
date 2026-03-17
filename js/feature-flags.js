@@ -9,34 +9,13 @@
 
 const FeatureFlags = {
     // Storage
+    CACHE_KEY: 'lumitya_feature_flags',
     flags: {},
     loaded: false,
     loading: false,
-    bootCompleted: false,
-    bootPromise: null,
     lastFetch: null,
     CACHE_DURATION: 5 * 60 * 1000, // 5 minutes
     pollIntervalId: null,
-
-    isDomReady() {
-        return typeof document !== 'undefined' && document.readyState !== 'loading';
-    },
-
-    whenDomReady() {
-        if (this.isDomReady()) return Promise.resolve();
-
-        return new Promise(resolve => {
-            document.addEventListener('DOMContentLoaded', resolve, { once: true });
-        });
-    },
-
-    finalizeInitialBoot() {
-        if (this.bootCompleted || typeof document === 'undefined') return;
-
-        this.bootCompleted = true;
-        document.documentElement.setAttribute('data-app-boot', 'ready');
-        window.dispatchEvent(new CustomEvent('lumitya:feature-flags-ready'));
-    },
 
     shouldUseCache(forceRefresh = false) {
         if (forceRefresh) return false;
@@ -67,12 +46,65 @@ const FeatureFlags = {
         return withoutTrailingSlash.endsWith('/api') ? withoutTrailingSlash : withoutTrailingSlash + '/api';
     },
 
+    applyPreloadedFlags() {
+        const cached = window.__LUMITYA_PRELOADED_FLAGS__;
+        if (!cached || this.loaded) return false;
+
+        this.flags = cached.flags;
+        this.lastFetch = cached.timestamp;
+        this.loaded = true;
+
+        if (document.readyState !== 'loading') {
+            this.applyFeatureFlags();
+        }
+
+        return true;
+    },
+
+    clearPreloadStyles() {
+        const preloadStyle = document.getElementById('lumitya-feature-flags-preload');
+        if (preloadStyle) {
+            preloadStyle.remove();
+        }
+    },
+
+    readCache(storage) {
+        try {
+            const cached = storage.getItem(this.CACHE_KEY);
+            if (!cached) return null;
+
+            const data = JSON.parse(cached);
+            const age = Date.now() - data.timestamp;
+
+            if (age < this.CACHE_DURATION) {
+                return data;
+            }
+
+            storage.removeItem(this.CACHE_KEY);
+            return null;
+        } catch (e) {
+            return null;
+        }
+    },
+
+    writeCache(storage, cacheData) {
+        try {
+            storage.setItem(this.CACHE_KEY, JSON.stringify(cacheData));
+        } catch (e) {
+            // Ignore storage write errors.
+        }
+    },
+
     /**
      * Initialize feature flags
      * Fetches from API or localStorage cache
      */
     async init(forceRefresh = false) {
         const useCache = this.shouldUseCache(forceRefresh);
+
+        if (!forceRefresh) {
+            this.applyPreloadedFlags();
+        }
 
         // Prevent multiple simultaneous loads
         if (this.loading) {
@@ -93,15 +125,13 @@ const FeatureFlags = {
         console.log('🔄 Fetching feature flags...');
 
         try {
-            // Try to load from localStorage first (instant)
+            // Try to load from session/local cache first (instant)
             const cached = this.loadFromCache();
             if (cached && useCache) {
                 this.flags = cached.flags;
                 this.lastFetch = cached.timestamp;
                 this.loaded = true;
-                if (this.isDomReady()) {
-                    this.applyFeatureFlags();
-                }
+                this.applyFeatureFlags();
                 console.log('💾 Loaded feature flags from localStorage');
             }
 
@@ -118,9 +148,7 @@ const FeatureFlags = {
                 this.saveToCache();
 
                 // Apply feature flags to DOM
-                if (this.isDomReady()) {
-                    this.applyFeatureFlags();
-                }
+                this.applyFeatureFlags();
 
                 console.log(`✅ Feature flags loaded: ${data.count} features enabled`);
                 console.log('Features:', Object.keys(this.flags));
@@ -142,27 +170,6 @@ const FeatureFlags = {
         } finally {
             this.loading = false;
         }
-    },
-
-    async boot() {
-        if (this.bootPromise) {
-            return this.bootPromise;
-        }
-
-        this.bootPromise = (async () => {
-            try {
-                await Promise.all([this.init(), this.whenDomReady()]);
-                this.applyFeatureFlags();
-                this.startAutoRefresh();
-                this.finalizeInitialBoot();
-                return this.flags;
-            } catch (error) {
-                this.finalizeInitialBoot();
-                throw error;
-            }
-        })();
-
-        return this.bootPromise;
     },
 
     /**
@@ -218,6 +225,8 @@ const FeatureFlags = {
      * Hides/shows elements based on data-feature attribute
      */
     applyFeatureFlags() {
+        this.clearPreloadStyles();
+
         let hiddenCount = 0;
         let shownCount = 0;
 
@@ -303,40 +312,20 @@ const FeatureFlags = {
      * Save flags to localStorage
      */
     saveToCache() {
-        try {
-            const cacheData = {
-                flags: this.flags,
-                timestamp: this.lastFetch
-            };
-            localStorage.setItem('lumitya_feature_flags', JSON.stringify(cacheData));
-        } catch (e) {
-            console.warn('Failed to save feature flags to localStorage:', e);
-        }
+        const cacheData = {
+            flags: this.flags,
+            timestamp: this.lastFetch
+        };
+
+        this.writeCache(window.sessionStorage, cacheData);
+        this.writeCache(window.localStorage, cacheData);
     },
 
     /**
      * Load flags from localStorage
      */
     loadFromCache() {
-        try {
-            const cached = localStorage.getItem('lumitya_feature_flags');
-            if (!cached) return null;
-
-            const data = JSON.parse(cached);
-            const age = Date.now() - data.timestamp;
-
-            // Return cache if less than 5 minutes old
-            if (age < this.CACHE_DURATION) {
-                return data;
-            }
-
-            // Cache expired, clear it
-            localStorage.removeItem('lumitya_feature_flags');
-            return null;
-        } catch (e) {
-            console.warn('Failed to load feature flags from localStorage:', e);
-            return null;
-        }
+        return this.readCache(window.sessionStorage) || this.readCache(window.localStorage);
     },
 
     /**
@@ -346,7 +335,10 @@ const FeatureFlags = {
         this.flags = {};
         this.loaded = false;
         this.lastFetch = null;
-        localStorage.removeItem('lumitya_feature_flags');
+        window.sessionStorage.removeItem(this.CACHE_KEY);
+        window.localStorage.removeItem(this.CACHE_KEY);
+        delete window.__LUMITYA_PRELOADED_FLAGS__;
+        this.clearPreloadStyles();
         console.log('🗑️ Feature flags cache cleared');
     },
 
@@ -439,13 +431,24 @@ const FeatureFlags = {
     }
 };
 
+const initialFeatureFlagsLoad = FeatureFlags.init();
+
+// Auto-initialize DOM application once the page is ready.
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', async () => {
+        await initialFeatureFlagsLoad;
+        FeatureFlags.applyFeatureFlags();
+        FeatureFlags.startAutoRefresh();
+    });
+} else {
+    initialFeatureFlagsLoad.then(() => {
+        FeatureFlags.applyFeatureFlags();
+        FeatureFlags.startAutoRefresh();
+    });
+}
+
 // Make available globally
 window.FeatureFlags = FeatureFlags;
-
-// Start initial boot as early as possible.
-FeatureFlags.boot().catch(error => {
-    console.error('Initial feature flag boot failed:', error);
-});
 
 // Export for modules
 if (typeof module !== 'undefined' && module.exports) {
