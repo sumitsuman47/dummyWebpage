@@ -23,6 +23,55 @@
     rel="stylesheet">
   <link rel="stylesheet" href="css/complete-styles.css">
   <link rel="stylesheet" href="css/provider-card-styles.css">
+  <style>
+    html[data-lang-preload="en"] #ben,
+    html[data-lang-preload="en"] #bes,
+    html[data-lang-preload="en"] #mben,
+    html[data-lang-preload="en"] #mbes,
+    html[data-lang-preload="en"] #mben2,
+    html[data-lang-preload="en"] #mbes2,
+    html[data-lang-preload="en"] [data-i18n="findProviders"],
+    html[data-lang-preload="en"] [data-i18n="forContractors"],
+    html[data-lang-preload="en"] [data-i18n="getMatched"],
+    html[data-lang-preload="en"] [data-i18n="joinSupplier"],
+    html[data-lang-preload="en"] [data-i18n-mob-lang="true"],
+    html[data-lang-preload="en"] [data-i18n="h_title"],
+    html[data-lang-preload="en"] [data-i18n="h_desc"],
+    html[data-lang-preload="en"] [data-i18n="h_notice"],
+    html[data-lang-preload="en"] [data-i18n="h_btn1"],
+    html[data-lang-preload="en"] [data-i18n="h_btn2"],
+    html[data-lang-preload="en"] [data-i18n="h_btn3"],
+    html[data-lang-preload="en"] [data-i18n="fp_tag"],
+    html[data-lang-preload="en"] [data-i18n="list_title"],
+    html[data-lang-preload="en"] [data-i18n="list_desc"],
+    html[data-lang-preload="en"] [data-i18n="list_b1"],
+    html[data-lang-preload="en"] [data-i18n="list_b2"],
+    html[data-lang-preload="en"] [data-i18n="list_b3"],
+    html[data-lang-preload="en"] [data-i18n="list_b4"],
+    html[data-lang-preload="en"] [data-i18n="list_btn1"] {
+      visibility: hidden;
+    }
+  </style>
+  <script>
+    (function preloadLanguageSelection() {
+      const isValidLang = (lang) => lang === 'en' || lang === 'es';
+      const urlLang = new URLSearchParams(window.location.search).get('lang');
+      const savedLang = localStorage.getItem('lumityaLang');
+      const hasExplicitChoice = localStorage.getItem('lumityaLangChosen') === '1';
+
+      const initialLang = isValidLang(urlLang)
+        ? urlLang
+        : (hasExplicitChoice && isValidLang(savedLang) ? savedLang : 'es');
+
+      window.__LUMITYA_PRELOADED_LANG__ = initialLang;
+      window.__LUMITYA_PRELOADED_LANG_PERSIST__ = hasExplicitChoice && !isValidLang(urlLang);
+      document.documentElement.lang = initialLang === 'es' ? 'es' : 'en';
+
+      if (initialLang === 'en') {
+        document.documentElement.setAttribute('data-lang-preload', 'en');
+      }
+    })();
+  </script>
   <script>
     (function preloadFeatureFlags() {
       const CACHE_KEY = 'lumitya_feature_flags';

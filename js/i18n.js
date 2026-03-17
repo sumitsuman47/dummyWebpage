@@ -896,6 +896,14 @@ const i18n = {
     currentLang: 'es',
 
     init() {
+        const preloadedLang = window.__LUMITYA_PRELOADED_LANG__;
+        const preloadedPersist = window.__LUMITYA_PRELOADED_LANG_PERSIST__;
+
+        if (translations[preloadedLang]) {
+            this.setLanguage(preloadedLang, preloadedPersist === true);
+            return;
+        }
+
         const urlLang = new URLSearchParams(window.location.search).get('lang');
         const savedLang = localStorage.getItem('lumityaLang');
         const hasExplicitChoice = localStorage.getItem('lumityaLangChosen') === '1';
@@ -932,6 +940,8 @@ const i18n = {
                 btn.classList.add('on');
             }
         });
+
+        document.documentElement.removeAttribute('data-lang-preload');
 
         console.log('✓ Language switched to:', lang);
     },
