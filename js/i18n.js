@@ -24,7 +24,7 @@ const translations = {
         findProviders: '🔍 Find Providers',
         forContractors: 'For Contractors',
         joinSupplier: '🏪 Join as Supplier',
-        getMatched: 'Get Matched',
+        getMatched: 'Get Matched - Free',
 
         // Service Request Modal
         sendRequest: 'Send Request',
@@ -182,7 +182,7 @@ const translations = {
         h_title: 'Connect With Home Service Professionals. Fast & Simple.',
         h_desc: 'Lumitya is a digital matching platform connecting homeowners with independent contractors and material suppliers in Guadalajara & Zapopan.',
         h_notice: 'Platform notice: Lumitya provides a listing and matching service only. We do not supervise, guarantee, or endorse any work. All agreements are made directly between homeowners and providers.',
-        h_btn1: 'Find a Professional',
+        h_btn1: 'Find a Professional - Free',
         h_btn2: 'Browse Listings',
         h_btn3: 'Join as Provider',
 
@@ -242,7 +242,7 @@ const translations = {
         expand_desc: 'Quality first. More Jalisco cities in 2026.',
         footer_title: 'Need a Home Service Professional?',
         footer_desc: 'Submit your request in under 2 minutes. We forward it to listed professionals in your area.',
-        footer_btn: 'Submit a Request',
+        footer_btn: 'Submit a Request - Free',
         share_tag: 'Share Lumitya',
         share_title: 'Share Lumitya with your network',
         share_title_short: 'Lumitya',
@@ -467,7 +467,7 @@ const translations = {
         findProviders: '🔍 Buscar Proveedores',
         forContractors: 'Para Contratistas',
         joinSupplier: '🏪 Únete como Proveedor',
-        getMatched: 'Obtener Coincidencias',
+        getMatched: 'Obtener Coincidencias - Gratis',
 
         // Modal de Solicitud de Servicio
         sendRequest: 'Enviar Solicitud',
@@ -625,7 +625,7 @@ const translations = {
         h_title: 'Conéctate con Profesionales de Servicios para el Hogar. Rápido y Simple.',
         h_desc: 'Lumitya es una plataforma digital que conecta propietarios con contratistas independientes y proveedores de materiales en Guadalajara y Zapopan.',
         h_notice: 'Aviso de plataforma: Lumitya proporciona solo un servicio de listado y emparejamiento. No supervisamos, garantizamos ni respaldamos ningún trabajo. Todos los acuerdos se realizan directamente entre propietarios y proveedores.',
-        h_btn1: 'Encontrar un Profesional',
+        h_btn1: 'Encontrar un Profesional - Gratis',
         h_btn2: 'Ver Listados',
         h_btn3: 'Únete como Proveedor',
 
@@ -685,7 +685,7 @@ const translations = {
         expand_desc: 'Calidad primero. Más ciudades de Jalisco en 2026.',
         footer_title: '¿Necesitas un Profesional de Servicios para el Hogar?',
         footer_desc: 'Envía tu solicitud en menos de 2 minutos. La enviamos a profesionales listados en tu área.',
-        footer_btn: 'Enviar una Solicitud',
+        footer_btn: 'Enviar una Solicitud - Gratis',
         share_tag: 'Comparte Lumitya',
         share_title: 'Comparte Lumitya con tu red',
         share_title_short: 'Lumitya',
