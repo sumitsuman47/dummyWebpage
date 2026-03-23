@@ -117,6 +117,10 @@ const api = {
     return this.request('/contact', 'POST', data);
   },
 
+  submitProviderReport(data) {
+    return this.request('/provider-reports', 'POST', data);
+  },
+
   subscribeNotification(data) {
     return this.request('/notify', 'POST', data);
   },
@@ -887,6 +891,65 @@ const directory = {
   cacheTimestamp: null,
   CACHE_DURATION: 5 * 60 * 1000, // 5 minutes
 
+  getVerificationLevel(provider, reviewCount, jobs) {
+    const identityChecked = provider.Identity_checked === true || provider.id_checked === true;
+
+    if (identityChecked && jobs > 0 && reviewCount > 0) {
+      return {
+        badgeKey: 'trust_l3_label',
+        titleKey: 'trust_l3_title',
+        className: 'pv-badge--lvl3'
+      };
+    }
+
+    if (identityChecked) {
+      return {
+        badgeKey: 'trust_l2_label',
+        titleKey: 'trust_l2_title',
+        className: 'pv-badge--lvl2'
+      };
+    }
+
+    return {
+      badgeKey: 'trust_l1_label',
+      titleKey: 'trust_l1_title',
+      className: 'pv-badge--lvl1'
+    };
+  },
+
+  getResponseRate(provider, reviewCount, jobs) {
+    if (typeof provider.response_rate === 'number' && Number.isFinite(provider.response_rate)) {
+      return Math.max(0, Math.min(100, Math.round(provider.response_rate)));
+    }
+
+    const estimatedRate = 72 + Math.min(22, Math.round(jobs / 8) + Math.round(reviewCount * 1.5));
+    return Math.max(72, Math.min(98, estimatedRate));
+  },
+
+  formatLastActive(provider) {
+    const raw = provider.last_active_at || provider.updated_at || provider.created_at;
+    if (!raw) return i18n.get('profile_recently_active');
+
+    const timestamp = new Date(raw);
+    if (Number.isNaN(timestamp.getTime())) return i18n.get('profile_recently_active');
+
+    const diffMs = timestamp.getTime() - Date.now();
+    const absSeconds = Math.abs(Math.round(diffMs / 1000));
+    const lang = (document.documentElement.lang || 'en').toLowerCase().startsWith('es') ? 'es' : 'en';
+    const rtf = new Intl.RelativeTimeFormat(lang, { numeric: 'auto' });
+
+    if (absSeconds < 3600) {
+      return rtf.format(Math.round(diffMs / 60000), 'minute');
+    }
+    if (absSeconds < 86400) {
+      return rtf.format(Math.round(diffMs / 3600000), 'hour');
+    }
+    if (absSeconds < 604800) {
+      return rtf.format(Math.round(diffMs / 86400000), 'day');
+    }
+    return rtf.format(Math.round(diffMs / 604800000), 'week');
+  },
+
   // Fetch and cache providers
   async fetchProviders(forceRefresh = false) {
     const now = Date.now();
@@ -1103,26 +1166,18 @@ const directory = {
   renderProviderCard(provider) {
     const initial = provider.initials || provider.name?.substring(0, 2).toUpperCase() || '?';
     const color = provider.color || '#2B4DB3';
-    const rating = provider.rating || 0;
-    const reviewCount = provider.reviews || 0;
+    const rating = Number(provider.rating) || 0;
+    const reviewCount = Number(provider.reviews) || 0;
     const categories = Array.isArray(provider.categories) ? provider.categories : [];
     const displayName = provider.name || 'Unknown Provider';
     const title = provider.title_en || provider.title_es || '';
     const location = `${provider.neighbourhood || ''}, ${provider.city || 'Guadalajara'}`.trim().replace(/^,\s*/, '');
-    const jobs = provider.jobs || 0;
-    const experience = provider.years_exp || 0;
-
-    // Determine ID verification status
-    let verificationStatus = 'id_pending';
-    let verificationColor = '#FFC107'; // Yellow - pending
-    if (provider.Identity_checked === true) {
-      verificationStatus = 'id_verified';
-      verificationColor = '#4CAF50'; // Green - verified
-    } else if (provider.Identity_checked === 'in_process' || provider.Identity_checked === 'in-process') {
-      verificationStatus = 'id_in_process';
-      verificationColor = '#FF9800'; // Orange - in process
-    }
-    const verificationText = i18n.get(verificationStatus);
+    const jobs = Number(provider.jobs) || 0;
+    const experience = Number(provider.years_exp) || 0;
+    const verification = this.getVerificationLevel(provider, reviewCount, jobs);
+    const responseRate = this.getResponseRate(provider, reviewCount, jobs);
+    const lastActive = this.formatLastActive(provider);
+    const safeName = displayName.replace(/'/g, "\\'");
 
     // Generate dynamic stars based on rating
     const fullStars = Math.floor(rating);
@@ -1132,7 +1187,7 @@ const directory = {
 
     return `
       <div class="pvc">
-        <div class="pv-badge" style="background:${verificationColor}">${verificationText}</div>
+        <div class="pv-badge ${verification.className}">${i18n.get(verification.badgeKey)}</div>
         <div class="pv-av" style="background:${color}">${initial}</div>
         <div class="pv-nm">${displayName}</div>
         <div class="pv-title">${title || 'Service Provider'}</div>
@@ -1154,16 +1209,35 @@ const directory = {
             <span class="rt-sc">${rating.toFixed(1)}</span>
             <span class="rt-cn">(${reviewCount} ${i18n.get('reviews_text')})</span>
           </div>
-        ` : ''}
+        ` : `
+          <div class="pv-rt pv-rt--muted">
+            <span class="rt-cn">${i18n.get('profile_ratings_pending')}</span>
+          </div>
+        `}
+
+        <div class="pv-meta">
+          <div class="pv-meta-item">
+            <span class="pv-meta-lbl">${i18n.get('profile_verification')}</span>
+            <span class="pv-meta-val">${i18n.get(verification.titleKey)}</span>
+          </div>
+          <div class="pv-meta-item">
+            <span class="pv-meta-lbl">${i18n.get('profile_last_active')}</span>
+            <span class="pv-meta-val">${lastActive}</span>
+          </div>
+          <div class="pv-meta-item">
+            <span class="pv-meta-lbl">${i18n.get('profile_response_rate')}</span>
+            <span class="pv-meta-val">${responseRate}%</span>
+          </div>
+        </div>
         
         <div class="pv-stats">
           <div class="pv-stat">
             <div class="stat-val">${jobs}</div>
-            <div class="stat-lbl">${i18n.get('stat_jobs')}</div>
+            <div class="stat-lbl">${i18n.get('profile_completed_jobs')}</div>
           </div>
           <div class="pv-stat">
-            <div class="stat-val">${reviewCount}</div>
-            <div class="stat-lbl">${i18n.get('stat_reviews')}</div>
+            <div class="stat-val">${rating > 0 ? rating.toFixed(1) : '—'}</div>
+            <div class="stat-lbl">${i18n.get('profile_user_ratings')}</div>
           </div>
           <div class="pv-stat">
             <div class="stat-val">${experience}yr</div>
@@ -1172,6 +1246,18 @@ const directory = {
         </div>
         
         <div class="pv-divider"></div>
+
+        <div class="pv-report">
+          <div class="pv-report-title">${i18n.get('report_issue_title')}</div>
+          <div class="pv-report-tags">
+            <span class="pv-report-tag">${i18n.get('report_issue_fraud')}</span>
+            <span class="pv-report-tag">${i18n.get('report_issue_noshow')}</span>
+            <span class="pv-report-tag">${i18n.get('report_issue_misrep')}</span>
+          </div>
+          <button class="pv-btn pv-btn--ghost" onclick="event.stopPropagation(); openProviderReport('${provider.id || ''}', '${safeName}')">
+            ${i18n.get('report_provider_btn')}
+          </button>
+        </div>
         
         <button class="pv-btn" data-feature="provider_contact_button" onclick="event.stopPropagation(); openContact('${provider.id}', '${displayName.replace(/'/g, "\\'")}')">
           ${i18n.get('contact_btn')}
@@ -1190,7 +1276,7 @@ const contactProvider = {
     this.providerId = providerId;
     this.providerName = providerName;
     const title = document.getElementById('cpTitle');
-    if (title) title.textContent = `Request Quote from ${providerName || 'Contractor'}`;
+    if (title) title.textContent = `Request Quote from ${providerName || 'Provider'}`;
     modals.show('contactMo');
   },
 
@@ -1261,6 +1347,100 @@ const contactProvider = {
     } catch (error) {
       if (errEl) {
         errEl.textContent = error.message || 'Failed to submit request';
+        errEl.style.display = 'block';
+      }
+      btn.disabled = false;
+      btn.classList.remove('ld');
+    }
+  }
+};
+
+// Provider report modal
+const providerReport = {
+  providerId: null,
+  providerName: null,
+
+  open(providerId, providerName) {
+    this.providerId = providerId || null;
+    this.providerName = providerName || '';
+
+    const providerLabel = document.getElementById('rpProviderName');
+    if (providerLabel) providerLabel.textContent = this.providerName || 'Independent provider';
+
+    modals.show('reportMo');
+  },
+
+  close() {
+    modals.hide('reportMo');
+    setTimeout(() => {
+      modals.reset('rpbody', 'rpsuc', 'rperr', 'rpbtn');
+      ['rptype', 'rpdetails', 'rpnm', 'rpem', 'rpph'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (el.tagName === 'SELECT') {
+          el.selectedIndex = 0;
+        } else {
+          el.value = '';
+        }
+      });
+    }, 320);
+
+    this.providerId = null;
+    this.providerName = null;
+  },
+
+  async submit() {
+    const btn = document.getElementById('rpbtn');
+    const errEl = document.getElementById('rperr');
+    if (!btn) return;
+
+    const activePageId = document.querySelector('.page.active')?.id || 'page-directory';
+
+    const data = {
+      provider_id: this.providerId,
+      provider_name: this.providerName,
+      issue_type: document.getElementById('rptype')?.value,
+      details: document.getElementById('rpdetails')?.value.trim(),
+      reporter_name: document.getElementById('rpnm')?.value.trim(),
+      reporter_email: document.getElementById('rpem')?.value.trim(),
+      reporter_phone: document.getElementById('rpph')?.value.trim(),
+      page_context: `${window.location.pathname}#${activePageId}`
+    };
+
+    if (!data.provider_name || !data.issue_type || !data.details) {
+      if (errEl) {
+        errEl.textContent = i18n.get('report_err_required');
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
+    if (data.reporter_email && !utils.validateEmail(data.reporter_email)) {
+      if (errEl) {
+        errEl.textContent = i18n.get('report_err_email');
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
+    if (data.reporter_phone && !utils.validatePhone(data.reporter_phone)) {
+      if (errEl) {
+        errEl.textContent = i18n.get('report_err_phone');
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
+    btn.disabled = true;
+    btn.classList.add('ld');
+
+    try {
+      await api.submitProviderReport(data);
+      document.getElementById('rpbody').style.display = 'none';
+      document.getElementById('rpsuc').style.display = 'block';
+    } catch (error) {
+      if (errEl) {
+        errEl.textContent = error.message || i18n.get('report_err_submit');
         errEl.style.display = 'block';
       }
       btn.disabled = false;
@@ -1548,14 +1728,13 @@ document.addEventListener('DOMContentLoaded', () => {
   siteGate.init();
   formHelpers.bindCityNeighbourhoodDropdowns();
   categories.load();
+  pageNavigation.syncFromLocation({ updateHistory: false });
   shareMeta.update();
 
   // Sync featured provider list height to the left column
   let fpSyncTimer;
   const syncFeaturedProviderList = () => {
     const fpGrid = document.querySelector('section.fp .fpi');
-    if (!fpGrid || fpGrid.children.length < 2) return;
-
     const leftCol = fpGrid.children[0];
     const list = fpGrid.querySelector('.pvlist');
 
@@ -1606,9 +1785,65 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Page Navigation
 const pageNavigation = {
+  pageRoutes: {
+    home: '/',
+    directory: '/directory',
+    pricing: '/pricing',
+    terms: '/terms',
+    privacy: '/privacy',
+    pagree: '/provider-agreement'
+  },
+
+  routePages: {
+    '/': 'home',
+    '/index.html': 'home',
+    '/directory': 'directory',
+    '/pricing': 'pricing',
+    '/terms': 'terms',
+    '/privacy': 'privacy',
+    '/provider-agreement': 'pagree'
+  },
+
   currentPage: 'home',
 
-  go(pageId) {
+  getCurrentLang() {
+    return document.documentElement.lang === 'en' ? 'en' : 'es';
+  },
+
+  buildUrl(pageId, lang = this.getCurrentLang()) {
+    const path = this.pageRoutes[pageId] || '/';
+    const params = new URLSearchParams(window.location.search);
+
+    if (lang === 'en') {
+      params.set('lang', 'en');
+    } else {
+      params.delete('lang');
+    }
+
+    const query = params.toString();
+    return `${path}${query ? `?${query}` : ''}`;
+  },
+
+  getPageFromLocation(pathname = window.location.pathname) {
+    return this.routePages[pathname] || 'home';
+  },
+
+  syncHistory(pageId, replace = false) {
+    const nextUrl = this.buildUrl(pageId);
+    const currentUrl = `${window.location.pathname}${window.location.search}`;
+
+    if (nextUrl === currentUrl) return;
+
+    const method = replace ? 'replaceState' : 'pushState';
+    window.history[method]({ pageId }, '', nextUrl);
+  },
+
+  syncFromLocation({ updateHistory = true, replace = true } = {}) {
+    const pageId = this.getPageFromLocation();
+    this.go(pageId, { updateHistory, replace });
+  },
+
+  go(pageId, { updateHistory = true, replace = false } = {}) {
     // Hide all pages
     document.querySelectorAll('.page').forEach(page => {
       page.classList.remove('active');
@@ -1621,13 +1856,23 @@ const pageNavigation = {
       this.currentPage = pageId;
       window.scrollTo(0, 0);
 
+      if (updateHistory) {
+        this.syncHistory(pageId, replace);
+      }
+
       // Initialize directory when navigating to it
       if (pageId === 'directory') {
         directory.render();
       }
+
+      shareMeta.update();
     }
   }
 };
+
+window.addEventListener('popstate', () => {
+  pageNavigation.syncFromLocation({ updateHistory: false });
+});
 
 // Provider/Supplier Applications
 const providerApp = {
@@ -1723,6 +1968,10 @@ const language = {
     // Use i18n system
     if (typeof i18n !== 'undefined') {
       i18n.setLanguage(lang);
+    }
+
+    if (typeof pageNavigation !== 'undefined') {
+      pageNavigation.syncHistory(pageNavigation.currentPage, true);
     }
 
     // Update button states
@@ -1869,8 +2118,13 @@ const shareMeta = {
   update() {
     if (typeof i18n === 'undefined') return;
 
-    const title = i18n.get('seo_title');
-    const description = i18n.get('seo_description');
+    const pageId = (typeof pageNavigation !== 'undefined' && pageNavigation.currentPage) ? pageNavigation.currentPage : 'home';
+    const titleKey = `seo_${pageId}_title`;
+    const descriptionKey = `seo_${pageId}_description`;
+    const resolvedTitle = i18n.get(titleKey);
+    const resolvedDescription = i18n.get(descriptionKey);
+    const title = resolvedTitle === titleKey ? i18n.get('seo_title') : resolvedTitle;
+    const description = resolvedDescription === descriptionKey ? i18n.get('seo_description') : resolvedDescription;
     const lang = document.documentElement.lang === 'es' ? 'es' : 'en';
 
     document.title = title;
@@ -1886,6 +2140,18 @@ const shareMeta = {
     setMeta('meta[property="og:locale"]', lang === 'es' ? 'es_MX' : 'en_US');
     setMeta('meta[name="twitter:title"]', title);
     setMeta('meta[name="twitter:description"]', description);
+
+    const canonical = document.querySelector('link[rel="canonical"]');
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (canonical && typeof pageNavigation !== 'undefined') {
+      const canonicalUrl = new URL(canonical.getAttribute('href') || window.location.href, window.location.origin);
+      const routeUrl = new URL(pageNavigation.buildUrl(pageNavigation.currentPage, lang), canonicalUrl.origin);
+      canonicalUrl.pathname = routeUrl.pathname;
+      canonicalUrl.search = routeUrl.search;
+      const href = canonicalUrl.toString();
+      canonical.setAttribute('href', href);
+      if (ogUrl) ogUrl.setAttribute('content', href);
+    }
   }
 };
 
@@ -1948,6 +2214,9 @@ window.selDel = (option) => formHelpers.selectDelivery(option);
 window.renderDir = () => directory.render();
 window.setDirTab = (tab) => directory.setTab(tab);
 window.setCat = (btn) => directory.setCategory(btn);
+window.openProviderReport = (providerId, providerName) => providerReport.open(providerId, providerName);
+window.closeProviderReport = () => providerReport.close();
+window.submitProviderReport = () => providerReport.submit();
 window.openContact = (id, name) => contactProvider.open(id, name);
 window.closeCont = () => contactProvider.close();
 window.submitCont = () => contactProvider.submit();
