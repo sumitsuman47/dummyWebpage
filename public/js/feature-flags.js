@@ -432,6 +432,7 @@ const FeatureFlags = {
 };
 
 const initialFeatureFlagsLoad = FeatureFlags.init();
+window.LUMITYA_FEATURE_FLAGS_READY = initialFeatureFlagsLoad;
 
 // Auto-initialize DOM application once the page is ready.
 if (document.readyState === 'loading') {

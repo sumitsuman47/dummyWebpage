@@ -293,20 +293,193 @@ document.addEventListener('lumitya:lang-changed', () => {
   }
 });
 
+const homeProviderSignals = {
+  minimumVisibleCount: 25,
+  providerCount: 0,
+
+  renderCountLine() {
+    const countLine = document.getElementById('homeProviderCountLine');
+    if (!countLine) return;
+
+    if (this.providerCount <= this.minimumVisibleCount) {
+      const generic = (typeof i18n !== 'undefined')
+        ? i18n.get('home_provider_count_generic')
+        : 'Local providers available';
+      countLine.textContent = generic;
+      return;
+    }
+
+    const suffix = (typeof i18n !== 'undefined')
+      ? i18n.get('home_provider_count_suffix')
+      : 'local providers available';
+    countLine.textContent = `${this.providerCount}+ ${suffix}`;
+  },
+
+  async init() {
+    const section = document.getElementById('homeProviderSignals');
+    if (!section) return;
+
+    // Section is always visible; only the numeric count is conditional.
+    section.style.display = '';
+
+    try {
+      // Count comes directly from the Supabase-backed provider list response.
+      const providers = await directory.fetchProviders();
+      const count = Array.isArray(providers) ? providers.length : 0;
+      this.providerCount = count;
+      this.renderCountLine();
+    } catch (error) {
+      console.warn('Unable to load home provider signals:', error.message || error);
+      this.renderCountLine();
+    }
+  }
+};
+
+document.addEventListener('lumitya:lang-changed', () => {
+  homeProviderSignals.renderCountLine();
+});
+
 // Site Gate (Password Protection)
 const siteGate = {
+  unlocked: false,
+  pendingButton: null,
+  bypassButton: null,
+  clickHandlerBound: false,
+  resolvingFlagState: false,
+
   init() {
     try {
-      // If the gate feature is disabled, ensure the overlay is not shown.
-      // (Feature flags are initialized before this file's DOMContentLoaded handler.)
-      if (window.FeatureFlags && window.FeatureFlags.loaded && !window.FeatureFlags.isEnabled('password_gate')) {
-        const gate = document.getElementById('siteGate');
-        if (gate) gate.style.display = 'none';
-        return;
+      this.unlocked = false;
+
+      const gate = document.getElementById('siteGate');
+      if (gate) gate.style.display = 'none';
+
+      if (!this.clickHandlerBound) {
+        document.addEventListener('click', (event) => this.handleProtectedClick(event), true);
+        this.clickHandlerBound = true;
       }
+
+      window.addEventListener('lumitya:featureflags-applied', () => {
+        if (!this.isEnabled()) {
+          this.close();
+        }
+      });
     } catch (e) {
       console.error('Password gate init error:', e);
     }
+  },
+
+  isEnabled() {
+    if (window.FeatureFlags && window.FeatureFlags.loaded) {
+      return window.FeatureFlags.isEnabled('password_gate');
+    }
+
+    const preloaded = window.__LUMITYA_PRELOADED_FLAGS__?.flags?.password_gate;
+    if (preloaded && typeof preloaded.enabled === 'boolean') {
+      return preloaded.enabled === true;
+    }
+
+    return false;
+  },
+
+  async ensureFeatureStateReady() {
+    if (window.FeatureFlags && window.FeatureFlags.loaded) return;
+
+    const readyPromise = window.LUMITYA_FEATURE_FLAGS_READY;
+    if (readyPromise && typeof readyPromise.then === 'function') {
+      try {
+        this.resolvingFlagState = true;
+        await readyPromise;
+      } catch (error) {
+        console.warn('Password gate flag resolution failed:', error);
+      } finally {
+        this.resolvingFlagState = false;
+      }
+    }
+  },
+
+  requiresPassword() {
+    return this.isEnabled() && !this.unlocked;
+  },
+
+  resetUi() {
+    const btn = document.getElementById('gateBtn');
+    const inp = document.getElementById('gateInput');
+    const err = document.getElementById('gateErr');
+
+    if (btn) {
+      btn.textContent = 'Enter →';
+      btn.disabled = false;
+    }
+    if (inp) {
+      inp.value = '';
+      inp.type = 'password';
+      inp.style.borderColor = '#E2E8F0';
+    }
+    if (err) {
+      err.style.display = 'none';
+    }
+
+    const icon = document.getElementById('eyeIcon');
+    if (icon) icon.style.opacity = '1';
+  },
+
+  open(button = null) {
+    const gate = document.getElementById('siteGate');
+    if (!gate) return;
+
+    this.pendingButton = button || null;
+    this.resetUi();
+    gate.style.opacity = '1';
+    gate.style.display = 'flex';
+
+    const inp = document.getElementById('gateInput');
+    if (inp) {
+      window.setTimeout(() => inp.focus(), 0);
+    }
+  },
+
+  close(clearPending = true) {
+    const gate = document.getElementById('siteGate');
+    if (!gate) return;
+
+    gate.style.display = 'none';
+    this.resetUi();
+    if (clearPending) {
+      this.pendingButton = null;
+    }
+  },
+
+  replayPendingAction() {
+    const button = this.pendingButton;
+    this.pendingButton = null;
+
+    if (!button || !document.contains(button)) return;
+
+    this.bypassButton = button;
+    button.click();
+    this.bypassButton = null;
+  },
+
+  async handleProtectedClick(event) {
+    const button = event.target.closest('button');
+    if (!button) return;
+    if (button.closest('#siteGate')) return;
+    if (this.bypassButton === button) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    await this.ensureFeatureStateReady();
+
+    if (!this.requiresPassword()) {
+      this.pendingButton = button;
+      this.replayPendingAction();
+      return;
+    }
+
+    this.open(button);
   },
 
   async check() {
@@ -323,10 +496,9 @@ const siteGate = {
     const hash = await utils.hash(pw);
 
     if (hash === CONFIG.SITE_HASH) {
-      const gate = document.getElementById('siteGate');
-      gate.style.transition = 'opacity .35s';
-      gate.style.opacity = '0';
-      setTimeout(() => gate.style.display = 'none', 350);
+      this.unlocked = true;
+      this.close(false);
+      this.replayPendingAction();
     } else {
       err.style.display = 'block';
       inp.value = '';
@@ -344,6 +516,8 @@ const siteGate = {
   togglePassword() {
     const inp = document.getElementById('gateInput');
     const icon = document.getElementById('eyeIcon');
+    if (!inp || !icon) return;
+
     if (inp.type === 'password') {
       inp.type = 'text';
       icon.style.opacity = '0.5';
@@ -417,6 +591,42 @@ const navigation = {
     nav.classList.toggle('open');
     btn.classList.toggle('open');
     modals.syncScrollLock();
+  }
+};
+
+// Safety confirmation modal used before sending homeowner requests
+const safetyConfirm = {
+  pendingResolver: null,
+
+  confirm() {
+    const modal = document.getElementById('safetyConfirmMo');
+    if (!modal) return Promise.resolve(true);
+
+    if (this.pendingResolver) {
+      this.pendingResolver(false);
+      this.pendingResolver = null;
+    }
+
+    return new Promise(resolve => {
+      this.pendingResolver = resolve;
+      modals.show('safetyConfirmMo');
+    });
+  },
+
+  resolve(choice) {
+    if (this.pendingResolver) {
+      this.pendingResolver(choice);
+      this.pendingResolver = null;
+    }
+    modals.hide('safetyConfirmMo');
+  },
+
+  agree() {
+    this.resolve(true);
+  },
+
+  close() {
+    this.resolve(false);
   }
 };
 
@@ -534,6 +744,9 @@ const serviceRequest = {
       emEl.focus();
       return;
     }
+
+    const isConfirmed = await safetyConfirm.confirm();
+    if (!isConfirmed) return;
 
     // Submit
     btn.disabled = true;
@@ -1178,6 +1391,13 @@ const directory = {
     const responseRate = this.getResponseRate(provider, reviewCount, jobs);
     const lastActive = this.formatLastActive(provider);
     const safeName = displayName.replace(/'/g, "\\'");
+    const verificationHelpText = i18n.get('verification_badge_note');
+    const verificationHelpAttr = verification.titleKey === 'trust_l2_title'
+      ? ` title="${verificationHelpText.replace(/"/g, '&quot;')}"`
+      : '';
+    const verificationHelpHtml = verification.titleKey === 'trust_l2_title'
+      ? `<div class="pv-meta-note" data-i18n="verification_badge_note">${verificationHelpText}</div>`
+      : '';
 
     // Generate dynamic stars based on rating
     const fullStars = Math.floor(rating);
@@ -1187,7 +1407,7 @@ const directory = {
 
     return `
       <div class="pvc">
-        <div class="pv-badge ${verification.className}">${i18n.get(verification.badgeKey)}</div>
+        <div class="pv-badge ${verification.className}"${verificationHelpAttr}>${i18n.get(verification.badgeKey)}</div>
         <div class="pv-av" style="background:${color}">${initial}</div>
         <div class="pv-nm">${displayName}</div>
         <div class="pv-title">${title || 'Service Provider'}</div>
@@ -1220,6 +1440,7 @@ const directory = {
             <span class="pv-meta-lbl">${i18n.get('profile_verification')}</span>
             <span class="pv-meta-val">${i18n.get(verification.titleKey)}</span>
           </div>
+          ${verificationHelpHtml}
           <div class="pv-meta-item">
             <span class="pv-meta-lbl">${i18n.get('profile_last_active')}</span>
             <span class="pv-meta-val">${lastActive}</span>
@@ -1324,6 +1545,9 @@ const contactProvider = {
       }
       return;
     }
+
+    const isConfirmed = await safetyConfirm.confirm();
+    if (!isConfirmed) return;
 
     btn.disabled = true;
     btn.classList.add('ld');
@@ -1728,6 +1952,7 @@ document.addEventListener('DOMContentLoaded', () => {
   siteGate.init();
   formHelpers.bindCityNeighbourhoodDropdowns();
   categories.load();
+  homeProviderSignals.init();
   pageNavigation.syncFromLocation({ updateHistory: false });
   shareMeta.update();
 
@@ -2169,6 +2394,7 @@ const closeMobNav = () => {
 
 // Global functions for onclick handlers
 window.checkGate = () => siteGate.check();
+window.closeGate = () => siteGate.close();
 window.toggleGatePw = () => siteGate.togglePassword();
 window.toggleMobNav = () => navigation.toggleMobile();
 window.closeMobNav = () => closeMobNav();
@@ -2220,6 +2446,8 @@ window.submitProviderReport = () => providerReport.submit();
 window.openContact = (id, name) => contactProvider.open(id, name);
 window.closeCont = () => contactProvider.close();
 window.submitCont = () => contactProvider.submit();
+window.agreeSafetyConfirm = () => safetyConfirm.agree();
+window.closeSafetyConfirm = () => safetyConfirm.close();
 window.submitNotify = () => notifySubmit.submit();
 window.submitProv = () => providerSubmit.submit();
 window.submitSupp = () => supplierSubmit.submit();
