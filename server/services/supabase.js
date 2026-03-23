@@ -215,6 +215,63 @@ const supabaseService = {
     });
   },
 
+  // Create provider fraud/issue report (using submissions table)
+  async createProviderReport(data) {
+    return supabaseAdminRequest('submissions', 'POST', {
+      type: 'provider_report',
+      data: {
+        provider_id: data.provider_id || null,
+        provider_name: data.provider_name,
+        issue_type: data.issue_type,
+        details: data.details,
+        reporter_name: data.reporter_name || null,
+        reporter_email: data.reporter_email || null,
+        reporter_phone: data.reporter_phone || null,
+        page_context: data.page_context || null,
+        submitted_at: new Date().toISOString()
+      }
+    });
+  },
+
+  async getProviderReports(limit = 100) {
+    const safeLimit = Number.isFinite(Number(limit)) ? Math.max(1, Math.min(500, Number(limit))) : 100;
+    return supabaseAdminRequest(
+      'submissions',
+      'GET',
+      null,
+      `select=*&type=eq.provider_report&order=created_at.desc&limit=${safeLimit}`
+    );
+  },
+
+  async updateProviderReport(reportId, { status, resolution_notes = '', reviewed_by = 'admin' }) {
+    const existing = await supabaseAdminRequest(
+      'submissions',
+      'GET',
+      null,
+      `select=*&id=eq.${encodeURIComponent(reportId)}&limit=1`
+    );
+
+    if (!Array.isArray(existing) || existing.length === 0) {
+      throw new Error('Provider report not found');
+    }
+
+    const record = existing[0];
+    const mergedData = {
+      ...(record.data || {}),
+      report_status: status,
+      resolution_notes: resolution_notes || null,
+      reviewed_at: new Date().toISOString(),
+      reviewed_by
+    };
+
+    return supabaseAdminRequest(
+      'submissions',
+      'PATCH',
+      { data: mergedData },
+      `id=eq.${encodeURIComponent(reportId)}`
+    );
+  },
+
   // =============================================
   // FEATURE FLAGS METHODS
   // =============================================

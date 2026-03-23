@@ -160,6 +160,93 @@ router.post('/contact', validateRequest([
   }
 });
 
+// Provider report / fraud reporting
+router.post('/provider-reports', async (req, res) => {
+  try {
+    const requiredFields = ['provider_name', 'issue_type', 'details'];
+    const missing = requiredFields.filter(field => !req.body[field]);
+
+    if (missing.length > 0) {
+      return res.status(400).json({
+        error: 'Missing required fields',
+        missing
+      });
+    }
+
+    const allowedIssueTypes = ['suspected_fraud', 'no_show', 'misrepresentation'];
+    if (!allowedIssueTypes.includes(req.body.issue_type)) {
+      return res.status(400).json({
+        error: 'Invalid issue type'
+      });
+    }
+
+    const result = await supabaseService.createProviderReport(req.body);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error('Provider report submission error:', error);
+    res.status(500).json({
+      error: 'Failed to submit provider report',
+      message: error.message
+    });
+  }
+});
+
+// Get provider reports (admin)
+router.get('/provider-reports', requireAdmin, async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit, 10) || 100;
+    const reports = await supabaseService.getProviderReports(limit);
+
+    res.json({
+      success: true,
+      reports,
+      count: Array.isArray(reports) ? reports.length : 0
+    });
+  } catch (error) {
+    console.error('Error fetching provider reports:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch provider reports',
+      message: error.message
+    });
+  }
+});
+
+// Update provider report action/status (admin)
+router.patch('/provider-reports/:id', requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, resolution_notes = '', reviewed_by = 'admin' } = req.body;
+    const allowedStatuses = ['submitted', 'under_review', 'resolved', 'dismissed'];
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid status'
+      });
+    }
+
+    const result = await supabaseService.updateProviderReport(id, {
+      status,
+      resolution_notes,
+      reviewed_by
+    });
+
+    res.json({
+      success: true,
+      data: result,
+      message: `Provider report updated to ${status}`
+    });
+  } catch (error) {
+    console.error('Error updating provider report:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update provider report',
+      message: error.message
+    });
+  }
+});
+
 // Notify when available
 router.post('/notify', validateRequest([
   'email', 'city'
