@@ -2016,7 +2016,8 @@ const pageNavigation = {
     pricing: '/pricing',
     terms: '/terms',
     privacy: '/privacy',
-    pagree: '/provider-agreement'
+    pagree: '/provider-agreement',
+    dispute: '/dispute-guidance'
   },
 
   routePages: {
@@ -2026,9 +2027,9 @@ const pageNavigation = {
     '/pricing': 'pricing',
     '/terms': 'terms',
     '/privacy': 'privacy',
-    '/provider-agreement': 'pagree'
+    '/provider-agreement': 'pagree',
+    '/dispute-guidance': 'dispute'
   },
-
   currentPage: 'home',
 
   getCurrentLang() {
