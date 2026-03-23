@@ -148,6 +148,10 @@ INSERT INTO feature_flags (feature_key, feature_name, feature_description, categ
 ('mobile_responsive', 'Mobile Responsive Design', 'Mobile-optimized layout and hamburger menu', 'ui', true, 'system', 'Essential for mobile users'),
 ('social_share_section', 'Social Share Section', 'Show social sharing section on homepage', 'ui', true, 'system', 'Controls visibility of social sharing buttons block'),
 ('home_join_provider_button', 'Home Join Provider Button', 'Show "Join as Provider" hero button on homepage', 'ui', true, 'system', 'Controls visibility of homepage join provider CTA'),
+('home_safety_notice', 'Home Safety Notice', 'Show the home page safety guidance banner', 'ui', true, 'system', 'Controls visibility of the homepage safety tip banner'),
+('home_payment_risk_notice', 'Home Payment Risk Notice', 'Show the home page payment risk warning banner', 'ui', true, 'system', 'Controls visibility of the homepage payment risk warning banner'),
+('home_provider_signals', 'Home Provider Signals', 'Show the home page live directory snapshot section', 'ui', true, 'system', 'Controls visibility of the homepage provider count and verification signals'),
+('footer_dispute_guidance', 'Footer Dispute Guidance', 'Show the dispute guidance block in site footers', 'ui', true, 'system', 'Controls visibility of the footer dispute guidance block'),
 
 -- Provider Directory Features
 ('provider_directory', 'Provider Directory', 'Browse contractors and suppliers listing page', 'pages', true, 'system', 'Main feature - contractor marketplace'),
@@ -161,12 +165,16 @@ INSERT INTO feature_flags (feature_key, feature_name, feature_description, categ
 
 -- Service Request Features
 ('service_request_form', 'Service Request Form', 'Main "Get Matched" service request form', 'forms', true, 'system', 'Primary lead capture form'),
+('service_request_safety_notice', 'Service Request Safety Notice', 'Show the safety banner in the service request modal', 'forms', true, 'system', 'Controls the service request modal safety notice'),
+('service_request_payment_risk_notice', 'Service Request Payment Risk Notice', 'Show the payment risk banner in the service request modal', 'forms', true, 'system', 'Controls the service request modal payment warning'),
 ('service_request_budget', 'Budget Field', 'Budget selection dropdown in service request forms', 'forms', true, 'system', 'Added for better matching'),
 ('service_request_timeline', 'Timeline Field', 'Preferred timeline/start date in service request', 'forms', true, 'system', 'Urgency indicator'),
 ('timeline_urgent_option', 'Timeline – Urgent Option', 'Show "Urgent – within 1 week" option in timeline dropdowns', 'forms', false, 'system', 'Controls visibility of urgent timeline option'),
 ('timeline_soon_option', 'Timeline – Soon Option', 'Show "Soon – within 1 month" option in timeline dropdowns', 'forms', false, 'system', 'Controls visibility of soon timeline option'),
 ('service_request_neighbourhood', 'Dynamic Neighbourhood Dropdown', 'City-based neighbourhood selection', 'forms', true, 'system', 'Location precision'),
 ('service_request_validation', 'Form Validation', 'Client-side validation for service request forms', 'forms', true, 'system', 'Data quality'),
+('provider_contact_safety_notice', 'Provider Contact Safety Notice', 'Show the safety banner in the contact provider modal', 'forms', true, 'system', 'Controls the provider contact modal safety notice'),
+('provider_contact_payment_risk_notice', 'Provider Contact Payment Risk Notice', 'Show the payment risk banner in the contact provider modal', 'forms', true, 'system', 'Controls the provider contact modal payment warning'),
 
 -- Provider Application Features  
 ('contractor_application', 'Contractor Application', 'Join as service provider form', 'forms', true, 'system', 'Provider onboarding'),

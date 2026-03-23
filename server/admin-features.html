@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Feature Flags Admin - Lumitya</title>
+    <title>Lumitya Admin Console</title>
     <style>
         * {
             margin: 0;
@@ -61,6 +61,19 @@
             color: #6b7280;
             font-size: 0.875rem;
             margin-top: 4px;
+        }
+
+        .section-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #0F1F4B;
+            margin: 32px 0 8px;
+        }
+
+        .section-subtitle {
+            color: #6b7280;
+            margin-bottom: 18px;
         }
 
         .controls {
@@ -268,6 +281,24 @@
             margin-left: 8px;
         }
 
+        .scope-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .scope-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: #eef2ff;
+            color: #3730a3;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
         .loading {
             text-align: center;
             padding: 40px;
@@ -289,6 +320,76 @@
             color: #991b1b;
             font-size: 0.9rem;
             line-height: 1.45;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: capitalize;
+        }
+
+        .status-submitted {
+            background: #DBEAFE;
+            color: #1D4ED8;
+        }
+
+        .status-under_review {
+            background: #FEF3C7;
+            color: #B45309;
+        }
+
+        .status-resolved {
+            background: #DCFCE7;
+            color: #15803D;
+        }
+
+        .status-dismissed {
+            background: #F3F4F6;
+            color: #4B5563;
+        }
+
+        .btn-sm {
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            border-radius: 7px;
+        }
+
+        .btn-danger {
+            background: #FEF2F2;
+            color: #B91C1C;
+            border: 1px solid #FECACA;
+        }
+
+        .btn-danger:hover {
+            background: #FEE2E2;
+        }
+
+        .stacked-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .muted {
+            color: #6b7280;
+            font-size: 0.8rem;
+        }
+
+        .report-detail {
+            max-width: 360px;
+            line-height: 1.5;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+        }
+
+        .actions-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
         .empty-icon {
@@ -319,8 +420,8 @@
 
 <body>
     <div class="container">
-        <h1>🏁 Feature Flags Management</h1>
-        <p class="subtitle">Enable or disable features across the Lumitya platform</p>
+        <h1>🛠️ Lumitya Admin Console</h1>
+        <p class="subtitle">Manage feature flags and review submitted provider reports inside Lumitya.</p>
 
         <!-- Statistics -->
         <div class="stats">
@@ -364,6 +465,10 @@
                 <option value="beta">Beta</option>
             </select>
 
+            <select id="scopeFilter" onchange="filterTable()">
+                <option value="">All Pages &amp; Forms</option>
+            </select>
+
             <select id="sortOrder" onchange="filterTable()">
                 <option value="category_name">Sort: Category → Name</option>
                 <option value="name_asc">Sort: Name (A→Z)</option>
@@ -404,12 +509,96 @@
                 </tbody>
             </table>
         </div>
+
+        <h2 class="section-title">Provider Reports</h2>
+        <p class="section-subtitle">Review submitted provider reports and take action without leaving the admin console.</p>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="totalReports">-</div>
+                <div class="stat-label">Total Reports</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="submittedReports">-</div>
+                <div class="stat-label">Submitted</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="reviewReports">-</div>
+                <div class="stat-label">Under Review</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="resolvedReports">-</div>
+                <div class="stat-label">Resolved</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <input type="text" id="reportSearchInput" class="search-box" placeholder="🔎 Search provider reports..." oninput="filterReports()">
+
+            <select id="reportStatusFilter" onchange="filterReports()">
+                <option value="">All Statuses</option>
+                <option value="submitted">Submitted</option>
+                <option value="under_review">Under Review</option>
+                <option value="resolved">Resolved</option>
+                <option value="dismissed">Dismissed</option>
+            </select>
+
+            <select id="reportIssueFilter" onchange="filterReports()">
+                <option value="">All Issues</option>
+                <option value="suspected_fraud">Suspected fraud</option>
+                <option value="no_show">No-show</option>
+                <option value="misrepresentation">Misrepresentation</option>
+            </select>
+
+            <button class="btn-primary" onclick="refreshReports()">🔄 Refresh Reports</button>
+        </div>
+
+        <div class="table-container">
+            <div id="reportLoadingState" class="loading">
+                <p>Loading provider reports...</p>
+            </div>
+
+            <div id="reportEmptyState" class="empty" style="display: none;">
+                <div class="empty-icon">📝</div>
+                <p>No provider reports found</p>
+            </div>
+
+            <div id="reportErrorState" class="error-box" style="display: none;"></div>
+
+            <table id="reportTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>Provider</th>
+                        <th>Issue</th>
+                        <th>Reporter</th>
+                        <th>Submitted</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="reportTableBody"></tbody>
+            </table>
+        </div>
     </div>
 
     <script>
         let allFeatures = [];
+        let allReports = [];
         const SORT_STORAGE_KEY = 'lumitya_admin_feature_sort';
         const ADMIN_TOKEN_STORAGE_KEY = 'lumitya_admin_token';
+        const FEATURE_SCOPE_DEFINITIONS = [
+            { key: 'home_page', label: 'Home Page' },
+            { key: 'provider_directory', label: 'Provider Directory Page' },
+            { key: 'contractor_pricing_page', label: 'Contractor Pricing Page' },
+            { key: 'service_request_form', label: 'Service Request Form' },
+            { key: 'provider_contact_form', label: 'Provider Contact Form' },
+            { key: 'contractor_application_form', label: 'Contractor Application Form' },
+            { key: 'supplier_application_form', label: 'Supplier Application Form' },
+            { key: 'join_modal_flow', label: 'Join Modal Flow' },
+            { key: 'legal_pages', label: 'Legal Pages' },
+            { key: 'footer_navigation', label: 'Footer / Navigation' },
+            { key: 'shared_platform', label: 'Shared Platform' }
+        ];
 
         function getAdminToken() {
             try {
@@ -450,7 +639,10 @@
         }
 
         // Load features on page load
-        document.addEventListener('DOMContentLoaded', loadFeatures);
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFeatures();
+            loadReports();
+        });
 
         function getSortOrder() {
             const sel = document.getElementById('sortOrder');
@@ -466,6 +658,136 @@
 
         function normalizeText(v) {
             return (v == null ? '' : String(v)).trim().toLowerCase();
+        }
+
+        function getFeatureScopeLabel(scopeKey) {
+            const scope = FEATURE_SCOPE_DEFINITIONS.find(item => item.key === scopeKey);
+            return scope ? scope.label : scopeKey;
+        }
+
+        function buildFeatureSearchText(feature) {
+            return [
+                feature.feature_key,
+                feature.feature_name,
+                feature.feature_description,
+                feature.notes,
+                feature.category
+            ].map(normalizeText).join(' ');
+        }
+
+        function deriveFeatureScopes(feature) {
+            const scopes = new Set();
+            const key = normalizeText(feature.feature_key);
+            const text = buildFeatureSearchText(feature);
+
+            const add = scopeKey => scopes.add(scopeKey);
+            const hasPrefix = prefix => key.startsWith(prefix);
+            const inKeys = (...keys) => keys.includes(key);
+            const hasText = (...terms) => terms.some(term => text.includes(term));
+
+            if (inKeys(
+                'home_page',
+                'home_join_provider_button',
+                'home_safety_notice',
+                'home_payment_risk_notice',
+                'home_provider_signals',
+                'social_share_section',
+                'category_chips',
+                'premium_featured_listing'
+            ) || hasText('home page', 'homepage', 'landing page', 'hero section')) {
+                add('home_page');
+            }
+
+            if (inKeys(
+                'provider_directory',
+                'provider_search',
+                'provider_city_filter',
+                'provider_category_filter',
+                'provider_contact_button',
+                'supplier_directory',
+                'provider_tabs',
+                'id_verification_badge',
+                'provider_rating_display',
+                'provider_contact_safety_notice',
+                'provider_contact_payment_risk_notice'
+            ) || hasText('directory page', 'provider cards', 'provider directory')) {
+                add('provider_directory');
+            }
+
+            if (inKeys('pricing_page', 'premium_plans', 'premium_notifications') || hasText('pricing page', 'contractor pricing', 'plans information')) {
+                add('contractor_pricing_page');
+            }
+
+            if (key === 'service_request_form' || hasPrefix('service_request_') || hasPrefix('timeline_') || hasText('service request form', 'service request modal')) {
+                add('service_request_form');
+            }
+
+            if (inKeys('provider_contact_button', 'provider_contact_safety_notice', 'provider_contact_payment_risk_notice') || hasText('contact provider modal', 'contact provider form')) {
+                add('provider_contact_form');
+            }
+
+            if (inKeys('contractor_application', 'contractor_joining', 'contractor_approval_workflow', 'contractor_auto_publish', 'contractor_service_categories') || hasText('contractor application', 'service provider form', 'provider onboarding')) {
+                add('contractor_application_form');
+            }
+
+            if (inKeys('supplier_application', 'supplier_joining', 'supplier_materials_catalog', 'supplier_delivery_options') || hasText('supplier application', 'supplier signup', 'material supplier')) {
+                add('supplier_application_form');
+            }
+
+            if (inKeys('join_modal', 'contractor_joining', 'supplier_joining') || hasText('join modal', 'choose role')) {
+                add('join_modal_flow');
+            }
+
+            if (inKeys('terms_page', 'privacy_page', 'provider_agreement_page') || hasText('legal requirement', 'privacy notice', 'terms and conditions', 'provider agreement')) {
+                add('legal_pages');
+            }
+
+            if (inKeys(
+                'footer_platform_column',
+                'footer_link_home',
+                'footer_link_directory',
+                'footer_link_pricing',
+                'footer_dispute_guidance',
+                'language_switcher',
+                'mobile_responsive'
+            ) || hasText('footer', 'navigation', 'language toggle')) {
+                add('footer_navigation');
+            }
+
+            if (scopes.size === 0) {
+                add('shared_platform');
+            }
+
+            return Array.from(scopes);
+        }
+
+        function annotateFeatureScopes(features) {
+            return features.map(feature => ({
+                ...feature,
+                derivedScopes: deriveFeatureScopes(feature)
+            }));
+        }
+
+        function populateScopeFilter(features) {
+            const select = document.getElementById('scopeFilter');
+            if (!select) return;
+
+            const currentValue = select.value;
+            const availableScopes = FEATURE_SCOPE_DEFINITIONS
+                .map(scope => {
+                    const count = features.filter(feature => feature.derivedScopes.includes(scope.key)).length;
+                    return { ...scope, count };
+                })
+                .filter(scope => scope.count > 0);
+
+            select.innerHTML = [
+                '<option value="">All Pages &amp; Forms</option>',
+                ...availableScopes.map(scope => `<option value="${scope.key}">${scope.label} (${scope.count})</option>`)
+            ].join('');
+
+            if (availableScopes.some(scope => scope.key === currentValue)) {
+                select.value = currentValue;
+            }
         }
 
         function sortFeatures(features, sortOrder) {
@@ -548,17 +870,37 @@
 
                 const usedKeys = new Set((usedData && usedData.success && Array.isArray(usedData.used)) ? usedData.used : []);
 
-                allFeatures = allData.features;
+                allFeatures = annotateFeatureScopes(allData.features);
                 if (usedKeys.size > 0) {
                     allFeatures = allFeatures.filter(f => usedKeys.has(f.feature_key));
                 }
 
+                populateScopeFilter(allFeatures);
                 updateStats();
-                const sorted = sortFeatures(allFeatures, getSortOrder());
-                renderTable(sorted);
+                filterTable();
             } catch (error) {
                 console.error('Error loading features:', error);
                 showErrorState(error.message || 'Failed to load feature flags.');
+            }
+        }
+
+        async function loadReports() {
+            try {
+                showReportLoading();
+                const response = await authFetch('/api/provider-reports?limit=200');
+                const data = await response.json();
+
+                if (!data.success) {
+                    showReportErrorState(data.message || data.error || 'Failed to load provider reports.');
+                    return;
+                }
+
+                allReports = Array.isArray(data.reports) ? data.reports : [];
+                updateReportStats();
+                renderReportTable(allReports);
+            } catch (error) {
+                console.error('Error loading provider reports:', error);
+                showReportErrorState(error.message || 'Failed to load provider reports.');
             }
         }
 
@@ -583,7 +925,7 @@
             }
 
             tbody.innerHTML = features.map(feature => `
-        <tr data-category="${feature.category}" data-status="${feature.is_enabled ? 'enabled' : 'disabled'}">
+                <tr data-category="${feature.category}" data-status="${feature.is_enabled ? 'enabled' : 'disabled'}" data-scope="${(feature.derivedScopes || []).join(',')}">
           <td>
             <div class="feature-name">
               ${feature.feature_name}
@@ -591,6 +933,7 @@
             </div>
             <div class="feature-key">${feature.feature_key}</div>
             ${feature.feature_description ? `<div style="font-size:0.8rem;color:#6b7280;margin-top:4px">${feature.feature_description}</div>` : ''}
+                        ${feature.derivedScopes && feature.derivedScopes.length ? `<div class="scope-badges">${feature.derivedScopes.map(scope => `<span class="scope-badge">${escapeHtml(getFeatureScopeLabel(scope))}</span>`).join('')}</div>` : ''}
           </td>
           <td>
             <span class="badge badge-${feature.category}">${feature.category}</span>
@@ -675,6 +1018,7 @@
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const categoryFilter = document.getElementById('categoryFilter').value;
             const statusFilter = document.getElementById('statusFilter').value;
+            const scopeFilter = document.getElementById('scopeFilter').value;
             const sortOrderEl = document.getElementById('sortOrder');
             const sortOrder = sortOrderEl ? sortOrderEl.value : 'category_name';
 
@@ -695,7 +1039,10 @@
                     (statusFilter === 'disabled' && !feature.is_enabled) ||
                     (statusFilter === 'beta' && feature.is_beta);
 
-                return matchesSearch && matchesCategory && matchesStatus;
+                const matchesScope = !scopeFilter ||
+                    (Array.isArray(feature.derivedScopes) && feature.derivedScopes.includes(scopeFilter));
+
+                return matchesSearch && matchesCategory && matchesStatus && matchesScope;
             });
 
             const sorted = sortFeatures(filtered, sortOrder);
@@ -704,6 +1051,10 @@
 
         function refreshFeatures() {
             loadFeatures();
+        }
+
+        function refreshReports() {
+            loadReports();
         }
 
         function exportFeatures() {
@@ -729,6 +1080,164 @@
                 }
             } catch (error) {
                 console.error('Error loading audit log:', error);
+            }
+        }
+
+        function updateReportStats() {
+            const submitted = allReports.filter(r => getReportStatus(r) === 'submitted').length;
+            const underReview = allReports.filter(r => getReportStatus(r) === 'under_review').length;
+            const resolved = allReports.filter(r => getReportStatus(r) === 'resolved').length;
+
+            document.getElementById('totalReports').textContent = allReports.length;
+            document.getElementById('submittedReports').textContent = submitted;
+            document.getElementById('reviewReports').textContent = underReview;
+            document.getElementById('resolvedReports').textContent = resolved;
+        }
+
+        function getReportStatus(report) {
+            return (report && report.data && report.data.report_status) || 'submitted';
+        }
+
+        function getIssueLabel(issueType) {
+            const labels = {
+                suspected_fraud: 'Suspected fraud',
+                no_show: 'No-show',
+                misrepresentation: 'Misrepresentation'
+            };
+            return labels[issueType] || issueType || 'Unknown';
+        }
+
+        function formatDate(dateValue) {
+            if (!dateValue) return '—';
+            const date = new Date(dateValue);
+            if (Number.isNaN(date.getTime())) return '—';
+            return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        }
+
+        function escapeHtml(value) {
+            return String(value == null ? '' : value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function renderReportTable(reports) {
+            const tbody = document.getElementById('reportTableBody');
+
+            if (!reports.length) {
+                showReportEmpty();
+                return;
+            }
+
+            tbody.innerHTML = reports.map(report => {
+                const data = report.data || {};
+                const status = getReportStatus(report);
+                const providerName = escapeHtml(data.provider_name || 'Unknown provider');
+                const reporterBits = [data.reporter_name, data.reporter_email, data.reporter_phone].filter(Boolean);
+                const notes = data.resolution_notes ? `<div class="muted" style="margin-top:8px"><strong>Notes:</strong> ${escapeHtml(data.resolution_notes)}</div>` : '';
+
+                return `
+                    <tr data-report-status="${escapeHtml(status)}" data-report-issue="${escapeHtml(data.issue_type || '')}">
+                        <td>
+                            <div class="stacked-meta">
+                                <strong>${providerName}</strong>
+                                <span class="muted">ID: ${escapeHtml(data.provider_id || report.id)}</span>
+                                <div class="report-detail">${escapeHtml(data.details || '')}</div>
+                                ${notes}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status-badge status-${escapeHtml(status === 'submitted' ? 'submitted' : status)}">${escapeHtml(getIssueLabel(data.issue_type))}</span>
+                        </td>
+                        <td>
+                            <div class="stacked-meta">
+                                ${reporterBits.length ? reporterBits.map(bit => `<span>${escapeHtml(bit)}</span>`).join('') : '<span class="muted">Anonymous</span>'}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="stacked-meta">
+                                <span>${escapeHtml(formatDate(report.created_at || data.submitted_at))}</span>
+                                <span class="muted">${escapeHtml(data.page_context || '')}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="stacked-meta">
+                                <span class="status-badge status-${escapeHtml(status)}">${escapeHtml(status.replace('_', ' '))}</span>
+                                ${data.reviewed_by ? `<span class="muted">By ${escapeHtml(data.reviewed_by)}</span>` : ''}
+                                ${data.reviewed_at ? `<span class="muted">${escapeHtml(formatDate(data.reviewed_at))}</span>` : ''}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="actions-row">
+                                <button class="btn-secondary btn-sm" onclick="updateReportStatus('${report.id}', 'under_review', '${providerName}')">Review</button>
+                                <button class="btn-primary btn-sm" onclick="updateReportStatus('${report.id}', 'resolved', '${providerName}')">Resolve</button>
+                                <button class="btn-danger btn-sm" onclick="updateReportStatus('${report.id}', 'dismissed', '${providerName}')">Dismiss</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            hideReportLoading();
+        }
+
+        function filterReports() {
+            const searchTerm = normalizeText(document.getElementById('reportSearchInput').value);
+            const statusFilter = document.getElementById('reportStatusFilter').value;
+            const issueFilter = document.getElementById('reportIssueFilter').value;
+
+            const filtered = allReports.filter(report => {
+                const data = report.data || {};
+                const haystack = [
+                    report.id,
+                    data.provider_name,
+                    data.provider_id,
+                    data.reporter_name,
+                    data.reporter_email,
+                    data.reporter_phone,
+                    data.details,
+                    data.issue_type,
+                    data.resolution_notes
+                ].map(normalizeText).join(' ');
+
+                const matchesSearch = !searchTerm || haystack.includes(searchTerm);
+                const matchesStatus = !statusFilter || getReportStatus(report) === statusFilter;
+                const matchesIssue = !issueFilter || data.issue_type === issueFilter;
+                return matchesSearch && matchesStatus && matchesIssue;
+            });
+
+            renderReportTable(filtered);
+        }
+
+        async function updateReportStatus(reportId, status, providerName) {
+            const note = prompt(`Add an admin note for ${providerName || 'this provider'} (${status.replace('_', ' ')})`, '');
+            if (note === null) return;
+
+            try {
+                const response = await authFetch(`/api/provider-reports/${reportId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        status,
+                        resolution_notes: note,
+                        reviewed_by: 'admin'
+                    })
+                });
+
+                const raw = await response.text();
+                const data = raw ? JSON.parse(raw) : null;
+
+                if (!response.ok || !data || !data.success) {
+                    throw new Error((data && (data.message || data.error)) || `HTTP ${response.status}`);
+                }
+
+                showNotification(`Provider report marked as ${status.replace('_', ' ')}`);
+                loadReports();
+            } catch (error) {
+                console.error('Error updating provider report:', error);
+                alert(`Failed to update provider report. ${error.message || 'Please try again.'}`);
             }
         }
 
@@ -758,6 +1267,35 @@
             document.getElementById('featureTable').style.display = 'none';
             const box = document.getElementById('errorState');
             box.textContent = `Failed to load feature flags: ${message}`;
+            box.style.display = 'block';
+        }
+
+        function showReportLoading() {
+            document.getElementById('reportLoadingState').style.display = 'block';
+            document.getElementById('reportEmptyState').style.display = 'none';
+            document.getElementById('reportErrorState').style.display = 'none';
+            document.getElementById('reportTable').style.display = 'none';
+        }
+
+        function hideReportLoading() {
+            document.getElementById('reportLoadingState').style.display = 'none';
+            document.getElementById('reportErrorState').style.display = 'none';
+            document.getElementById('reportTable').style.display = 'table';
+        }
+
+        function showReportEmpty() {
+            document.getElementById('reportLoadingState').style.display = 'none';
+            document.getElementById('reportErrorState').style.display = 'none';
+            document.getElementById('reportEmptyState').style.display = 'block';
+            document.getElementById('reportTable').style.display = 'none';
+        }
+
+        function showReportErrorState(message) {
+            document.getElementById('reportLoadingState').style.display = 'none';
+            document.getElementById('reportEmptyState').style.display = 'none';
+            document.getElementById('reportTable').style.display = 'none';
+            const box = document.getElementById('reportErrorState');
+            box.textContent = `Failed to load provider reports: ${message}`;
             box.style.display = 'block';
         }
 
