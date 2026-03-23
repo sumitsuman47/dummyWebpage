@@ -281,6 +281,24 @@
             margin-left: 8px;
         }
 
+        .scope-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .scope-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: #eef2ff;
+            color: #3730a3;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
         .loading {
             text-align: center;
             padding: 40px;
@@ -447,6 +465,10 @@
                 <option value="beta">Beta</option>
             </select>
 
+            <select id="scopeFilter" onchange="filterTable()">
+                <option value="">All Pages &amp; Forms</option>
+            </select>
+
             <select id="sortOrder" onchange="filterTable()">
                 <option value="category_name">Sort: Category → Name</option>
                 <option value="name_asc">Sort: Name (A→Z)</option>
@@ -564,6 +586,19 @@
         let allReports = [];
         const SORT_STORAGE_KEY = 'lumitya_admin_feature_sort';
         const ADMIN_TOKEN_STORAGE_KEY = 'lumitya_admin_token';
+        const FEATURE_SCOPE_DEFINITIONS = [
+            { key: 'home_page', label: 'Home Page' },
+            { key: 'provider_directory', label: 'Provider Directory Page' },
+            { key: 'contractor_pricing_page', label: 'Contractor Pricing Page' },
+            { key: 'service_request_form', label: 'Service Request Form' },
+            { key: 'provider_contact_form', label: 'Provider Contact Form' },
+            { key: 'contractor_application_form', label: 'Contractor Application Form' },
+            { key: 'supplier_application_form', label: 'Supplier Application Form' },
+            { key: 'join_modal_flow', label: 'Join Modal Flow' },
+            { key: 'legal_pages', label: 'Legal Pages' },
+            { key: 'footer_navigation', label: 'Footer / Navigation' },
+            { key: 'shared_platform', label: 'Shared Platform' }
+        ];
 
         function getAdminToken() {
             try {
@@ -623,6 +658,136 @@
 
         function normalizeText(v) {
             return (v == null ? '' : String(v)).trim().toLowerCase();
+        }
+
+        function getFeatureScopeLabel(scopeKey) {
+            const scope = FEATURE_SCOPE_DEFINITIONS.find(item => item.key === scopeKey);
+            return scope ? scope.label : scopeKey;
+        }
+
+        function buildFeatureSearchText(feature) {
+            return [
+                feature.feature_key,
+                feature.feature_name,
+                feature.feature_description,
+                feature.notes,
+                feature.category
+            ].map(normalizeText).join(' ');
+        }
+
+        function deriveFeatureScopes(feature) {
+            const scopes = new Set();
+            const key = normalizeText(feature.feature_key);
+            const text = buildFeatureSearchText(feature);
+
+            const add = scopeKey => scopes.add(scopeKey);
+            const hasPrefix = prefix => key.startsWith(prefix);
+            const inKeys = (...keys) => keys.includes(key);
+            const hasText = (...terms) => terms.some(term => text.includes(term));
+
+            if (inKeys(
+                'home_page',
+                'home_join_provider_button',
+                'home_safety_notice',
+                'home_payment_risk_notice',
+                'home_provider_signals',
+                'social_share_section',
+                'category_chips',
+                'premium_featured_listing'
+            ) || hasText('home page', 'homepage', 'landing page', 'hero section')) {
+                add('home_page');
+            }
+
+            if (inKeys(
+                'provider_directory',
+                'provider_search',
+                'provider_city_filter',
+                'provider_category_filter',
+                'provider_contact_button',
+                'supplier_directory',
+                'provider_tabs',
+                'id_verification_badge',
+                'provider_rating_display',
+                'provider_contact_safety_notice',
+                'provider_contact_payment_risk_notice'
+            ) || hasText('directory page', 'provider cards', 'provider directory')) {
+                add('provider_directory');
+            }
+
+            if (inKeys('pricing_page', 'premium_plans', 'premium_notifications') || hasText('pricing page', 'contractor pricing', 'plans information')) {
+                add('contractor_pricing_page');
+            }
+
+            if (key === 'service_request_form' || hasPrefix('service_request_') || hasPrefix('timeline_') || hasText('service request form', 'service request modal')) {
+                add('service_request_form');
+            }
+
+            if (inKeys('provider_contact_button', 'provider_contact_safety_notice', 'provider_contact_payment_risk_notice') || hasText('contact provider modal', 'contact provider form')) {
+                add('provider_contact_form');
+            }
+
+            if (inKeys('contractor_application', 'contractor_joining', 'contractor_approval_workflow', 'contractor_auto_publish', 'contractor_service_categories') || hasText('contractor application', 'service provider form', 'provider onboarding')) {
+                add('contractor_application_form');
+            }
+
+            if (inKeys('supplier_application', 'supplier_joining', 'supplier_materials_catalog', 'supplier_delivery_options') || hasText('supplier application', 'supplier signup', 'material supplier')) {
+                add('supplier_application_form');
+            }
+
+            if (inKeys('join_modal', 'contractor_joining', 'supplier_joining') || hasText('join modal', 'choose role')) {
+                add('join_modal_flow');
+            }
+
+            if (inKeys('terms_page', 'privacy_page', 'provider_agreement_page') || hasText('legal requirement', 'privacy notice', 'terms and conditions', 'provider agreement')) {
+                add('legal_pages');
+            }
+
+            if (inKeys(
+                'footer_platform_column',
+                'footer_link_home',
+                'footer_link_directory',
+                'footer_link_pricing',
+                'footer_dispute_guidance',
+                'language_switcher',
+                'mobile_responsive'
+            ) || hasText('footer', 'navigation', 'language toggle')) {
+                add('footer_navigation');
+            }
+
+            if (scopes.size === 0) {
+                add('shared_platform');
+            }
+
+            return Array.from(scopes);
+        }
+
+        function annotateFeatureScopes(features) {
+            return features.map(feature => ({
+                ...feature,
+                derivedScopes: deriveFeatureScopes(feature)
+            }));
+        }
+
+        function populateScopeFilter(features) {
+            const select = document.getElementById('scopeFilter');
+            if (!select) return;
+
+            const currentValue = select.value;
+            const availableScopes = FEATURE_SCOPE_DEFINITIONS
+                .map(scope => {
+                    const count = features.filter(feature => feature.derivedScopes.includes(scope.key)).length;
+                    return { ...scope, count };
+                })
+                .filter(scope => scope.count > 0);
+
+            select.innerHTML = [
+                '<option value="">All Pages &amp; Forms</option>',
+                ...availableScopes.map(scope => `<option value="${scope.key}">${scope.label} (${scope.count})</option>`)
+            ].join('');
+
+            if (availableScopes.some(scope => scope.key === currentValue)) {
+                select.value = currentValue;
+            }
         }
 
         function sortFeatures(features, sortOrder) {
@@ -705,14 +870,14 @@
 
                 const usedKeys = new Set((usedData && usedData.success && Array.isArray(usedData.used)) ? usedData.used : []);
 
-                allFeatures = allData.features;
+                allFeatures = annotateFeatureScopes(allData.features);
                 if (usedKeys.size > 0) {
                     allFeatures = allFeatures.filter(f => usedKeys.has(f.feature_key));
                 }
 
+                populateScopeFilter(allFeatures);
                 updateStats();
-                const sorted = sortFeatures(allFeatures, getSortOrder());
-                renderTable(sorted);
+                filterTable();
             } catch (error) {
                 console.error('Error loading features:', error);
                 showErrorState(error.message || 'Failed to load feature flags.');
@@ -760,7 +925,7 @@
             }
 
             tbody.innerHTML = features.map(feature => `
-        <tr data-category="${feature.category}" data-status="${feature.is_enabled ? 'enabled' : 'disabled'}">
+                <tr data-category="${feature.category}" data-status="${feature.is_enabled ? 'enabled' : 'disabled'}" data-scope="${(feature.derivedScopes || []).join(',')}">
           <td>
             <div class="feature-name">
               ${feature.feature_name}
@@ -768,6 +933,7 @@
             </div>
             <div class="feature-key">${feature.feature_key}</div>
             ${feature.feature_description ? `<div style="font-size:0.8rem;color:#6b7280;margin-top:4px">${feature.feature_description}</div>` : ''}
+                        ${feature.derivedScopes && feature.derivedScopes.length ? `<div class="scope-badges">${feature.derivedScopes.map(scope => `<span class="scope-badge">${escapeHtml(getFeatureScopeLabel(scope))}</span>`).join('')}</div>` : ''}
           </td>
           <td>
             <span class="badge badge-${feature.category}">${feature.category}</span>
@@ -852,6 +1018,7 @@
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const categoryFilter = document.getElementById('categoryFilter').value;
             const statusFilter = document.getElementById('statusFilter').value;
+            const scopeFilter = document.getElementById('scopeFilter').value;
             const sortOrderEl = document.getElementById('sortOrder');
             const sortOrder = sortOrderEl ? sortOrderEl.value : 'category_name';
 
@@ -872,7 +1039,10 @@
                     (statusFilter === 'disabled' && !feature.is_enabled) ||
                     (statusFilter === 'beta' && feature.is_beta);
 
-                return matchesSearch && matchesCategory && matchesStatus;
+                const matchesScope = !scopeFilter ||
+                    (Array.isArray(feature.derivedScopes) && feature.derivedScopes.includes(scopeFilter));
+
+                return matchesSearch && matchesCategory && matchesStatus && matchesScope;
             });
 
             const sorted = sortFeatures(filtered, sortOrder);

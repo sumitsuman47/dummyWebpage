@@ -86,51 +86,38 @@
 
 <body>
 
-  <!-- ══ FULL-PAGE PASSWORD GATE ══
-     The entire site is hidden behind this overlay until the correct
-     password is entered. The password is stored ONLY as a SHA-256 hash —
-      it never appears in source code. The gate is shown again on refresh
-      whenever the password_gate feature flag is enabled.
--->
+  <!-- ON-DEMAND PASSWORD GATE -->
   <div id="siteGate" data-feature="password_gate" style="
   position:fixed;inset:0;z-index:99999;
-  background:linear-gradient(135deg,#0F1F4B 0%,#2B4DB3 100%);
-  display:flex;align-items:center;justify-content:center;
+  background:rgba(15,31,75,.78);
+  display:none;align-items:center;justify-content:center;
   font-family:'DM Sans',sans-serif;
 ">
     <div style="
     background:#fff;border-radius:18px;padding:40px 36px;
-    width:100%;max-width:400px;margin:16px;
+    width:100%;max-width:420px;margin:16px;
     box-shadow:0 24px 60px rgba(0,0,0,.35);
-    text-align:center;
+    text-align:center;position:relative;
   ">
-      <!-- Logo -->
+      <button type="button" onclick="closeGate()" aria-label="Close password prompt" style="position:absolute;top:14px;right:14px;border:none;background:transparent;color:#64748B;font-size:1.1rem;cursor:pointer">&#10005;</button>
       <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:24px">
         <img src="images/blueLumityaLogo.svg" alt="Lumitya Logo" style="height:62px;width:auto;object-fit:contain">
         <span style="font-family:'Sora',sans-serif;font-size:1.4rem;font-weight:700;color:#0F1F4B">Lumitya</span>
       </div>
+      <h3 style="font-family:'Sora',sans-serif;font-size:1.2rem;color:#0F1F4B;margin:0 0 8px">Enter Password</h3>
+      <p style="font-size:.84rem;color:#64748B;line-height:1.55;margin:0 0 18px">Password access is required before this action can continue.</p>
+      <div style="position:relative;margin-bottom:12px">
+        <input id="gateInput" type="password" placeholder="Enter password" style="width:100%;font-family:'DM Sans',sans-serif;font-size:.88rem;color:#0F172A;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:10px;padding:13px 46px 13px 14px;outline:none;transition:border .2s" onkeydown="if(event.key==='Enter')checkGate()">
+        <button type="button" onclick="toggleGatePw()" aria-label="Toggle password visibility" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);border:none;background:transparent;cursor:pointer;padding:4px">
+          <svg id="eyeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
             <circle cx="12" cy="12" r="3" />
           </svg>
         </button>
       </div>
-
-      <div id="gateErr" style="
-      display:none;font-size:.74rem;color:#DC2626;
-      margin-bottom:10px;font-weight:600;
-      animation:shake .3s ease;
-    ">Incorrect password. Please try again.</div>
-
-      <button onclick="checkGate()" id="gateBtn" data-feature="password_gate" style="
-      width:100%;font-family:'DM Sans',sans-serif;font-size:.88rem;
-      font-weight:700;color:#fff;background:#2B4DB3;border:none;
-      border-radius:10px;padding:13px;cursor:pointer;
-      transition:all .2s;box-shadow:0 4px 14px rgba(43,77,179,.3);
-    " onmouseover="this.style.background='#3B5FC0'" onmouseout="this.style.background='#2B4DB3'">Enter →</button>
-
-      <p style="font-size:.68rem;color:#9CA3AF;margin-top:18px">
-        🔒 Secured with SHA-256 · Password never stored in plain text
-      </p>
+      <div id="gateErr" style="display:none;font-size:.74rem;color:#DC2626;margin-bottom:10px;font-weight:600;animation:shake .3s ease">Incorrect password. Please try again.</div>
+      <button type="button" onclick="checkGate()" id="gateBtn" data-feature="password_gate" style="width:100%;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:700;color:#fff;background:#2B4DB3;border:none;border-radius:10px;padding:13px;cursor:pointer;transition:all .2s;box-shadow:0 4px 14px rgba(43,77,179,.3)" onmouseover="this.style.background='#3B5FC0'" onmouseout="this.style.background='#2B4DB3'">Enter →</button>
+      <p style="font-size:.68rem;color:#9CA3AF;margin-top:18px">🔒 Secured with SHA-256 · Password never stored in plain text</p>
     </div>
   </div>
 
@@ -168,8 +155,8 @@
         Contractors</button>
       <button class="nbtn-primary" onclick="openSupplier()" data-i18n="joinSupplier"
         data-feature="supplier_application">&#129521; Join as Supplier</button>
-      <button class="nbtn-cta" onclick="openMatch()" data-i18n="getMatched" data-feature="service_request_form">Get
-        Matched</button>
+        <button class="nbtn-cta" onclick="openMatch()" data-i18n="getMatched" data-feature="service_request_form">Service
+          Request - Free</button>
     </div>
     <!-- Mobile language switcher: visible only on mobile (displayed between logo and hamburger) -->
     <div class="mob-lang-sw" id="mobLangSw">
@@ -216,7 +203,7 @@
           data-feature="supplier_application">&#129521; Join as Supplier</button>
         <div class="mob-dvd"></div>
         <button class="nbtn-cta" onclick="closeMobNav();openMatch()" data-i18n="getMatched"
-          data-feature="service_request_form">Get Matched</button>
+          data-feature="service_request_form">Service Request - Free</button>
       </div>
     </div>
   </div>
@@ -226,14 +213,19 @@
     <section class="hero">
       <div class="hi">
         <div>
-          <h1 data-i18n="h_title">Connect with Local Service Providers for Your Home Projects</h1>
-          <p class="hs" data-i18n="h_desc">Post your project and get connected with independent service providers in your area - fast, simple, and transparent.</p>
+          <h1 data-i18n="h_title">Connect with independent service providers for your project</h1>
+          <p class="hs" data-i18n="h_desc">We share your request with independent service providers in your area</p>
+
           <div class="hd"><strong>Platform notice:</strong> <span data-i18n="h_notice">Lumitya provides a listing and
               matching service only. We do not supervise, guarantee, or endorse any work. All agreements are made
               directly between homeowners and providers.</span></div>
-          <div class="uwarn uwarn--hero">
+          <div class="uwarn uwarn--hero" data-feature="home_safety_notice">
             <div class="uwarn-title" data-i18n="safety_tip_title">&#9888; Safety Tip:</div>
             <p data-i18n="safety_tip_body">Lumitya only connects you with independent providers. Always verify credentials, request written agreements, and avoid making advance payments without proper safeguards.</p>
+          </div>
+          <div class="uwarn uwarn--hero" data-feature="home_payment_risk_notice" style="border-color:#DC2626;background:#FEF2F2">
+            <div class="uwarn-title" data-i18n="payment_risk_title">&#128683; Important:</div>
+            <p data-i18n="payment_risk_body">Avoid making large advance payments without a written agreement and proper verification of the provider.</p>
           </div>
           <div class="ha">
             <button class="bh" onclick="openMatch()" data-i18n="h_btn1" data-feature="service_request_form">Find
@@ -287,6 +279,17 @@
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="how" id="homeProviderSignals" data-feature="home_provider_signals">
+      <div class="si">
+        <span class="stg" data-i18n="home_provider_stats_tag">Live Directory Snapshot</span>
+        <h2 id="homeProviderCountLine" data-i18n="home_provider_count_generic">Local providers available</h2>
+        <ul class="bls" style="margin-top:14px">
+          <li><span class="bch">&#10003;</span><span data-i18n="home_provider_signal_verified">Profiles with verified information</span></li>
+          <li><span class="bch">&#10003;</span><span data-i18n="home_provider_signal_growth">Growing network of independent professionals</span></li>
+        </ul>
       </div>
     </section>
 
@@ -446,9 +449,10 @@
             <span class="stg" data-i18n="fp_tag">For Suppliers &amp; Contractors</span>
             <h2 data-i18n="list_title">Grow your business with consistent visibility.</h2>
             <p style="color:var(--gr);line-height:1.74;font-size:.95rem" data-i18n="list_desc">Join Lumitya to receive project requests from homeowners in your area. No commissions - just access to opportunities.</p>
+            <p style="color:var(--gr);line-height:1.6;font-size:.85rem;margin-top:8px" data-i18n="list_expectation_note">Results may vary depending on location, demand, and profile activity.</p>
             <ul class="bls">
               <li><span class="bch">&#10003;</span><span data-i18n="list_b1">Increase your local visibility</span></li>
-              <li><span class="bch">&#10003;</span><span data-i18n="list_b2">Receive direct project inquiries</span></li>
+              <li><span class="bch">&#10003;</span><span data-i18n="list_b2">Receive project requests based on demand and availability in your area</span></li>
               <li><span class="bch">&#10003;</span><span data-i18n="list_b3">Manage your profile and availability</span></li>
               <li><span class="bch">&#10003;</span><span data-i18n="list_b4">You remain fully independent</span></li>
             </ul>
@@ -760,6 +764,16 @@
                 data-i18n="footer_privacy">Privacy Notice</a></li>
             <li data-feature="provider_agreement_page"><a href="#" onclick="go('pagree'); return false;"
                 data-i18n="footer_provider_agreement">Provider Agreement</a></li>
+          </ul>
+        </div>
+        <div data-feature="footer_dispute_guidance">
+          <h4 data-i18n="footer_dispute_guidance">Dispute Guidance</h4>
+          <p class="fab" style="margin-top:4px;margin-bottom:8px" data-i18n="footer_dispute_subtitle">If something goes wrong</p>
+          <ul>
+            <li data-i18n="footer_dispute_l1">Contact the provider directly to resolve the issue</li>
+            <li data-i18n="footer_dispute_l2">Request a refund or correction if applicable</li>
+            <li data-i18n="footer_dispute_l3">Use Lumitya's report feature to notify us</li>
+            <li data-i18n="footer_dispute_l4">Consider formal legal options if necessary</li>
           </ul>
         </div>
         <div>
@@ -1159,9 +1173,11 @@
             <li data-i18n="privacy_s2_l1">Facilitate connections between users and providers</li>
             <li data-i18n="privacy_s2_l2">Verify basic identity information</li>
             <li data-i18n="privacy_s2_l3">Improve platform functionality and security</li>
+            <li data-i18n="privacy_s2_l4">We may use third-party services such as hosting providers, analytics tools, and communication platforms to operate Lumitya.</li>
           </ul>
           <h2 data-i18n="privacy_s3_t">3. Data Security and Retention</h2>
           <p data-i18n="privacy_s3_b">Data will be stored securely using industry-standard encryption and retained only for as long as necessary to fulfill the purposes described herein, or as required by law.</p>
+          <p data-i18n="privacy_s3_b2">Personal data will be retained for a maximum period of 12 to 24 months, unless a longer retention period is required by law.</p>
           <h2 data-i18n="privacy_s4_t">4. Data Sharing</h2>
           <p data-i18n="privacy_s4_intro">Lumitya may share necessary information with:</p>
           <ul>
@@ -1286,9 +1302,13 @@
           <button class="mcl" onclick="closeMatch()">&#10005;</button>
         </div>
         <div class="mb" id="mmbody">
-          <div class="uwarn uwarn--compact">
+          <div class="uwarn uwarn--compact" data-feature="service_request_safety_notice">
             <div class="uwarn-title" data-i18n="safety_tip_title">&#9888; Safety Tip:</div>
             <p data-i18n="safety_tip_body">Lumitya only connects you with independent providers. Always verify credentials, request written agreements, and avoid making advance payments without proper safeguards.</p>
+          </div>
+          <div class="uwarn uwarn--compact" data-feature="service_request_payment_risk_notice" style="border-color:#DC2626;background:#FEF2F2">
+            <div class="uwarn-title" data-i18n="payment_risk_title">&#128683; Important:</div>
+            <p data-i18n="payment_risk_body">Avoid making large advance payments without a written agreement and proper verification of the provider.</p>
           </div>
           <div class="merr" id="merr"></div>
           <div class="fr">
@@ -1685,9 +1705,13 @@
           <button class="mcl" onclick="closeCont()">&#10005;</button>
         </div>
         <div class="mb" id="cpbody">
-          <div class="uwarn uwarn--compact">
+          <div class="uwarn uwarn--compact" data-feature="provider_contact_safety_notice">
             <div class="uwarn-title" data-i18n="safety_tip_title">&#9888; Safety Tip:</div>
             <p data-i18n="safety_tip_body">Lumitya only connects you with independent providers. Always verify credentials, request written agreements, and avoid making advance payments without proper safeguards.</p>
+          </div>
+          <div class="uwarn uwarn--compact" data-feature="provider_contact_payment_risk_notice" style="border-color:#DC2626;background:#FEF2F2">
+            <div class="uwarn-title" data-i18n="payment_risk_title">&#128683; Important:</div>
+            <p data-i18n="payment_risk_body">Avoid making large advance payments without a written agreement and proper verification of the provider.</p>
           </div>
           <div class="merr" id="cperr"></div>
           <div class="fr">
@@ -1769,6 +1793,24 @@
       </div>
     </div>
 
+    <!-- MODAL: SAFETY CONFIRMATION -->
+    <div class="mo" id="safetyConfirmMo">
+      <div class="md" style="max-width:560px">
+        <div class="mhd bl">
+          <div class="mtg" data-i18n="safety_confirm_tag">Review Before Sending</div>
+          <h3 data-i18n="safety_tip_title">&#9888; Safety Tip:</h3>
+          <button class="mcl" onclick="closeSafetyConfirm()">&#10005;</button>
+        </div>
+        <div class="mb">
+          <p data-i18n="safety_tip_body">Lumitya only connects you with independent providers. Always verify credentials, request written agreements, and avoid making advance payments without proper safeguards.</p>
+          <div class="fsr" style="margin-top:18px">
+            <button class="bco" onclick="closeSafetyConfirm()"><span data-i18n="safety_confirm_cancel">Cancel</span></button>
+            <button class="bsb" onclick="agreeSafetyConfirm()"><span class="btn-lbl" data-i18n="safety_confirm_agree">Agree &amp; Submit</span><span class="sp"></span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- MODAL: REPORT PROVIDER -->
     <div class="mo" id="reportMo">
       <div class="md" style="max-width:560px">
@@ -1823,7 +1865,7 @@
       <div class="mhd bl">
         <div class="mtg">&#128640; Get Listed</div>
         <h3 data-i18n="apc_h">How would you like to join Lumitya?</h3>
-        <p data-i18n="apc_s">Choose the option that best describes your business.</p>
+        <p data-i18n="apc_s">Compare options and choose the one that describes your business.</p>
         <button class="mcl" onclick="closeApplyChoice()">&#10005;</button>
       </div>
       <div class="apc-grid">

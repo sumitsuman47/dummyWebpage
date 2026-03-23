@@ -24,7 +24,15 @@ INSERT INTO feature_flags (
   ('footer_platform_column', 'Footer Platform Column', 'Show the platform links column in site footers', 'ui', true, 'system', 'Footer layout control'),
   ('footer_link_home', 'Footer Home Link', 'Show the Home link in site footers', 'ui', true, 'system', 'Footer nav control'),
   ('footer_link_directory', 'Footer Directory Link', 'Show the Find Providers link in site footers', 'ui', true, 'system', 'Footer nav control'),
-  ('footer_link_pricing', 'Footer Pricing Link', 'Show the For Contractors link in site footers', 'ui', true, 'system', 'Footer nav control')
+  ('footer_link_pricing', 'Footer Pricing Link', 'Show the For Contractors link in site footers', 'ui', true, 'system', 'Footer nav control'),
+  ('home_safety_notice', 'Home Safety Notice', 'Show the home page safety guidance banner', 'ui', true, 'system', 'Homepage hero safety tip visibility'),
+  ('home_payment_risk_notice', 'Home Payment Risk Notice', 'Show the home page payment risk warning banner', 'ui', true, 'system', 'Homepage hero payment warning visibility'),
+  ('home_provider_signals', 'Home Provider Signals', 'Show the home page live directory snapshot section', 'ui', true, 'system', 'Homepage provider count and verification signal visibility'),
+  ('service_request_safety_notice', 'Service Request Safety Notice', 'Show the safety banner in the service request modal', 'forms', true, 'system', 'Service request modal safety banner visibility'),
+  ('service_request_payment_risk_notice', 'Service Request Payment Risk Notice', 'Show the payment risk banner in the service request modal', 'forms', true, 'system', 'Service request modal payment warning visibility'),
+  ('provider_contact_safety_notice', 'Provider Contact Safety Notice', 'Show the safety banner in the contact provider modal', 'forms', true, 'system', 'Provider contact modal safety banner visibility'),
+  ('provider_contact_payment_risk_notice', 'Provider Contact Payment Risk Notice', 'Show the payment risk banner in the contact provider modal', 'forms', true, 'system', 'Provider contact modal payment warning visibility'),
+  ('footer_dispute_guidance', 'Footer Dispute Guidance', 'Show the dispute guidance block in site footers', 'ui', true, 'system', 'Footer dispute guidance visibility')
 ON CONFLICT (feature_key) DO UPDATE
 SET
   feature_name = EXCLUDED.feature_name,
@@ -49,6 +57,14 @@ SET
 --   'footer_platform_column',
 --   'footer_link_home',
 --   'footer_link_directory',
---   'footer_link_pricing'
+--   'footer_link_pricing',
+--   'home_safety_notice',
+--   'home_payment_risk_notice',
+--   'home_provider_signals',
+--   'service_request_safety_notice',
+--   'service_request_payment_risk_notice',
+--   'provider_contact_safety_notice',
+--   'provider_contact_payment_risk_notice',
+--   'footer_dispute_guidance'
 -- )
 -- ORDER BY feature_key;

@@ -128,6 +128,86 @@ const desiredFlags = [
         is_beta: false,
         updated_by: 'system',
         notes: 'Footer Platform → For Contractors'
+    },
+    {
+        feature_key: 'home_safety_notice',
+        feature_name: 'Home Safety Notice',
+        feature_description: 'Show/hide the home page safety guidance banner',
+        category: 'ui',
+        is_enabled: true,
+        is_beta: false,
+        updated_by: 'system',
+        notes: 'Controls the homepage safety tip banner in the hero section'
+    },
+    {
+        feature_key: 'home_payment_risk_notice',
+        feature_name: 'Home Payment Risk Notice',
+        feature_description: 'Show/hide the home page payment risk warning banner',
+        category: 'ui',
+        is_enabled: true,
+        is_beta: false,
+        updated_by: 'system',
+        notes: 'Controls the homepage payment risk warning in the hero section'
+    },
+    {
+        feature_key: 'home_provider_signals',
+        feature_name: 'Home Provider Signals',
+        feature_description: 'Show/hide the home page live directory snapshot section',
+        category: 'ui',
+        is_enabled: true,
+        is_beta: false,
+        updated_by: 'system',
+        notes: 'Controls the provider-count and verified-profile section on the homepage'
+    },
+    {
+        feature_key: 'service_request_safety_notice',
+        feature_name: 'Service Request Safety Notice',
+        feature_description: 'Show/hide the safety banner in the service request modal',
+        category: 'forms',
+        is_enabled: true,
+        is_beta: false,
+        updated_by: 'system',
+        notes: 'Controls the safety tip shown above the main service request form'
+    },
+    {
+        feature_key: 'service_request_payment_risk_notice',
+        feature_name: 'Service Request Payment Risk Notice',
+        feature_description: 'Show/hide the payment risk banner in the service request modal',
+        category: 'forms',
+        is_enabled: true,
+        is_beta: false,
+        updated_by: 'system',
+        notes: 'Controls the payment risk notice shown above the main service request form'
+    },
+    {
+        feature_key: 'provider_contact_safety_notice',
+        feature_name: 'Provider Contact Safety Notice',
+        feature_description: 'Show/hide the safety banner in the contact provider modal',
+        category: 'forms',
+        is_enabled: true,
+        is_beta: false,
+        updated_by: 'system',
+        notes: 'Controls the safety tip shown above the provider contact form'
+    },
+    {
+        feature_key: 'provider_contact_payment_risk_notice',
+        feature_name: 'Provider Contact Payment Risk Notice',
+        feature_description: 'Show/hide the payment risk banner in the contact provider modal',
+        category: 'forms',
+        is_enabled: true,
+        is_beta: false,
+        updated_by: 'system',
+        notes: 'Controls the payment risk notice shown above the provider contact form'
+    },
+    {
+        feature_key: 'footer_dispute_guidance',
+        feature_name: 'Footer Dispute Guidance',
+        feature_description: 'Show/hide the dispute guidance block in site footers',
+        category: 'ui',
+        is_enabled: true,
+        is_beta: false,
+        updated_by: 'system',
+        notes: 'Controls the footer help content for dispute resolution'
     }
 ];
 
