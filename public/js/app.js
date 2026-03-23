@@ -1606,6 +1606,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Page Navigation
 const pageNavigation = {
+  pageRoutes: {
+    home: '/',
+    directory: '/directory',
+    pricing: '/pricing',
+    terms: '/terms',
+    privacy: '/privacy',
+    pagree: '/provider-agreement',
+    dispute: '/dispute-guidance'
+  },
+
+  routePages: {
+    '/': 'home',
+    '/index.html': 'home',
+    '/directory': 'directory',
+    '/pricing': 'pricing',
+    '/terms': 'terms',
+    '/privacy': 'privacy',
+    '/provider-agreement': 'pagree',
+    '/dispute-guidance': 'dispute'
+  },
   currentPage: 'home',
 
   go(pageId) {
