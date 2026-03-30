@@ -32,12 +32,15 @@ const translations = {
         disclaimer_head: 'Lumitya is a digital listing & matching platform.',
         disclaimer_body: 'We connect homeowners with independent contractors and material suppliers. We do not supervise, guarantee, or endorse any work or products.',
         safety_tip_title: '⚠ Safety Tip:',
+        safety_tip_title_text: 'Safety Tip',
         safety_tip_body: 'Lumitya only connects you with independent providers. Always verify credentials, request written agreements, and avoid making advance payments without proper safeguards.',
         payment_risk_title: '🚫 Important:',
         payment_risk_body: 'Avoid making large advance payments without a written agreement and proper verification of the provider.',
         safety_confirm_tag: 'Review Before Sending',
         safety_confirm_cancel: 'Cancel',
         safety_confirm_agree: 'Agree & Submit',
+        safety_ack_text: 'I understand that Lumitya only connects me with independent providers and I am responsible for verifying them before hiring.',
+        safety_ack_error: 'Please check this box before submitting.',
 
         // Navigation
         findProviders: '🔍 Find Providers',
@@ -591,12 +594,15 @@ const translations = {
         disclaimer_head: 'Lumitya es una plataforma digital de listados y emparejamiento.',
         disclaimer_body: 'Conectamos propietarios de casas con contratistas independientes y proveedores de materiales. No supervisamos, garantizamos ni respaldamos ningún trabajo o producto.',
         safety_tip_title: '⚠ Consejo de Seguridad:',
+        safety_tip_title_text: 'Consejo de seguridad',
         safety_tip_body: 'Lumitya solo te conecta con proveedores independientes. Verifica siempre las credenciales, solicita acuerdos por escrito y evita hacer pagos anticipados sin las debidas garantías.',
         payment_risk_title: '🚫 Importante:',
         payment_risk_body: 'Evita realizar pagos anticipados elevados sin un acuerdo por escrito y una verificación adecuada del proveedor.',
         safety_confirm_tag: 'Revisa antes de enviar',
         safety_confirm_cancel: 'Cancelar',
         safety_confirm_agree: 'Aceptar y Enviar',
+        safety_ack_text: 'Entiendo que Lumitya solo me conecta con proveedores independientes y que soy responsable de verificarlos antes de contratarlos.',
+        safety_ack_error: 'Debes marcar esta casilla antes de enviar.',
 
         // Navegación
         findProviders: '🔍 Buscar Proveedores',
