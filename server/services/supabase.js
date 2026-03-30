@@ -378,6 +378,43 @@ const supabaseService = {
     }
   },
 
+  // Get provider counts by category
+  async getProviderCountsByCategory() {
+    try {
+      // Fetch all providers (for counting)
+      const providers = await supabaseRequest(
+        'providers',
+        'GET',
+        null,
+        'select=id,categories&order=created_at.desc'
+      );
+      
+      if (!Array.isArray(providers)) {
+        console.log('⚠️ No providers found');
+        return {};
+      }
+
+      // Count providers by category
+      const counts = {};
+      providers.forEach(provider => {
+        if (provider.categories && Array.isArray(provider.categories)) {
+          provider.categories.forEach(category => {
+            const key = (category || '').toLowerCase().trim();
+            if (key) {
+              counts[key] = (counts[key] || 0) + 1;
+            }
+          });
+        }
+      });
+
+      console.log(`✅ Fetched provider counts by category:`, counts);
+      return counts;
+    } catch (error) {
+      console.error('❌ Error fetching provider counts:', error.message);
+      throw error;
+    }
+  },
+
   // Check if a feature is enabled
   async isFeatureEnabled(featureKey) {
     try {

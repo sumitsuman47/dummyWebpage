@@ -155,7 +155,7 @@ Follow up when Premium Plan is available.
 
 ### 5. Configure the Application
 
-**Option A: Direct File Edit (Recommended)**
+**Option A: Direct File Edit (Connect)**
 
 Edit `/public/js/emailjs-config.js`:
 
@@ -253,7 +253,7 @@ For production with high volume, consider upgrading to a paid plan.
 
 ## Alternative: Backend Email
 
-If you prefer sending emails from the backend (recommended for production):
+If you prefer sending emails from the backend (connect for production):
 
 1. Use Nodemailer with the Node.js server
 2. Keep all credentials in `.env` server-side

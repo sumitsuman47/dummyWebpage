@@ -414,7 +414,7 @@ echo "PORT=3001" >> .env
 
 ## Best Debugging Tools
 
-### VS Code Extensions (Recommended)
+### VS Code Extensions (Connect)
 - **JavaScript Debugger** (built-in) - Debug JS/Node
 - **REST Client** - Test APIs in VS Code
 - **Thunder Client** - API testing GUI

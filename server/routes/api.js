@@ -282,6 +282,21 @@ router.get('/categories', async (req, res) => {
   }
 });
 
+// Get provider counts by category
+router.get('/provider-counts', async (req, res) => {
+  try {
+    const counts = await supabaseService.getProviderCountsByCategory();
+    res.json({ success: true, data: counts });
+  } catch (error) {
+    console.error('Error fetching provider counts:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch provider counts',
+      message: error.message
+    });
+  }
+});
+
 // =============================================
 // FEATURE FLAGS ENDPOINTS
 // =============================================
