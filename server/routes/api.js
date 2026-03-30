@@ -3,6 +3,9 @@ const router = express.Router();
 const supabaseService = require('../services/supabase');
 const featureUsage = require('../services/feature-usage');
 
+const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+const TURNSTILE_SECRET_KEY = process.env.TURNSTILE_SECRET_KEY || '';
+
 function requireAdmin(req, res, next) {
   const required = process.env.ADMIN_TOKEN;
   if (!required) return next();
@@ -40,6 +43,76 @@ function requireAdmin(req, res, next) {
   });
 }
 
+async function verifyTurnstileToken(token, remoteIp) {
+  const body = new URLSearchParams({
+    secret: TURNSTILE_SECRET_KEY,
+    response: token
+  });
+
+  if (remoteIp) {
+    body.set('remoteip', remoteIp);
+  }
+
+  const response = await fetch(TURNSTILE_VERIFY_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body
+  });
+
+  return response.json();
+}
+
+async function requireCaptcha(req, res, next) {
+  const hostname = String(req.hostname || '').toLowerCase();
+  const isLocalHost = hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1';
+  const isDevEnv = String(process.env.NODE_ENV || 'development') !== 'production';
+
+  const bypassToken = String(req.body.turnstileToken || req.body.captchaToken || '').trim();
+  if (isDevEnv && isLocalHost && bypassToken === 'local-dev-bypass') {
+    delete req.body.turnstileToken;
+    delete req.body.captchaToken;
+    return next();
+  }
+
+  if (!TURNSTILE_SECRET_KEY) {
+    return res.status(503).json({
+      error: 'Captcha is not configured on the server'
+    });
+  }
+
+  const token = String(req.body.turnstileToken || req.body.captchaToken || '').trim();
+  if (!token) {
+    return res.status(400).json({
+      error: 'Please complete the security check before submitting.'
+    });
+  }
+
+  const forwardedFor = String(req.get('x-forwarded-for') || '').split(',')[0].trim();
+  const remoteIp = req.get('cf-connecting-ip') || forwardedFor || req.ip;
+
+  try {
+    const verification = await verifyTurnstileToken(token, remoteIp);
+
+    if (!verification.success) {
+      return res.status(400).json({
+        error: 'Security check failed. Please try again.',
+        details: verification['error-codes'] || []
+      });
+    }
+
+    delete req.body.turnstileToken;
+    delete req.body.captchaToken;
+    return next();
+  } catch (error) {
+    console.error('Turnstile verification error:', error);
+    return res.status(502).json({
+      error: 'Unable to verify the security check right now. Please try again.'
+    });
+  }
+}
+
 // Validate request body
 const validateRequest = (requiredFields) => {
   return (req, res, next) => {
@@ -55,7 +128,7 @@ const validateRequest = (requiredFields) => {
 };
 
 // Submit service request
-router.post('/requests', async (req, res) => {
+router.post('/requests', requireCaptcha, async (req, res) => {
   try {
     // Required fields
     const requiredFields = ['name', 'city', 'neighbourhood', 'service', 'description', 'phone'];
@@ -80,7 +153,7 @@ router.post('/requests', async (req, res) => {
 });
 
 // Provider application
-router.post('/providers', validateRequest([
+router.post('/providers', requireCaptcha, validateRequest([
   'name', 'phone', 'email', 'city', 'neighbourhood', 'services'
 ]), async (req, res) => {
   try {
@@ -103,7 +176,7 @@ router.post('/providers', validateRequest([
 });
 
 // Supplier application
-router.post('/suppliers', validateRequest([
+router.post('/suppliers', requireCaptcha, validateRequest([
   'name', 'phone', 'email', 'city', 'neighbourhood', 'materials'
 ]), async (req, res) => {
   try {
@@ -145,7 +218,7 @@ router.get('/providers', async (req, res) => {
 });
 
 // Contact provider
-router.post('/contact', validateRequest([
+router.post('/contact', requireCaptcha, validateRequest([
   'provider_id', 'name', 'phone', 'message'
 ]), async (req, res) => {
   try {
@@ -161,7 +234,7 @@ router.post('/contact', validateRequest([
 });
 
 // Provider report / fraud reporting
-router.post('/provider-reports', async (req, res) => {
+router.post('/provider-reports', requireCaptcha, async (req, res) => {
   try {
     const requiredFields = ['provider_name', 'issue_type', 'details'];
     const missing = requiredFields.filter(field => !req.body[field]);
@@ -248,7 +321,7 @@ router.patch('/provider-reports/:id', requireAdmin, async (req, res) => {
 });
 
 // Notify when available
-router.post('/notify', validateRequest([
+router.post('/notify', requireCaptcha, validateRequest([
   'email', 'city'
 ]), async (req, res) => {
   try {
