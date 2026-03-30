@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lumitya</title>
+  <script>
+    (function redirectToRootWithPath() {
+      var locationObj = window.location;
+      var target = locationObj.pathname + locationObj.search + locationObj.hash;
+      var redirectUrl = locationObj.protocol + '//' + locationObj.host + '/?p=' + encodeURIComponent(target);
+      locationObj.replace(redirectUrl);
+    })();
+  </script>
+</head>
+<body></body>
+</html>

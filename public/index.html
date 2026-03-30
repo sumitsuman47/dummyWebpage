@@ -4,6 +4,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <script>
+    (function restoreDeepLinkFrom404Redirect() {
+      var search = window.location.search || '';
+      if (!search.startsWith('?p=')) return;
+
+      try {
+        var target = decodeURIComponent(search.slice(3));
+        if (target && target.charAt(0) === '/') {
+          window.history.replaceState(null, '', target);
+        }
+      } catch (e) {
+        // Ignore malformed redirect payloads.
+      }
+    })();
+  </script>
   <title>Lumitya — Home Service & Materials Platform</title>
   <meta name="description" content="Lumitya connects homeowners with independent contractors and material suppliers in Guadalajara and Zapopan.">
   <link rel="canonical" href="https://www.lumitya.com/">
