@@ -65,6 +65,131 @@ const utils = {
   }
 };
 
+const captcha = {
+  siteKey: (window.LUMITYA_TURNSTILE_SITE_KEY || '').trim(),
+  widgets: {},
+  pendingForms: new Set(),
+
+  isLocalHost() {
+    const host = (window.location.hostname || '').toLowerCase();
+    return host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0';
+  },
+
+  getContainer(formKey) {
+    return document.querySelector(`[data-turnstile-form="${formKey}"]`);
+  },
+
+  isConfigured() {
+    return !!this.siteKey;
+  },
+
+  isReady() {
+    return this.isConfigured() && typeof window.turnstile !== 'undefined';
+  },
+
+  render(formKey) {
+    if (this.isLocalHost()) return;
+
+    if (!this.isConfigured()) return;
+
+    const container = this.getContainer(formKey);
+    if (!container) return;
+
+    if (!this.isReady()) {
+      this.pendingForms.add(formKey);
+      return;
+    }
+
+    if (this.widgets[formKey] !== undefined) return;
+
+    delete container.dataset.turnstileToken;
+    this.widgets[formKey] = window.turnstile.render(container, {
+      sitekey: this.siteKey,
+      theme: 'light',
+      callback: (token) => {
+        container.dataset.turnstileToken = token;
+      },
+      'expired-callback': () => {
+        delete container.dataset.turnstileToken;
+      },
+      'error-callback': () => {
+        delete container.dataset.turnstileToken;
+      }
+    });
+
+    this.pendingForms.delete(formKey);
+  },
+
+  renderPending() {
+    Array.from(this.pendingForms).forEach(formKey => this.render(formKey));
+  },
+
+  queueRender(formKey) {
+    this.pendingForms.add(formKey);
+    this.render(formKey);
+  },
+
+  getToken(formKey) {
+    if (this.isLocalHost()) {
+      return 'local-dev-bypass';
+    }
+
+    const container = this.getContainer(formKey);
+    return container?.dataset.turnstileToken || '';
+  },
+
+  reset(formKey) {
+    const container = this.getContainer(formKey);
+    if (container) {
+      delete container.dataset.turnstileToken;
+    }
+
+    const widgetId = this.widgets[formKey];
+    if (widgetId !== undefined && this.isReady()) {
+      window.turnstile.reset(widgetId);
+    }
+  },
+
+  showError(errorTarget, message) {
+    if (typeof errorTarget === 'string') {
+      utils.showError(errorTarget, message);
+      return;
+    }
+
+    if (errorTarget) {
+      errorTarget.textContent = message;
+      errorTarget.style.display = 'block';
+    }
+  },
+
+  ensureVerified(formKey, errorTarget) {
+    if (this.isLocalHost()) {
+      return true;
+    }
+
+    if (!this.isConfigured()) {
+      this.showError(errorTarget, i18n.get('captcha_unavailable'));
+      return false;
+    }
+
+    this.render(formKey);
+
+    if (!this.isReady()) {
+      this.showError(errorTarget, i18n.get('captcha_unavailable'));
+      return false;
+    }
+
+    if (!this.getToken(formKey)) {
+      this.showError(errorTarget, i18n.get('captcha_prompt'));
+      return false;
+    }
+
+    return true;
+  }
+};
+
+window.onTurnstileLoad = () => captcha.renderPending();
+
 // API Service
 const api = {
   async request(endpoint, method = 'GET', data = null) {
@@ -668,6 +793,7 @@ const serviceRequest = {
     this.providerId = provId || 0;
     console.log('✅ Opening matchMo modal');
     modals.show('matchMo');
+    captcha.queueRender('match');
   },
 
   close() {
@@ -675,6 +801,7 @@ const serviceRequest = {
     setTimeout(() => {
       modals.reset('mmbody', 'mmsuc', 'merr', 'mbtn');
       utils.clearFields(['mnm', 'mcity', 'mcol', 'msvc', 'mds', 'mbg', 'mug', 'mph', 'mem']);
+      captcha.reset('match');
     }, 320);
   },
 
@@ -778,6 +905,10 @@ const serviceRequest = {
     const isConfirmed = await safetyConfirm.confirm();
     if (!isConfirmed) return;
 
+  if (!captcha.ensureVerified('match', 'merr')) return;
+
+  data.turnstileToken = captcha.getToken('match');
+
     // Submit
     btn.disabled = true;
     btn.classList.add('ld');
@@ -803,6 +934,7 @@ const serviceRequest = {
     } catch (error) {
       console.error('Service request submission error:', error);
       utils.showError('merr', error.message || 'Failed to submit request. Please try again.');
+      captcha.reset('match');
       btn.disabled = false;
       btn.classList.remove('ld');
     }
@@ -1570,6 +1702,7 @@ const contactProvider = {
     const title = document.getElementById('cpTitle');
     if (title) title.textContent = `Request Quote from ${providerName || 'Provider'}`;
     modals.show('contactMo');
+    captcha.queueRender('contact');
   },
 
   close() {
@@ -1581,6 +1714,7 @@ const contactProvider = {
         const el = document.getElementById(id);
         if (el) el.value = '';
       });
+      captcha.reset('contact');
     }, 320);
     this.providerId = null;
     this.providerName = null;
@@ -1620,6 +1754,10 @@ const contactProvider = {
     const isConfirmed = await safetyConfirm.confirm();
     if (!isConfirmed) return;
 
+  if (!captcha.ensureVerified('contact', errEl)) return;
+
+  data.turnstileToken = captcha.getToken('contact');
+
     btn.disabled = true;
     btn.classList.add('ld');
 
@@ -1644,6 +1782,7 @@ const contactProvider = {
         errEl.textContent = error.message || 'Failed to submit request';
         errEl.style.display = 'block';
       }
+      captcha.reset('contact');
       btn.disabled = false;
       btn.classList.remove('ld');
     }
@@ -1663,6 +1802,7 @@ const providerReport = {
     if (providerLabel) providerLabel.textContent = this.providerName || 'Independent provider';
 
     modals.show('reportMo');
+    captcha.queueRender('report');
   },
 
   close() {
@@ -1678,6 +1818,7 @@ const providerReport = {
           el.value = '';
         }
       });
+      captcha.reset('report');
     }, 320);
 
     this.providerId = null;
@@ -1726,6 +1867,10 @@ const providerReport = {
       return;
     }
 
+    if (!captcha.ensureVerified('report', errEl)) return;
+
+    data.turnstileToken = captcha.getToken('report');
+
     btn.disabled = true;
     btn.classList.add('ld');
 
@@ -1738,6 +1883,7 @@ const providerReport = {
         errEl.textContent = error.message || i18n.get('report_err_submit');
         errEl.style.display = 'block';
       }
+      captcha.reset('report');
       btn.disabled = false;
       btn.classList.remove('ld');
     }
@@ -1768,6 +1914,10 @@ const notifySubmit = {
       return;
     }
 
+    if (!captcha.ensureVerified('notify', errEl)) return;
+
+    data.turnstileToken = captcha.getToken('notify');
+
     btn.disabled = true;
     btn.classList.add('ld');
 
@@ -1791,6 +1941,7 @@ const notifySubmit = {
         errEl.textContent = error.message || 'Failed to submit';
         errEl.style.display = 'block';
       }
+      captcha.reset('notify');
       btn.disabled = false;
       btn.classList.remove('ld');
     }
@@ -1856,6 +2007,8 @@ const providerSubmit = {
       return;
     }
 
+    if (!captcha.ensureVerified('provider', errEl)) return;
+
     btn.disabled = true;
     btn.classList.add('ld');
 
@@ -1872,7 +2025,8 @@ const providerSubmit = {
       services: data.categories,
       years_experience: data.experience,
       description: data.description,
-      coverage: data.coverage
+      coverage: data.coverage,
+      turnstileToken: captcha.getToken('provider')
     };
 
     try {
@@ -1895,6 +2049,7 @@ const providerSubmit = {
         errEl.textContent = error.message || 'Failed to submit application';
         errEl.style.display = 'block';
       }
+      captcha.reset('provider');
       btn.disabled = false;
       btn.classList.remove('ld');
     }
@@ -1971,6 +2126,8 @@ const supplierSubmit = {
       return;
     }
 
+    if (!captcha.ensureVerified('supplier', errEl)) return;
+
     btn.disabled = true;
     btn.classList.add('ld');
 
@@ -1989,7 +2146,8 @@ const supplierSubmit = {
       delivery_cost: data.deliveryDetails?.cost || null,
       delivery_max_km: data.deliveryDetails?.maxKm || null,
       min_order: data.deliveryDetails?.minOrder || null,
-      coverage: data.coverage
+      coverage: data.coverage,
+      turnstileToken: captcha.getToken('supplier')
     };
 
     try {
@@ -2012,6 +2170,7 @@ const supplierSubmit = {
         errEl.textContent = error.message || 'Failed to submit application';
         errEl.style.display = 'block';
       }
+      captcha.reset('supplier');
       btn.disabled = false;
       btn.classList.remove('ld');
     }
@@ -2024,6 +2183,7 @@ document.addEventListener('DOMContentLoaded', () => {
   formHelpers.bindCityNeighbourhoodDropdowns();
   categories.load();
   homeProviderSignals.init();
+  cookieConsent.init();
   pageNavigation.syncFromLocation({ updateHistory: false });
   shareMeta.update();
 
@@ -2188,12 +2348,14 @@ const providerApp = {
     }
     console.log('✅ contractor_joining is enabled or flags not loaded');
     modals.show('provMo');
+    captcha.queueRender('provider');
   },
 
   close() {
     modals.hide('provMo');
     setTimeout(() => {
       modals.reset('pmbody', 'pmsuc', 'perr', 'pbtn');
+      captcha.reset('provider');
     }, 320);
   }
 };
@@ -2207,12 +2369,14 @@ const supplierApp = {
       return;
     }
     modals.show('suppMo');
+    captcha.queueRender('supplier');
   },
 
   close() {
     modals.hide('suppMo');
     setTimeout(() => {
       modals.reset('smbody', 'smsuc', 'serr', 'sbtn');
+      captcha.reset('supplier');
     }, 320);
   }
 };
@@ -2246,12 +2410,14 @@ const applyChoice = {
 const notifyModal = {
   open() {
     modals.show('notifyMo');
+    captcha.queueRender('notify');
   },
 
   close() {
     modals.hide('notifyMo');
     setTimeout(() => {
       modals.reset('nfbody', 'nfsuc', 'nferr', 'nfbtn');
+      captcha.reset('notify');
     }, 320);
   }
 };
@@ -2456,6 +2622,53 @@ const shareMeta = {
   }
 };
 
+const cookieConsent = {
+  STORAGE_KEY: 'lumitya_cookie_consent_v1',
+
+  getChoice() {
+    try {
+      return localStorage.getItem(this.STORAGE_KEY);
+    } catch (error) {
+      return null;
+    }
+  },
+
+  setChoice(choice) {
+    try {
+      localStorage.setItem(this.STORAGE_KEY, choice);
+    } catch (error) {
+      // Ignore storage errors and keep banner hidden for this session.
+    }
+  },
+
+  show() {
+    const el = document.getElementById('cookieBanner');
+    if (el) el.classList.add('on');
+  },
+
+  hide() {
+    const el = document.getElementById('cookieBanner');
+    if (el) el.classList.remove('on');
+  },
+
+  accept() {
+    this.setChoice('accepted');
+    this.hide();
+    document.dispatchEvent(new CustomEvent('lumitya:cookie-consent', { detail: { choice: 'accepted' } }));
+  },
+
+  reject() {
+    this.setChoice('essential-only');
+    this.hide();
+    document.dispatchEvent(new CustomEvent('lumitya:cookie-consent', { detail: { choice: 'essential-only' } }));
+  },
+
+  init() {
+    const choice = this.getChoice();
+    if (!choice) this.show();
+  }
+};
+
 document.addEventListener('lumitya:lang-changed', () => {
   shareMeta.update();
 });
@@ -2526,6 +2739,9 @@ window.submitProviderReport = () => providerReport.submit();
 window.openContact = (id, name) => contactProvider.open(id, name);
 window.closeCont = () => contactProvider.close();
 window.submitCont = () => contactProvider.submit();
+window.acceptCookies = () => cookieConsent.accept();
+window.rejectCookies = () => cookieConsent.reject();
+window.hideCookieBanner = () => cookieConsent.hide();
 window.agreeSafetyConfirm = () => safetyConfirm.agree();
 window.closeSafetyConfirm = () => safetyConfirm.close();
 window.submitNotify = () => notifySubmit.submit();

@@ -77,6 +77,7 @@
     })();
   </script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileLoad" async defer></script>
   <script src="js/runtime-config.js"></script>
   <script src="js/feature-flags.js"></script>
   <script src="js/i18n.js"></script>
@@ -1450,6 +1451,9 @@
                   data-i18n="req_email_optional">(optional)</span></label><input type="email" id="mem"
                 placeholder="you@email.com"></div>
           </div>
+          <div style="margin:14px 0 6px">
+            <div id="turnstile-match" data-turnstile-form="match"></div>
+          </div>
           <div class="fsr">
             <span class="fn">&#128274; <span data-i18n="req_private">Private &amp; secure.</span></span>
             <button class="bsb" id="mbtn" onclick="submitMatch()"><span class="btn-lbl" data-i18n="sendRequest">Send
@@ -1612,6 +1616,9 @@
             </label>
             <div class="age" id="agerr" data-i18n="err_ag">You must confirm this before submitting.</div>
           </div>
+          <div style="margin:14px 0 6px">
+            <div id="turnstile-provider" data-turnstile-form="provider"></div>
+          </div>
           <div class="fsr">
             <span class="fn">&#128274; <span data-i18n="fn_p">Reviewed before publishing.</span></span>
             <button class="bsb" id="pbtn" onclick="submitProv()"><span class="bl2" data-i18n="ps_b">Submit Application
@@ -1754,6 +1761,9 @@
             </label>
             <div class="age" id="sagerr" data-i18n="sm_agreement_error">You must confirm this before submitting.</div>
           </div>
+          <div style="margin:14px 0 6px">
+            <div id="turnstile-supplier" data-turnstile-form="supplier"></div>
+          </div>
           <div class="fsr">
             <span class="fn">&#128274; <span data-i18n="sm_reviewed">Reviewed before publishing.</span></span>
             <button class="bsb" id="sbtn" onclick="submitSupp()"><span class="btn-lbl" data-i18n="sm_submit_btn">Submit
@@ -1851,6 +1861,9 @@
                   style="font-size:.67rem;color:var(--gr)">(optional)</span></label><input type="email" id="cpem"
                 placeholder="you@email.com"></div>
           </div>
+          <div style="margin:14px 0 6px">
+            <div id="turnstile-contact" data-turnstile-form="contact"></div>
+          </div>
           <div class="fsr">
             <span class="fn">&#128274; Private.</span>
             <button class="bsb" id="cpbtn" onclick="submitCont()"><span class="btn-lbl" data-i18n="cp_b">Send Request
@@ -1931,6 +1944,9 @@
             <div class="fg"><label data-i18n="f_ph">Phone</label><input type="tel" id="rpph" placeholder="+52 33 1234 5678"></div>
           </div>
           <div class="fg"><label data-i18n="f_em">Email</label><input type="email" id="rpem" placeholder="you@email.com"></div>
+          <div style="margin:14px 0 6px">
+            <div id="turnstile-report" data-turnstile-form="report"></div>
+          </div>
           <div class="fsr">
             <span class="fn">&#128274; <span data-i18n="report_private_note">Submitted securely for internal review.</span></span>
             <div style="font-size:0.70rem;color:var(--gr);margin-bottom:8px;padding-top:8px;border-top:1px solid #E5E7EB" data-i18n="report_fair_use_notice">Fair use notice: Submitting false or malicious reports violates the Provider Agreement and may result in suspension of your account.</div>
@@ -2012,6 +2028,9 @@
             </select>
           </div>
         </div>
+        <div style="margin:14px 0 6px">
+          <div id="turnstile-notify" data-turnstile-form="notify"></div>
+        </div>
         <div class="nf-act">
           <span class="fn">&#128274; We'll only use this to notify you.</span>
           <button class="bsb" id="nfbtn" onclick="submitNotify()"><span class="btn-lbl">Submit &#8594;</span><span
@@ -2023,6 +2042,22 @@
         <h3>You're on the List!</h3>
         <p>We'll notify you by email and WhatsApp as soon as the Premium plan is available.</p><button class="bco"
           onclick="closeNotify()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="cookie-banner" id="cookieBanner" role="dialog" aria-live="polite" aria-modal="false" aria-label="Cookie consent">
+    <div class="cookie-inner">
+      <div class="cookie-copy">
+        <strong data-i18n="cookie_title">Your privacy choices</strong>
+        <p>
+          <span data-i18n="cookie_desc">We use essential cookies to run this site and optional cookies to improve experience. You can accept all cookies or keep essential only.</span>
+          <a class="cookie-link" onclick="go('privacy');hideCookieBanner()" data-i18n="cookie_policy_link">Privacy Notice</a>
+        </p>
+      </div>
+      <div class="cookie-actions">
+        <button class="cookie-btn cookie-btn-secondary" onclick="rejectCookies()" data-i18n="cookie_reject">Essential only</button>
+        <button class="cookie-btn cookie-btn-primary" onclick="acceptCookies()" data-i18n="cookie_accept">Accept all</button>
       </div>
     </div>
   </div>

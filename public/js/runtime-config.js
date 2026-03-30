@@ -13,4 +13,5 @@
   const h = window.location.hostname;
   const isLocal = h === 'localhost' || h === '127.0.0.1' || h === '0.0.0.0';
   window.LUMITYA_API_BASE = isLocal ? '' : 'https://lumitya-web.onrender.com';
+  window.LUMITYA_TURNSTILE_SITE_KEY = window.LUMITYA_TURNSTILE_SITE_KEY || '0x4AAAAAACx8AA5zvz42FGio';
 })();

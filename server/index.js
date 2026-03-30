@@ -13,6 +13,8 @@ const INDEX_FILE = path.join(process.cwd(), 'public', 'index.html');
 const INDEX_TEMPLATE = fs.readFileSync(INDEX_FILE, 'utf8');
 const PUBLIC_PAGE_ROUTES = ['/', '/index.html', '/directory', '/pricing', '/terms', '/privacy', '/provider-agreement'];
 
+app.set('trust proxy', 1);
+
 const SEO_BY_LANG = {
   en: {
     htmlLang: 'en',
