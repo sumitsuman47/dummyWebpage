@@ -1884,7 +1884,17 @@
           <button class="mcl" onclick="closeSafetyConfirm()">&#10005;</button>
         </div>
         <div class="mb">
-          <p data-i18n="safety_tip_body">Lumitya only connects you with independent providers. Always verify credentials, request written agreements, and avoid making advance payments without proper safeguards.</p>
+          <div class="uwarn safety-ack-warn">
+            <div class="uwarn-title">⚠ <span data-i18n="safety_tip_title_text">Safety Tip</span></div>
+            <p data-i18n="safety_tip_body">Lumitya only connects you with independent providers. Always verify credentials, request written agreements, and avoid making advance payments without proper safeguards.</p>
+          </div>
+          <div class="agb safety-ack-box">
+            <label for="safetyAckChk">
+              <input type="checkbox" id="safetyAckChk" class="safety-ack-checkbox">
+              <div class="agt" data-i18n="safety_ack_text">I understand that Lumitya only connects me with independent providers and I am responsible for verifying them before hiring.</div>
+            </label>
+            <div class="age" id="safetyAckErr" data-i18n="safety_ack_error">Please check this box before submitting.</div>
+          </div>
           <div class="fsr" style="margin-top:18px">
             <button class="bco" onclick="closeSafetyConfirm()"><span data-i18n="safety_confirm_cancel">Cancel</span></button>
             <button class="bsb" onclick="agreeSafetyConfirm()"><span class="btn-lbl" data-i18n="safety_confirm_agree">Agree &amp; Submit</span><span class="sp"></span></button>

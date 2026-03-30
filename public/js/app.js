@@ -608,6 +608,10 @@ const safetyConfirm = {
     }
 
     return new Promise(resolve => {
+      const ack = document.getElementById('safetyAckChk');
+      const ackErr = document.getElementById('safetyAckErr');
+      if (ack) ack.checked = false;
+      if (ackErr) ackErr.style.display = 'none';
       this.pendingResolver = resolve;
       modals.show('safetyConfirmMo');
     });
@@ -622,6 +626,14 @@ const safetyConfirm = {
   },
 
   agree() {
+    const ack = document.getElementById('safetyAckChk');
+    const ackErr = document.getElementById('safetyAckErr');
+    if (ack && !ack.checked) {
+      if (ackErr) ackErr.style.display = 'block';
+      ack.focus();
+      return;
+    }
+    if (ackErr) ackErr.style.display = 'none';
     this.resolve(true);
   },
 
