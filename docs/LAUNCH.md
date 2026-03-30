@@ -1,6 +1,6 @@
 # 🚀 How to Launch Lumitya Platform
 
-## Method 1: Quick Launch (Recommended - No Node.js Required)
+## Method 1: Quick Launch (Connect - No Node.js Required)
 
 ### Option A: Using the Launch Script
 

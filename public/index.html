@@ -213,8 +213,11 @@
     <section class="hero">
       <div class="hi">
         <div>
-          <h1 data-i18n="h_title">Connect with independent service providers for your project</h1>
-          <p class="hs" data-i18n="h_desc">We share your request with independent service providers in your area</p>
+          <h1>
+            <span data-i18n="h_title">Find a Local Professional for Your Home Project.</span><br>
+            <em data-i18n="h_title_em">In Under 2 Minutes.</em>
+          </h1>
+          <p class="hs" data-i18n="h_desc">Submit your project request and independent contractors in Guadalajara &amp; Zapopan will reach out to you directly — no middleman, no commission, no hassle.</p>
 
           <div class="hd"><strong>Platform notice:</strong> <span data-i18n="h_notice">Lumitya provides a listing and
               matching service only. We do not supervise, guarantee, or endorse any work. All agreements are made
@@ -222,10 +225,6 @@
           <div class="uwarn uwarn--hero" data-feature="home_safety_notice">
             <div class="uwarn-title" data-i18n="safety_tip_title">&#9888; Safety Tip:</div>
             <p data-i18n="safety_tip_body">Lumitya only connects you with independent providers. Always verify credentials, request written agreements, and avoid making advance payments without proper safeguards.</p>
-          </div>
-          <div class="uwarn uwarn--hero" data-feature="home_payment_risk_notice" style="border-color:#DC2626;background:#FEF2F2">
-            <div class="uwarn-title" data-i18n="payment_risk_title">&#128683; Important:</div>
-            <p data-i18n="payment_risk_body">Avoid making large advance payments without a written agreement and proper verification of the provider.</p>
           </div>
           <div class="ha">
             <button class="bh" onclick="openMatch()" data-i18n="h_btn1" data-feature="service_request_form">Find
@@ -240,7 +239,7 @@
           <div class="hcs">
             <div class="hc">
               <div class="hcl">Homeowner Request</div>
-              <div class="hct">Title of the listing: Kitchen Renovation</div>
+              <div class="hct">Kitchen Renovation</div>
               <div class="hcr">
                 <div class="hcd"></div><span class="hss">Budget: MXN 25,000</span>
               </div>
@@ -253,7 +252,7 @@
             </div>
             <div class="hc">
               <div class="hcl">Homeowner Request</div>
-              <div class="hct">Title of the listing: Bathroom Remodel</div>
+              <div class="hct">Bathroom Remodel</div>
               <div class="hcr">
                 <div class="hcd"></div><span class="hss">Budget: MXN 18,000</span>
               </div>
@@ -266,7 +265,7 @@
             </div>
             <div class="hc">
               <div class="hcl">Homeowner Request</div>
-              <div class="hct">Title of the listing: Roof Waterproofing</div>
+              <div class="hct">Roof Waterproofing</div>
               <div class="hcr">
                 <div class="hcd"></div><span class="hss">Budget: MXN 12,000</span>
               </div>
@@ -703,6 +702,16 @@
       <button class="bcw" onclick="openMatch()" data-i18n="footer_btn">Submit a Request</button>
     </section>
 
+    <section>
+      <div class="si" style="padding-top:0">
+        <div class="uwarn uwarn--hero home-fraud-card" style="max-width:760px;margin:0 auto 24px">
+          <div class="uwarn-title" data-i18n="home_fraud_title">Report fraud</div>
+          <p data-i18n="home_fraud_desc">If you suspect fraud, report it immediately and include any relevant details so our team can review it.</p>
+          <a class="bh fraud-mail-btn" href="mailto:contact@lumitya.com?subject=Report%20a%20fraud" data-i18n="home_fraud_btn">Report a fraud</a>
+        </div>
+      </div>
+    </section>
+
     <section class="share-sec" data-feature="social_share_section">
       <div class="share-wrap">
         <span class="share-tag" data-i18n="share_tag">Share Lumitya</span>
@@ -768,16 +777,6 @@
                 data-i18n="footer_provider_agreement">Provider Agreement</a></li>
           </ul>
         </div>
-        <div data-feature="footer_dispute_guidance">
-          <h4 data-i18n="footer_dispute_guidance">Dispute Guidance</h4>
-          <p class="fab" style="margin-top:4px;margin-bottom:8px" data-i18n="footer_dispute_subtitle">If something goes wrong</p>
-          <ul>
-            <li data-i18n="footer_dispute_l1">Contact the provider directly to resolve the issue</li>
-            <li data-i18n="footer_dispute_l2">Request a refund or correction if applicable</li>
-            <li data-i18n="footer_dispute_l3">Use Lumitya's report feature to notify us</li>
-            <li data-i18n="footer_dispute_l4">Consider formal legal options if necessary</li>
-          </ul>
-        </div>
         <div>
           <h4 data-i18n="footer_contact">Contact</h4>
           <ul>
@@ -815,7 +814,7 @@
           <div class="pcd ft">
             <div class="pbdg">&#10022; <span data-i18n="plan_basic_badge">Basic Plan</span></div>
             <h3 data-i18n="plan_basic_title">Basic Listing</h3>
-            <div class="ppr">MXN 800<span>–1,200</span></div>
+            <div class="ppr">MXN 800</div>
             <div class="pmo" data-i18n="plan_month">/ month</div>
             <div class="pdv"></div>
             <ul class="pls">
@@ -829,6 +828,7 @@
                   WhatsApp</span></li>
               <li><span class="pck">&#10003;</span><span data-i18n="plan_basic_f5">Identity-checked badge on
                   profile</span></li>
+              <li><span class="pck">&#10003;</span><span data-i18n="plan_basic_f6">Direct contact is not enabled.</span></li>
             </ul>
             <div class="pnt" data-i18n="plan_basic_note">Payment grants listing visibility only. Lumitya does not
               guarantee leads, contracts, or revenue.</div>
@@ -839,7 +839,7 @@
           <div class="pcd" data-feature="premium_plans">
             <div class="pbds">&#8987; <span data-i18n="plan_premium_badge">Coming Soon</span></div>
             <h3 data-i18n="plan_premium_title">Premium Listing</h3>
-            <div class="ppr" style="color:var(--gr)">MXN 1,800<span>–2,500</span></div>
+            <div class="ppr" style="color:var(--gr)">MXN 1,500</div>
             <div class="pmo" data-i18n="plan_month">/ month</div>
             <div class="pdv"></div>
             <ul class="pls">
@@ -853,6 +853,8 @@
                   data-i18n="plan_premium_f4">Everything in Basic</span></li>
               <li><span class="pck" style="background:#F3F4F6;color:var(--gr)">&#10003;</span><span
                   data-i18n="plan_premium_f5">Early access to new features</span></li>
+                <li><span class="pck" style="background:#F3F4F6;color:var(--gr)">&#10003;</span><span
+                  data-i18n="plan_premium_f6">Directly reached by homeowners using the Contact button</span></li>
             </ul>
             <div class="pnt" data-i18n="plan_premium_note">Premium plan launching soon. Join Basic now and upgrade when
               available.</div>
@@ -986,9 +988,12 @@
         <p class="dcnt" id="dcount"></p>
         <div class="dg" id="dgrid"></div>
         <div class="dem" id="dempty" style="display:none">
-          <div class="demico">&#128269;</div>
-          <h3>No providers found</h3>
-          <p>Try adjusting your search or filters.</p>
+          <div class="demico">🏗</div>
+          <h3 data-i18n="empty_dir_title">This area's directory is being built.</h3>
+          <p data-i18n="empty_dir_desc">We're onboarding independent providers in Guadalajara &amp; Zapopan. Check back soon — or be the first listed in your area.</p>
+          <button class="bh" onclick="openApplyChoice()" style="margin-top:16px;font-size:0.82rem" data-feature="join_modal">
+            Apply to Get Listed →
+          </button>
         </div>
       </div>
     </div>
@@ -1077,6 +1082,7 @@
         <div class="si">
           <button class="lbk" onclick="go('home')" data-i18n="legal_back">&#8592; Back</button>
           <h1 data-i18n="terms_title">TERMS OF SERVICE — LUMITYA</h1>
+          <span class="lup">Last updated: March 30, 2026 · Version 1.0</span>
           <h2 data-i18n="terms_s1_t">1. Nature of the Service</h2>
           <p data-i18n="terms_s1_p1">Lumitya is a digital platform that connects homeowners with independent service providers for home-related projects.</p>
           <p data-i18n="terms_s1_p2">Lumitya acts solely as a digital intermediary that facilitates contact between users and independent service providers.</p>
@@ -1112,7 +1118,7 @@
             <li data-i18n="terms_s6_l3">Any damages, disputes, or losses arising from interactions</li>
           </ul>
           <p data-i18n="terms_s6_p1">Nothing in these Terms shall exclude or limit liability in cases where such limitation is not permitted under applicable Mexican law.</p>
-          <p data-i18n="terms_s6_p2">Lumitya complies with applicable consumer protection regulations and will cooperate with authorities when required.</p>
+          <p data-i18n="terms_s6_p2">Lumitya complies with applicable consumer protection regulations under the Ley Federal de Protección al Consumidor (LFPC) and the Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP), and will cooperate with PROFECO and other competent authorities when required.</p>
           <h2 data-i18n="terms_s7_t">7. Platform Integrity</h2>
           <p data-i18n="terms_s7_intro">Lumitya reserves the right to:</p>
           <ul>
@@ -1123,8 +1129,10 @@
           <h2 data-i18n="terms_s8_t">8. Dispute Handling</h2>
           <p data-i18n="terms_s8_p1">Lumitya is not a party to agreements between users and providers.</p>
           <p data-i18n="terms_s8_p2">However, users may report issues through the platform for review and possible action on accounts.</p>
-          <h2 data-i18n="terms_s9_t">9. Modifications</h2>
-          <p data-i18n="terms_s9_p1">Lumitya may update these Terms at any time. Continued use of the platform constitutes acceptance of any changes.</p>
+          <h2 data-i18n="terms_s9_t">9. Force Majeure</h2>
+          <p data-i18n="terms_s9_p">Lumitya shall not be liable for any failure or delay in performing its obligations where such failure or delay results from circumstances beyond its reasonable control, including but not limited to acts of God, government actions, internet or communications failures, civil disturbances, or pandemic-related disruptions.</p>
+          <h2 data-i18n="terms_s10_t">10. Modifications</h2>
+          <p data-i18n="terms_s10_p1">Lumitya may update these Terms at any time. In the event of material changes, registered users will be notified by email at least 7 days before the changes take effect. Continued use of the platform after notification constitutes acceptance of the updated Terms.</p>
         </div>
       </div>
       <footer>
@@ -1180,11 +1188,11 @@
             <li data-i18n="privacy_s2_l1">Facilitate connections between users and providers</li>
             <li data-i18n="privacy_s2_l2">Verify basic identity information</li>
             <li data-i18n="privacy_s2_l3">Improve platform functionality and security</li>
-            <li data-i18n="privacy_s2_l4">We may use third-party services such as hosting providers, analytics tools, and communication platforms to operate Lumitya.</li>
+            <li data-i18n="privacy_s2_l4">We may use third-party services such as hosting, analytics, and communication tools.</li>
           </ul>
           <h2 data-i18n="privacy_s3_t">3. Data Security and Retention</h2>
           <p data-i18n="privacy_s3_b">Data will be stored securely using industry-standard encryption and retained only for as long as necessary to fulfill the purposes described herein, or as required by law.</p>
-          <p data-i18n="privacy_s3_b2">Personal data will be retained for a maximum period of 12 to 24 months, unless a longer retention period is required by law.</p>
+          <p data-i18n="privacy_s3_b2">Data is retained for up to 24 months unless required otherwise by law.</p>
           <h2 data-i18n="privacy_s4_t">4. Data Sharing</h2>
           <p data-i18n="privacy_s4_intro">Lumitya may share necessary information with:</p>
           <ul>
@@ -1193,6 +1201,7 @@
           </ul>
           <h2 data-i18n="privacy_s5_t">5. User Rights (ARCO)</h2>
           <p><span data-i18n="privacy_s5_b">Users may exercise their ARCO rights (Access, Rectification, Cancellation, Opposition) by contacting:</span> <strong><a href="mailto:contact@lumitya.com">contact@lumitya.com</a></strong></p>
+          <p data-i18n="privacy_s5_processing">ARCO requests will be acknowledged and processed within 20 business days of receipt, in accordance with Article 32 of the Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP). Lumitya may request additional information to verify the identity of the requesting party before processing.</p>
           <h2 data-i18n="privacy_s6_t">6. Updates</h2>
           <p data-i18n="privacy_s6_b">This Privacy Notice may be updated periodically. Users will be notified of significant changes.</p>
         </div>
@@ -1249,7 +1258,7 @@
             taxes and legal compliance, and will not represent themselves as employees or agents of Lumitya.</p>
           <h2 data-i18n="pagree_s3_t">3. Platform Fees</h2>
           <p data-i18n="pagree_s3_b">Monthly fees are non-refundable unless required by law. Payment grants listing visibility only — not a
-            guarantee of work, leads, or revenue.</p>
+            guarantee of work, leads, or revenue. Subscription allows visibility only. Results depend on demand, location, and profile activity.</p>
           <h2 data-i18n="pagree_s4_t">4. No Guarantee of Work</h2>
           <p data-i18n="pagree_s4_b">Lumitya does not guarantee leads, revenue, project value, or customer selection. Platform access does not
             ensure contracts.</p>
@@ -1257,9 +1266,9 @@
           <p data-i18n="pagree_s5_b">Provider agrees to indemnify and hold Lumitya harmless from any claims, damages, lawsuits, or legal
             expenses arising from services performed by the Provider.</p>
           <h2 data-i18n="pagree_s6_t">6. Reviews</h2>
-          <p data-i18n="pagree_s6_b">Customers may leave reviews. Lumitya may publish or remove reviews at its sole discretion.</p>
+          <p data-i18n="pagree_s6_b">Customers may leave reviews based on their experience. Lumitya may publish, remove, or moderate reviews at its sole discretion. Providers who believe a review is false, defamatory, or retaliatory may submit a written dispute to contact@lumitya.com within 15 calendar days of the review appearing. Lumitya will review the dispute and may remove or retain the review at its sole discretion. Lumitya is not obligated to mediate between users and providers over review content.</p>
           <h2 data-i18n="pagree_s7_t">7. Termination</h2>
-          <p data-i18n="pagree_s7_b">Lumitya may suspend or remove listings at its sole discretion without liability.</p>
+          <p data-i18n="pagree_s7_b">Lumitya may suspend, remove, or permanently ban listings at its sole discretion and without liability. Providers who are removed for cause — including fraud, misrepresentation, repeated no-shows, or abuse of platform users — may be prohibited from re-registering on the platform under the same or different identity. Lumitya reserves the right to retain relevant records to enforce this restriction in accordance with its Privacy Notice and applicable law.</p>
           <h2 data-i18n="pagree_s8_t">8. Jurisdiction</h2>
           <p data-i18n="pagree_s8_b">Disputes resolved in Guadalajara, Jalisco, Mexico under Mexican law.</p>
           <div class="lbx" style="margin-top:26px"><strong data-i18n="pagree_ready">Ready to apply?</strong> <span data-i18n="pagree_ready_text">By submitting your application, you
@@ -1308,34 +1317,17 @@
         <div class="si">
           <button class="lbk" onclick="go('home')" data-i18n="legal_back">&#8592; Back</button>
           <h1 data-i18n="dispute_title">DISPUTE GUIDANCE — LUMITYA</h1>
-          <p data-i18n="dispute_intro">If something goes wrong with your transaction or service, here is how to handle it:</p>
-          <h2 data-i18n="dispute_s1_t">1. Direct Communication</h2>
-          <p data-i18n="dispute_s1_b">Contact the provider directly to discuss the issue. Many problems can be resolved quickly with open conversation.</p>
-          <h2 data-i18n="dispute_s2_t">2. Request Refund or Correction</h2>
-          <p data-i18n="dispute_s2_b">If you paid in advance or for work that was not completed satisfactorily, request a refund or correction from the provider in writing (email or text).</p>
-          <h2 data-i18n="dispute_s3_t">3. Report to Lumitya</h2>
-          <p data-i18n="dispute_s3_b">If direct communication fails, file a report through Lumitya platform. Provide evidence (messages, photos, agreements) to support your claim. We will review and may take action against the provider's account.</p>
-          <h2 data-i18n="dispute_s4_t">4. Payment Disputes</h2>
-          <p data-i18n="dispute_s4_b">If you used a credit card or payment app (not cash), contact your payment provider to dispute the charge and recover funds.</p>
-          <h2 data-i18n="dispute_s5_t">5. Legal Action</h2>
-          <p data-i18n="dispute_s5_b">For significant amounts or repeated fraud, you may pursue legal action through small claims court or hire a lawyer. Lumitya will cooperate with legal authorities when required by law.</p>
-          <h2 data-i18n="dispute_s6_t">What Lumitya Does NOT Do</h2>
-          <p data-i18n="dispute_s6_b">Please note: Lumitya is a platform, not a party to your agreement with the provider. We do not:</p>
+          <p data-i18n="footer_dispute_subtitle">If something goes wrong</p>
           <ul>
-            <li data-i18n="dispute_s6_l1">Hold or manage customer or provider payment funds</li>
-            <li data-i18n="dispute_s6_l2">Guarantee work quality or service outcomes</li>
-            <li data-i18n="dispute_s6_l3">Provide refunds or compensation for provider mistakes</li>
-            <li data-i18n="dispute_s6_l4">Act as an intermediary in payment disputes</li>
+            <li data-i18n="footer_dispute_l1">Contact the provider directly to resolve the issue</li>
+            <li data-i18n="footer_dispute_l2">Request a refund or correction if applicable</li>
+            <li data-i18n="footer_dispute_l3">Use Lumitya's report feature to notify us</li>
+            <li data-i18n="footer_dispute_l4">Consider formal legal options if necessary</li>
           </ul>
-          <h2 data-i18n="dispute_s7_t">Prevent Problems</h2>
-          <p data-i18n="dispute_s7_b">To protect yourself:</p>
-          <ul>
-            <li data-i18n="dispute_s7_l1">Never pay in full before work is done</li>
-            <li data-i18n="dispute_s7_l2">Agree on terms and price in writing</li>
-            <li data-i18n="dispute_s7_l3">Pay using methods that offer buyer protection (credit card, PayPal)</li>
-            <li data-i18n="dispute_s7_l4">Verify the provider's credentials and past reviews</li>
-            <li data-i18n="dispute_s7_l5">Keep all receipts and communication records</li>
-          </ul>
+          <p>
+            <span data-i18n="dispute_contact_line">For communication, contact:</span>
+            <strong><a href="mailto:contact@lumitya.com">contact@lumitya.com</a></strong>
+          </p>
         </div>
       </div>
       <footer>
@@ -1467,8 +1459,9 @@
         <div class="msuc" id="mmsuc">
           <div class="sico">&#9989;</div>
           <h3 data-i18n="req_success_title">Request Sent!</h3>
-          <p data-i18n="req_success_desc">Listed providers in your area will be in touch directly. Always verify
-            credentials before hiring.</p><button class="bco" onclick="closeMatch()" data-i18n="cl">Close</button>
+          <p data-i18n="req_success_desc">Independent providers in your area will be in touch directly — typically within 24 to 48 hours. Always verify credentials and request a written agreement before hiring.</p>
+          <p style="font-size:0.76rem;color:var(--gr);margin-top:8px">📱 You may receive contact via phone or WhatsApp from listed providers.</p>
+          <button class="bco" onclick="closeMatch()" data-i18n="cl">Close</button>
         </div>
       </div>
     </div>
@@ -1940,13 +1933,15 @@
           <div class="fg"><label data-i18n="f_em">Email</label><input type="email" id="rpem" placeholder="you@email.com"></div>
           <div class="fsr">
             <span class="fn">&#128274; <span data-i18n="report_private_note">Submitted securely for internal review.</span></span>
+            <div style="font-size:0.70rem;color:var(--gr);margin-bottom:8px;padding-top:8px;border-top:1px solid #E5E7EB" data-i18n="report_fair_use_notice">Fair use notice: Submitting false or malicious reports violates the Provider Agreement and may result in suspension of your account.</div>
             <button class="bsb" id="rpbtn" onclick="submitProviderReport()"><span class="btn-lbl" data-i18n="report_submit_btn">Submit report &#8594;</span><span class="sp"></span></button>
           </div>
         </div>
         <div class="msuc" id="rpsuc">
           <div class="sico">&#9989;</div>
           <h3 data-i18n="report_success_title">Report submitted</h3>
-          <p data-i18n="report_success_desc">Your report has been recorded for review by Lumitya.</p>
+          <p data-i18n="report_success_desc">Your report has been recorded and will be reviewed within 5 business days. Lumitya is not obligated to take any specific action and will investigate at its discretion.</p>
+          <div style="font-size:0.76rem;color:var(--gr);margin-top:8px;background:#F3F4F6;padding:8px;border-radius:4px" data-i18n="report_disclaimer_note">Note: Submission of a report does not guarantee removal. Fair use: Submitting false or malicious reports is a violation of the Provider Agreement and may result in suspension of your own account.</div>
           <button class="bco" onclick="closeProviderReport()" data-i18n="cl">Close</button>
         </div>
       </div>

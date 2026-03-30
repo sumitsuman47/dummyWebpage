@@ -229,7 +229,7 @@ CREATE POLICY "Allow anon select approved suppliers" ON suppliers FOR SELECT TO 
 
 ## 🚢 Deployment
 
-### Option 1: Vercel/Netlify (Recommended)
+### Option 1: Vercel/Netlify (Connect)
 1. Push code to GitHub (without `.env`)
 2. Connect repository to Vercel/Netlify
 3. Add environment variables in dashboard

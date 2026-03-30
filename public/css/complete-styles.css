@@ -623,6 +623,18 @@ h1 em {
   margin: 0
 }
 
+.home-fraud-card p {
+  margin-bottom: 14px
+}
+
+.fraud-mail-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  line-height: 1.2
+}
+
 .safety-ack-warn {
   margin-bottom: 12px;
   border-width: 1.5px;

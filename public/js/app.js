@@ -127,6 +127,10 @@ const api = {
 
   getCategories() {
     return this.request('/categories', 'GET');
+  },
+
+  getProviderCountsByCategory() {
+    return this.request('/provider-counts', 'GET');
   }
 };
 
@@ -135,6 +139,7 @@ const api = {
 // =============================================
 const categories = {
   data: [],
+  providerCounts: {},
   loaded: false,
 
   // Fetch from backend and populate all category UIs
@@ -147,6 +152,16 @@ const categories = {
       console.warn('Could not load categories from Supabase, using static fallback.', e);
       this.data = [];
       this.loaded = false;
+    }
+
+    // Fetch provider counts
+    try {
+      const countsRes = await api.getProviderCountsByCategory();
+      this.providerCounts = countsRes.data || {};
+      console.log('📊 Provider counts loaded:', this.providerCounts);
+    } catch (e) {
+      console.warn('Could not load provider counts:', e);
+      this.providerCounts = {};
     }
 
     this.populateAllSelects();
@@ -236,9 +251,12 @@ const categories = {
       const icon = this._icon(cat);
       const name = this._name(cat);
       const desc = this._desc(cat);
-      return `<div class="sc">
+      const slug = cat.slug || cat.name_en.toLowerCase();
+      const count = this.providerCounts[slug] || 0;
+      return `<div class="sc" onclick="goToDirectoryWithCategory('${slug}')" role="button" style="cursor:pointer;transition:all 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
         <div class="sci">${icon}</div>
         <h3>${name}</h3>
+        <div style="font-size:0.85rem;color:var(--bl);font-weight:600;margin:8px 0">${count} provider${count !== 1 ? 's' : ''} available</div>
         ${desc ? `<p>${desc}</p>` : ''}
       </div>`;
     }).join('');
@@ -1175,6 +1193,20 @@ const directory = {
     return rtf.format(Math.round(diffMs / 604800000), 'week');
   },
 
+  formatMemberSince(provider) {
+    const raw = provider.member_since || provider.created_at;
+    if (!raw) return i18n.get('profile_since_unknown');
+
+    const date = new Date(raw);
+    if (Number.isNaN(date.getTime())) return i18n.get('profile_since_unknown');
+
+    const lang = (document.documentElement.lang || 'en').toLowerCase().startsWith('es') ? 'es-MX' : 'en-US';
+    return new Intl.DateTimeFormat(lang, {
+      month: 'short',
+      year: 'numeric'
+    }).format(date);
+  },
+
   // Fetch and cache providers
   async fetchProviders(forceRefresh = false) {
     const now = Date.now();
@@ -1244,6 +1276,24 @@ const directory = {
       return;
     }
 
+    // Update category button styles if category is selected
+    if (this.currentCategory) {
+      const categoryButtons = document.querySelectorAll('.dch');
+      categoryButtons.forEach(btn => {
+        if (btn.dataset.cat === this.currentCategory) {
+          btn.classList.add('on');
+        } else {
+          btn.classList.remove('on');
+        }
+      });
+    } else {
+      // Remove 'on' class from all except the first one (All)
+      const categoryButtons = document.querySelectorAll('.dch');
+      categoryButtons.forEach((btn, idx) => {
+        btn.classList.toggle('on', idx === 0);
+      });
+    }
+
     // Show loading state only if no cache
     if (!this.cachedProviders) {
       grid.innerHTML = '<p style="text-align:center;padding:40px;color:var(--gr)">Loading providers...</p>';
@@ -1287,7 +1337,11 @@ const directory = {
       const tabSupCnt = document.getElementById('tabSupCnt');
 
       if (tabConCnt) {
-        tabConCnt.innerHTML = `${contractors.length} <span data-i18n="dir_listed">${i18n.get('dir_listed')}</span>`;
+        if (contractors.length === 0) {
+          tabConCnt.innerHTML = `<span style="color:var(--gr);font-weight:500">Coming soon</span>`;
+        } else {
+          tabConCnt.innerHTML = `${contractors.length} <span data-i18n="dir_listed">${i18n.get('dir_listed')}</span>`;
+        }
       }
 
       if (tabSupCnt) {
@@ -1402,6 +1456,7 @@ const directory = {
     const verification = this.getVerificationLevel(provider, reviewCount, jobs);
     const responseRate = this.getResponseRate(provider, reviewCount, jobs);
     const lastActive = this.formatLastActive(provider);
+    const memberSince = this.formatMemberSince(provider);
     const safeName = displayName.replace(/'/g, "\\'");
     const verificationHelpText = i18n.get('verification_badge_note');
     const verificationHelpAttr = verification.titleKey === 'trust_l2_title'
@@ -1456,6 +1511,10 @@ const directory = {
           <div class="pv-meta-item">
             <span class="pv-meta-lbl">${i18n.get('profile_last_active')}</span>
             <span class="pv-meta-val">${lastActive}</span>
+          </div>
+          <div class="pv-meta-item">
+            <span class="pv-meta-lbl">${i18n.get('profile_member_since')}</span>
+            <span class="pv-meta-val">${memberSince}</span>
           </div>
           <div class="pv-meta-item">
             <span class="pv-meta-lbl">${i18n.get('profile_response_rate')}</span>
@@ -2081,7 +2140,7 @@ const pageNavigation = {
     this.go(pageId, { updateHistory, replace });
   },
 
-  go(pageId, { updateHistory = true, replace = false } = {}) {
+  go(pageId, { updateHistory = true, replace = false, category = null } = {}) {
     // Hide all pages
     document.querySelectorAll('.page').forEach(page => {
       page.classList.remove('active');
@@ -2100,6 +2159,10 @@ const pageNavigation = {
 
       // Initialize directory when navigating to it
       if (pageId === 'directory') {
+        // If category is provided, set it before rendering
+        if (category) {
+          directory.currentCategory = category;
+        }
         directory.render();
       }
 
@@ -2453,6 +2516,10 @@ window.selDel = (option) => formHelpers.selectDelivery(option);
 window.renderDir = () => directory.render();
 window.setDirTab = (tab) => directory.setTab(tab);
 window.setCat = (btn) => directory.setCategory(btn);
+window.goToDirectoryWithCategory = (categorySlug) => {
+  console.log('🎯 Navigating to directory with category:', categorySlug);
+  pageNavigation.go('directory', { updateHistory: true, category: categorySlug });
+};
 window.openProviderReport = (providerId, providerName) => providerReport.open(providerId, providerName);
 window.closeProviderReport = () => providerReport.close();
 window.submitProviderReport = () => providerReport.submit();

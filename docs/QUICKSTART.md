@@ -2,7 +2,7 @@
 
 ## Running the Project
 
-### Option 1: Quick Start (Recommended)
+### Option 1: Quick Start (Connect)
 ```bash
 ./run.sh
 ```
@@ -138,7 +138,7 @@ Your `.env` file is configured with:
 
 To deploy to production:
 
-### Vercel (Recommended)
+### Vercel (Connect)
 ```bash
 npm install -g vercel
 vercel
