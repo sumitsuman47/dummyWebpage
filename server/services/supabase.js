@@ -9,6 +9,7 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 // Supabase REST API helper
 const supabaseRequest = async (table, method = 'GET', body = null, query = '') => {
   const url = `${SUPABASE_URL}/rest/v1/${table}${query ? '?' + query : ''}`;
+  const prefer = method === 'POST' ? 'return=minimal' : 'return=representation';
 
   const options = {
     method,
@@ -16,7 +17,7 @@ const supabaseRequest = async (table, method = 'GET', body = null, query = '') =
       'Content-Type': 'application/json',
       'apikey': SUPABASE_ANON_KEY,
       'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-      'Prefer': 'return=representation'
+      'Prefer': prefer
     }
   };
 
@@ -31,7 +32,13 @@ const supabaseRequest = async (table, method = 'GET', body = null, query = '') =
     throw new Error(`Supabase API error: ${response.status} - ${error}`);
   }
 
-  return response.json();
+  const text = await response.text();
+  if (!text) return [];
+  try {
+    return JSON.parse(text);
+  } catch (_) {
+    return text;
+  }
 };
 
 // Admin helper: prefers service-role key for admin-protected operations.
@@ -67,7 +74,13 @@ const supabaseAdminRequest = async (table, method = 'GET', body = null, query = 
     throw new Error(`Supabase API error: ${response.status} - ${error}`);
   }
 
-  return response.json();
+  const text = await response.text();
+  if (!text) return [];
+  try {
+    return JSON.parse(text);
+  } catch (_) {
+    return text;
+  }
 };
 
 // Service methods
