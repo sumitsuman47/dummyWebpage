@@ -623,6 +623,35 @@ h1 em {
   margin: 0
 }
 
+.safety-ack-warn {
+  margin-bottom: 12px;
+  border-width: 1.5px;
+  border-color: #F59E0B;
+  background: #FEF9C3
+}
+
+.safety-ack-box {
+  margin-top: 0;
+  border-width: 1.5px;
+  border-color: #F59E0B;
+  background: #FEFCE8
+}
+
+.safety-ack-box label {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 10px;
+  align-items: start
+}
+
+.safety-ack-checkbox {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: #D97706;
+  cursor: pointer
+}
+
 .ha {
   display: flex;
   gap: 11px;
