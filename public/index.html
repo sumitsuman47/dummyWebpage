@@ -836,7 +836,7 @@
             <ul class="pls">
               <li><span class="pck">&#10003;</span><span data-i18n="plan_basic_f1">Profile listing on Lumitya
                   directory</span></li>
-              <li><span class="pck">&#10003;</span><span data-i18n="plan_basic_f2">Up to X leads per month (by
+              <li><span class="pck">&#10003;</span><span data-i18n="plan_basic_f2">Up to 3 leads per month (by
                   area)</span></li>
               <li><span class="pck">&#10003;</span><span data-i18n="plan_basic_f3">Rating and review visibility</span>
               </li>
@@ -1442,14 +1442,14 @@
             <div class="fg"><label><span data-i18n="req_service">Service Needed</span><span class="rq">*</span></label>
               <select id="msvc">
                 <option value="" disabled selected data-i18n="req_select_service">Select service</option>
-                <option>Architecture &amp; Design</option>
-                <option>Plumbing</option>
-                <option>Electrical</option>
-                <option>Roof &amp; Waterproofing</option>
-                <option>Material Supply</option>
-                <option>Renovation &amp; Remodeling</option>
-                <option>Painting</option>
-                <option>Other</option>
+                <option data-i18n="opt_architecture">Architecture &amp; Design</option>
+                <option data-i18n="opt_plumbing">Plumbing</option>
+                <option data-i18n="opt_electrical">Electrical</option>
+                <option data-i18n="opt_roofing">Roof &amp; Waterproofing</option>
+                <option data-i18n="opt_materials">Material Supply</option>
+                <option data-i18n="opt_renovation">Renovation &amp; Remodeling</option>
+                <option data-i18n="opt_painting">Painting</option>
+                <option data-i18n="opt_other">Other</option>
               </select>
             </div>
           </div>
@@ -1504,7 +1504,7 @@
           <div class="sico">&#9989;</div>
           <h3 data-i18n="req_success_title">Request Sent!</h3>
           <p data-i18n="req_success_desc">Independent providers in your area will be in touch directly — typically within 24 to 48 hours. Always verify credentials and request a written agreement before hiring.</p>
-          <p style="font-size:0.76rem;color:var(--gr);margin-top:8px">📱 You may receive contact via phone or WhatsApp from listed providers.</p>
+          <p style="font-size:0.76rem;color:var(--gr);margin-top:8px" data-i18n="req_whatsapp_note">📱 You may receive contact via phone or WhatsApp from listed providers.</p>
           <button class="bco" onclick="closeMatch()" data-i18n="cl">Close</button>
         </div>
       </div>
@@ -1526,7 +1526,7 @@
             <div class="fg"><label><span data-i18n="f_nm">Full Name</span><span class="rq">*</span></label><input
                 type="text" id="pnm" placeholder="e.g. Carlos Mendoza"></div>
             <div class="fg"><label><span data-i18n="f_bz">Business Name</span> <span
-                  style="font-size:.67rem;color:var(--gr)">(optional)</span></label><input type="text" id="pbz"
+                  style="font-size:.67rem;color:var(--gr)" data-i18n="f_optional">(optional)</span></label><input type="text" id="pbz"
                 placeholder="e.g. Construcciones CM"></div>
           </div>
           <div class="fr">
@@ -1539,7 +1539,7 @@
             <div class="fg">
               <label><span data-i18n="f_ct">City</span><span class="rq">*</span></label>
               <select id="pcity" onchange="updCol('pcol','pcity')">
-                <option value="" disabled selected>Select city</option>
+                <option value="" disabled selected data-i18n="opt_select_city">Select city</option>
                 <option>Guadalajara</option>
                 <option>Zapopan</option>
               </select>
@@ -1547,7 +1547,7 @@
             </div>
             <div class="fg"><label><span data-i18n="f_col">Neighbourhood</span><span class="rq">*</span></label><select
                 id="pcol" disabled>
-                <option value="" disabled selected>Select city first</option>
+                <option value="" disabled selected data-i18n="opt_select_city_first">Select city first</option>
               </select></div>
           </div>
           <div class="fr">
@@ -1555,12 +1555,12 @@
                 placeholder="instagram.com/yourprofile"></div>
             <div class="fg"><label><span data-i18n="f_tm">Team Size</span></label>
               <select id="ptm">
-                <option value="" disabled selected>Select</option>
-                <option>Solo / Freelancer</option>
-                <option>2&#8211;5 people</option>
-                <option>6&#8211;15 people</option>
-                <option>16&#8211;50 people</option>
-                <option>50+</option>
+                <option value="" disabled selected data-i18n="opt_select">Select</option>
+                <option data-i18n="opt_solo">Solo / Freelancer</option>
+                <option data-i18n="opt_team_2_5">2&#8211;5 people</option>
+                <option data-i18n="opt_team_6_15">6&#8211;15 people</option>
+                <option data-i18n="opt_team_16_50">16&#8211;50 people</option>
+                <option data-i18n="opt_team_50plus">50+</option>
               </select>
             </div>
           </div>
@@ -1591,7 +1591,7 @@
                   width="9" height="7" viewBox="0 0 9 7" fill="none">
                   <path d="M1 3.5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.7" stroke-linecap="round"
                     stroke-linejoin="round" />
-                </svg></span><span style="font-size:.9rem">&#127968;</span><span class="ckl">Roofing</span></label>
+                </svg></span><span style="font-size:.9rem">&#127968;</span><span class="ckl" data-i18n="s4t">Roofing</span></label>
             <label class="ck" onclick="tglCk(this)"><input type="checkbox" value="Renovation"><span class="ckb"><svg
                   width="9" height="7" viewBox="0 0 9 7" fill="none">
                   <path d="M1 3.5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.7" stroke-linecap="round"
@@ -1608,12 +1608,12 @@
                   width="9" height="7" viewBox="0 0 9 7" fill="none">
                   <path d="M1 3.5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.7" stroke-linecap="round"
                     stroke-linejoin="round" />
-                </svg></span><span style="font-size:.9rem">&#127912;</span><span class="ckl">Painting</span></label>
+                </svg></span><span style="font-size:.9rem">&#127912;</span><span class="ckl" data-i18n="s7t">Painting</span></label>
             <label class="ck" onclick="tglCk(this)"><input type="checkbox" value="HVAC"><span class="ckb"><svg width="9"
                   height="7" viewBox="0 0 9 7" fill="none">
                   <path d="M1 3.5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.7" stroke-linecap="round"
                     stroke-linejoin="round" />
-                </svg></span><span style="font-size:.9rem">&#10052;</span><span class="ckl">HVAC</span></label>
+                </svg></span><span style="font-size:.9rem">&#10052;</span><span class="ckl" data-i18n="s8t">HVAC</span></label>
           </div>
           <div style="display:none;font-size:.68rem;color:var(--rd);margin-top:4px" id="caterr" data-i18n="err_cat">
             Select at least one category.</div>
@@ -1633,13 +1633,13 @@
           </div>
           <div class="fg"><label><span data-i18n="f_dsc">Description of Services</span><span
                 class="rq">*</span></label><textarea id="pdsc"
-              placeholder="Describe your services, area of operation, and past projects..."></textarea></div>
+              data-i18n-placeholder="f_dsc_placeholder" placeholder="Describe your services, area of operation, and past projects..."></textarea></div>
           <div class="fg"><label><span data-i18n="f_zn">Service Coverage</span><span class="rq">*</span></label>
             <select id="pzn">
-              <option value="" disabled selected>Where do you work?</option>
-              <option>Guadalajara only</option>
-              <option>Zapopan only</option>
-              <option>Both cities</option>
+              <option value="" disabled selected data-i18n="opt_where_work">Where do you work?</option>
+              <option data-i18n="opt_gdl_only">Guadalajara only</option>
+              <option data-i18n="opt_zap_only">Zapopan only</option>
+              <option data-i18n="opt_both_cities">Both cities</option>
             </select>
           </div>
           <div class="agb">
@@ -1861,14 +1861,14 @@
             <div class="fg"><label><span data-i18n="req_service">Service Needed</span><span class="rq">*</span></label>
               <select id="cpsvc">
                 <option value="" disabled selected data-i18n="req_select_service">Select service</option>
-                <option>Architecture &amp; Design</option>
-                <option>Plumbing</option>
-                <option>Electrical</option>
-                <option>Roof &amp; Waterproofing</option>
-                <option>Material Supply</option>
-                <option>Renovation &amp; Remodeling</option>
-                <option>Painting</option>
-                <option>Other</option>
+                <option data-i18n="opt_architecture">Architecture &amp; Design</option>
+                <option data-i18n="opt_plumbing">Plumbing</option>
+                <option data-i18n="opt_electrical">Electrical</option>
+                <option data-i18n="opt_roofing">Roof &amp; Waterproofing</option>
+                <option data-i18n="opt_materials">Material Supply</option>
+                <option data-i18n="opt_renovation">Renovation &amp; Remodeling</option>
+                <option data-i18n="opt_painting">Painting</option>
+                <option data-i18n="opt_other">Other</option>
               </select>
             </div>
           </div>
@@ -1914,7 +1914,7 @@
             <div id="turnstile-contact" data-turnstile-form="contact"></div>
           </div>
           <div class="fsr">
-            <span class="fn">&#128274; Private.</span>
+            <span class="fn">&#128274; <span data-i18n="cp_private">Private.</span></span>
             <button class="bsb" id="cpbtn" onclick="submitCont()"><span class="btn-lbl" data-i18n="cp_b">Send Request
                 &#8594;</span><span class="sp"></span></button>
           </div>
@@ -2071,16 +2071,16 @@
           <div class="fg"><label><span data-i18n="nf_svc">Type of Service You Provide</span><span
                 class="rq">*</span></label>
             <select id="nfsvc">
-              <option value="" disabled selected>Select your service type</option>
-              <option>Architecture &amp; Design</option>
-              <option>Plumbing</option>
-              <option>Electrical</option>
-              <option>Roof &amp; Waterproofing</option>
-              <option>Material Supply</option>
-              <option>Renovation &amp; Remodeling</option>
-              <option>Painting</option>
-              <option>HVAC</option>
-              <option>Other</option>
+              <option value="" disabled selected data-i18n="opt_select_service_type">Select your service type</option>
+              <option data-i18n="opt_architecture">Architecture &amp; Design</option>
+              <option data-i18n="opt_plumbing">Plumbing</option>
+              <option data-i18n="opt_electrical">Electrical</option>
+              <option data-i18n="opt_roofing">Roof &amp; Waterproofing</option>
+              <option data-i18n="opt_materials">Material Supply</option>
+              <option data-i18n="opt_renovation">Renovation &amp; Remodeling</option>
+              <option data-i18n="opt_painting">Painting</option>
+              <option data-i18n="opt_hvac">HVAC</option>
+              <option data-i18n="opt_other">Other</option>
             </select>
           </div>
         </div>
@@ -2095,16 +2095,16 @@
           <div id="turnstile-notify" data-turnstile-form="notify"></div>
         </div>
         <div class="nf-act">
-          <span class="fn">&#128274; We'll only use this to notify you.</span>
-          <button class="bsb" id="nfbtn" onclick="submitNotify()"><span class="btn-lbl">Submit &#8594;</span><span
+          <span class="fn">&#128274; <span data-i18n="nf_privacy">We'll only use this to notify you.</span></span>
+          <button class="bsb" id="nfbtn" onclick="submitNotify()"><span class="btn-lbl" data-i18n="nf_submit">Submit &#8594;</span><span
               class="sp"></span></button>
         </div>
       </div>
       <div class="msuc" id="nfsuc">
         <div class="sico">&#128276;</div>
-        <h3>You're on the List!</h3>
-        <p>We'll notify you by email and WhatsApp as soon as the Premium plan is available.</p><button class="bco"
-          onclick="closeNotify()">Close</button>
+        <h3 data-i18n="nf_success_title">You're on the List!</h3>
+        <p data-i18n="nf_success_desc">We'll notify you by email and WhatsApp as soon as the Premium plan is available.</p><button class="bco"
+          onclick="closeNotify()" data-i18n="cl">Close</button>
       </div>
     </div>
   </div>
