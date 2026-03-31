@@ -4,6 +4,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <script>
+    (function restoreDeepLinkFrom404Redirect() {
+      var search = window.location.search || '';
+      if (!search.startsWith('?p=')) return;
+
+      try {
+        var target = decodeURIComponent(search.slice(3));
+        if (target && target.charAt(0) === '/') {
+          window.history.replaceState(null, '', target);
+        }
+      } catch (e) {
+        // Ignore malformed redirect payloads.
+      }
+    })();
+  </script>
   <title>Lumitya — Home Service & Materials Platform</title>
   <meta name="description" content="Lumitya connects homeowners with independent contractors and material suppliers in Guadalajara and Zapopan.">
   <link rel="canonical" href="https://www.lumitya.com/">
@@ -772,7 +787,7 @@
                 data-i18n="footer_terms">Terms &amp; Conditions</a></li>
             <li data-feature="privacy_page"><a href="/privacy" onclick="go('privacy'); return false;"
                 data-i18n="footer_privacy">Privacy Notice</a></li>
-            <li data-feature="dispute_guidance"><a href="#" onclick="go('dispute'); return false;"
+            <li data-feature="dispute_guidance"><a href="/dispute" onclick="go('dispute'); return false;"
                 data-i18n="footer_dispute_guidance">Dispute Guidance</a></li>
             <li data-feature="provider_agreement_page"><a href="/provider-agreement" onclick="go('pagree'); return false;"
                 data-i18n="footer_provider_agreement">Provider Agreement</a></li>
@@ -924,7 +939,7 @@
             </li>
             <li data-feature="privacy_page"><a href="/privacy" onclick="go('privacy'); return false;" data-i18n="footer_privacy">Privacy Notice</a>
             </li>
-            <li data-feature="dispute_guidance"><a href="#" onclick="go('dispute'); return false;" data-i18n="footer_dispute_guidance">Dispute Guidance</a></li>
+            <li data-feature="dispute_guidance"><a href="/dispute" onclick="go('dispute'); return false;" data-i18n="footer_dispute_guidance">Dispute Guidance</a></li>
           </ul>
         </div>
         <div>
@@ -1089,6 +1104,7 @@
           <p data-i18n="terms_s1_p2">Lumitya acts solely as a digital intermediary that facilitates contact between users and independent service providers.</p>
           <p data-i18n="terms_s1_p3">While Lumitya may perform basic identity verification, it does not evaluate, rank, or confirm the quality, legality, or safety of any services offered.</p>
           <p data-i18n="terms_s1_p4">Users acknowledge that they are solely responsible for evaluating and selecting service providers, entering into agreements, and verifying credentials, licenses, and insurance where applicable.</p>
+          <p data-i18n="terms_s1_p5">You must be at least 18 years of age to use Lumitya. By accessing or using the platform, you represent and warrant that you are 18 years of age or older. If you are under 18, you may not use the platform. Users are solely responsible for ensuring they meet this age requirement.</p>
           <h2 data-i18n="terms_s2_t">2. No Employment or Agency Relationship</h2>
           <p data-i18n="terms_s2_p1">Lumitya does not employ, contract, or act as an agent, broker, or representative of any service provider.</p>
           <p data-i18n="terms_s2_p2">All providers operate independently and are solely responsible for their services.</p>
@@ -1100,7 +1116,15 @@
             <li data-i18n="terms_s3_l3">Enter into written agreements directly with providers</li>
             <li data-i18n="terms_s3_l4">Avoid making unsecured advance payments</li>
           </ul>
-          <h2 data-i18n="terms_s4_t">4. Contractor Responsibilities</h2>
+          <h2 data-i18n="terms_prohibited_t">4. Prohibited Activities</h2>
+          <p data-i18n="terms_prohibited_intro">Users must not:</p>
+          <ul>
+            <li data-i18n="terms_prohibited_l1">Submit fraudulent listings</li>
+            <li data-i18n="terms_prohibited_l2">Violate intellectual property rights</li>
+            <li data-i18n="terms_prohibited_l3">Use the platform for illegal activities</li>
+            <li data-i18n="terms_prohibited_l4">Attempt to hack or disrupt services</li>
+          </ul>
+          <h2 data-i18n="terms_s4_t">5. Contractor Responsibilities</h2>
           <p data-i18n="terms_s4_intro">Service providers agree to:</p>
           <ul>
             <li data-i18n="terms_s4_l1">Provide accurate and truthful information</li>
@@ -1108,10 +1132,10 @@
             <li data-i18n="terms_s4_l3">Communicate transparently with users</li>
             <li data-i18n="terms_s4_l4">Comply with applicable laws and regulations</li>
           </ul>
-          <h2 data-i18n="terms_s5_t">5. Subscription Terms</h2>
+          <h2 data-i18n="terms_s5_t">6. Subscription Terms</h2>
           <p data-i18n="terms_s5_p1">Contractor subscription fees grant access to platform visibility only. Lumitya does not guarantee the receipt of leads, client engagement, or business outcomes.</p>
           <p data-i18n="terms_s5_p2">Lead distribution may vary based on location, demand, and platform activity.</p>
-          <h2 data-i18n="terms_s6_t">6. Limitation of Liability</h2>
+          <h2 data-i18n="terms_s6_t">7. Limitation of Liability</h2>
           <p data-i18n="terms_s6_intro">Lumitya is not responsible for:</p>
           <ul>
             <li data-i18n="terms_s6_l1">The quality, timing, legality, or safety of services</li>
@@ -1120,19 +1144,26 @@
           </ul>
           <p data-i18n="terms_s6_p1">Nothing in these Terms shall exclude or limit liability in cases where such limitation is not permitted under applicable Mexican law.</p>
           <p data-i18n="terms_s6_p2">Lumitya complies with applicable consumer protection regulations under the Ley Federal de Protección al Consumidor (LFPC) and the Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP), and will cooperate with PROFECO and other competent authorities when required.</p>
-          <h2 data-i18n="terms_s7_t">7. Platform Integrity</h2>
+          <h2 data-i18n="terms_s7_t">8. Platform Integrity</h2>
           <p data-i18n="terms_s7_intro">Lumitya reserves the right to:</p>
           <ul>
             <li data-i18n="terms_s7_l1">Suspend or remove accounts that violate these terms</li>
             <li data-i18n="terms_s7_l2">Investigate reports of misuse or fraud</li>
             <li data-i18n="terms_s7_l3">Restrict access to maintain platform integrity</li>
           </ul>
-          <h2 data-i18n="terms_s8_t">8. Dispute Handling</h2>
+          <h2 data-i18n="terms_s8_t">9. Dispute Handling</h2>
           <p data-i18n="terms_s8_p1">Lumitya is not a party to agreements between users and providers.</p>
           <p data-i18n="terms_s8_p2">However, users may report issues through the platform for review and possible action on accounts.</p>
-          <h2 data-i18n="terms_s9_t">9. Force Majeure</h2>
+          <h3 data-i18n="terms_s8_arb_t">Arbitration Agreement</h3>
+          <p data-i18n="terms_s8_arb_p1">Any dispute, controversy, or claim arising out of or relating to the use of Lumitya (lumitya.com), including but not limited to its services, content, or these Terms, shall be resolved exclusively through binding arbitration.</p>
+          <p data-i18n="terms_s8_arb_p2">The arbitration shall be conducted in accordance with the rules of the Arbitration Center of Mexico (Centro de Arbitraje de México — CAM) or another recognized arbitration institution, as determined by Lumitya.</p>
+          <p data-i18n="terms_s8_arb_p3">The seat of arbitration shall be Guadalajara, Jalisco, Mexico, and the proceedings shall be conducted in English or Spanish.</p>
+          <p data-i18n="terms_s8_arb_p4">The arbitration shall be conducted by a single arbitrator. The decision of the arbitrator shall be final and binding on both parties.</p>
+          <p data-i18n="terms_s8_arb_p5">Users agree to waive any right to participate in class actions, class arbitrations, or representative actions.</p>
+          <p data-i18n="terms_s8_arb_p6">Notwithstanding the foregoing, Lumitya reserves the right to seek injunctive or equitable relief in competent courts to protect its intellectual property, confidential information, or prevent misuse of the platform.</p>
+          <h2 data-i18n="terms_s9_t">10. Force Majeure</h2>
           <p data-i18n="terms_s9_p">Lumitya shall not be liable for any failure or delay in performing its obligations where such failure or delay results from circumstances beyond its reasonable control, including but not limited to acts of God, government actions, internet or communications failures, civil disturbances, or pandemic-related disruptions.</p>
-          <h2 data-i18n="terms_s10_t">10. Modifications</h2>
+          <h2 data-i18n="terms_s10_t">11. Modifications</h2>
           <p data-i18n="terms_s10_p1">Lumitya may update these Terms at any time. In the event of material changes, registered users will be notified by email at least 7 days before the changes take effect. Continued use of the platform after notification constitutes acceptance of the updated Terms.</p>
         </div>
       </div>
@@ -1157,7 +1188,7 @@
               <li data-feature="terms_page"><a href="/terms" onclick="go('terms'); return false;"
                   data-i18n="footer_terms">Terms &amp; Conditions</a></li>
               <li data-feature="privacy_page"><a href="/privacy" onclick="go('privacy'); return false;" data-i18n="footer_privacy">Privacy Notice</a></li>
-              <li data-feature="dispute_guidance"><a href="#" onclick="go('dispute'); return false;"
+              <li data-feature="dispute_guidance"><a href="/dispute" onclick="go('dispute'); return false;"
                   data-i18n="footer_dispute_guidance">Dispute Guidance</a></li>
               <li data-feature="provider_agreement_page"><a href="/provider-agreement" onclick="go('pagree'); return false;" data-i18n="footer_provider_agreement">Provider
                   Agreement</a></li>
@@ -1229,7 +1260,7 @@
             <ul>
               <li data-feature="terms_page"><a href="/terms" onclick="go('terms'); return false;" data-i18n="footer_terms">Terms</a></li>
               <li data-feature="privacy_page"><a href="/privacy" onclick="go('privacy'); return false;" data-i18n="footer_privacy">Privacy</a></li>
-              <li data-feature="dispute_guidance"><a href="#" onclick="go('dispute'); return false;" data-i18n="footer_dispute_guidance">Dispute Guidance</a></li>
+              <li data-feature="dispute_guidance"><a href="/dispute" onclick="go('dispute'); return false;" data-i18n="footer_dispute_guidance">Dispute Guidance</a></li>
               <li data-feature="provider_agreement_page"><a href="/provider-agreement" onclick="go('pagree'); return false;" data-i18n="footer_provider_agreement">Provider
                   Agreement</a></li>
             </ul>
@@ -1252,7 +1283,7 @@
         <div class="si">
           <button class="lbk" onclick="go('pricing')" data-i18n="legal_back">&#8592; Back</button>
           <h1 data-i18n="pagree_title">Service Provider Agreement</h1><span class="lup" data-i18n="pagree_updated">Last updated: March 2026</span>
-          <div class="lwn" data-i18n="pagree_intro">By applying to list on Lumitya, you agree to the terms of this agreement.</div>
+          <div class="lwn" data-i18n="pagree_intro">By applying to list on Lumitya, you agree to the terms of this agreement as well general terms and conditions.</div>
           <h2 data-i18n="pagree_s1_t">1. Independent Status</h2>
           <p data-i18n="pagree_s1_b">The Provider is an independent contractor, not an employee of Lumitya. Lumitya does not supervise work,
             does not guarantee results, and is not responsible for any services provided.</p>
@@ -1299,7 +1330,7 @@
             <ul>
               <li data-feature="terms_page"><a href="/terms" onclick="go('terms'); return false;" data-i18n="footer_terms">Terms</a></li>
               <li data-feature="privacy_page"><a href="/privacy" onclick="go('privacy'); return false;" data-i18n="footer_privacy">Privacy</a></li>
-              <li data-feature="dispute_guidance"><a href="#" onclick="go('dispute'); return false;" data-i18n="footer_dispute_guidance">Dispute Guidance</a></li>
+              <li data-feature="dispute_guidance"><a href="/dispute" onclick="go('dispute'); return false;" data-i18n="footer_dispute_guidance">Dispute Guidance</a></li>
             </ul>
           </div>
           <div>
@@ -1327,6 +1358,8 @@
             <li data-i18n="footer_dispute_l3">Use Lumitya's report feature to notify us</li>
             <li data-i18n="footer_dispute_l4">Consider formal legal options if necessary</li>
           </ul>
+          <h3 data-i18n="terms_s8_arb_t">Arbitration Agreement</h3>
+          <p data-i18n="dispute_arb_summary">All disputes arising from the use of Lumitya shall be resolved through binding arbitration in Guadalajara, Jalisco, Mexico, in accordance with the rules of the Arbitration Center of Mexico (CAM). See our full Terms of Service for complete arbitration details.</p>
           <p>
             <span data-i18n="dispute_contact_line">For communication, contact:</span>
             <strong><a href="mailto:contact@lumitya.com">contact@lumitya.com</a></strong>
@@ -1353,7 +1386,7 @@
             <ul>
               <li data-feature="terms_page"><a href="/terms" onclick="go('terms'); return false;" data-i18n="footer_terms">Terms &amp; Conditions</a></li>
               <li data-feature="privacy_page"><a href="/privacy" onclick="go('privacy'); return false;" data-i18n="footer_privacy">Privacy Notice</a></li>
-              <li data-feature="dispute_guidance"><a href="#" onclick="go('dispute'); return false;" data-i18n="footer_dispute_guidance">Dispute Guidance</a></li>
+              <li data-feature="dispute_guidance"><a href="/dispute" onclick="go('dispute'); return false;" data-i18n="footer_dispute_guidance">Dispute Guidance</a></li>
               <li data-feature="provider_agreement_page"><a href="/provider-agreement" onclick="go('pagree'); return false;" data-i18n="footer_provider_agreement">Provider Agreement</a></li>
             </ul>
           </div>
@@ -1448,10 +1481,15 @@
           <div class="fr">
             <div class="fg"><label><span data-i18n="req_phone">Phone</span><span class="rq">*</span></label><input
                 type="tel" id="mph" placeholder="+52 33 1234 5678"></div>
-            <div class="fg"><label><span data-i18n="req_email">Email</span> <span
-                  style="font-size:.67rem;color:var(--gr)"
-                  data-i18n="req_email_optional">(optional)</span></label><input type="email" id="mem"
+            <div class="fg"><label><span data-i18n="req_email">Email</span><span class="rq">*</span></label><input type="email" id="mem"
                 placeholder="you@email.com"></div>
+          </div>
+          <div class="agb" style="margin:12px 0 6px">
+            <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+              <div class="agc" id="matchTermsChk" onclick="tglTermsArb('match')"></div>
+              <div class="agt" style="font-size:.76rem"><span data-i18n="terms_arb_agree">I agree to the </span><a onclick="go('terms')" style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="footer_terms">Terms &amp; Conditions</a><span> &amp; </span><a onclick="go('terms')" style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="terms_s8_arb_t">Arbitration Agreement</a>.<span class="rq">*</span></div>
+            </label>
+            <div class="age" id="matchTermsErr" style="display:none" data-i18n="terms_arb_err">You must agree to the Terms &amp; Arbitration clause before submitting.</div>
           </div>
           <div style="margin:14px 0 6px">
             <div id="turnstile-match" data-turnstile-form="match"></div>
@@ -1612,9 +1650,10 @@
                   listing platform only, does not supervise my work, and does not guarantee leads or revenue. I agree to
                   the </span><a onclick="go('pagree');closeProv()"
                   style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600"
-                  data-i18n="ag_l">Provider Agreement</a><span> &amp; </span><a onclick="go('terms');closeProv()"
+                  data-i18n="ag_l">Provider Agreement</a><span>, </span><a onclick="go('terms');closeProv()"
                   style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="ag_tc">Terms
-                  &amp; Conditions</a>.</div>
+                  &amp; Conditions</a><span> &amp; </span><a onclick="go('terms');closeProv()"
+                  style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="terms_s8_arb_t">Arbitration Agreement</a>.</div>
             </label>
             <div class="age" id="agerr" data-i18n="err_ag">You must confirm this before submitting.</div>
           </div>
@@ -1757,9 +1796,11 @@
                   understand that Lumitya is a listing platform only, does not supervise my operations, and does not
                   guarantee leads or revenue. I agree to the</span> <a onclick="go('pagree');closeSupp()"
                   style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600"
-                  data-i18n="sm_provider_agreement">Provider Agreement</a> &amp; <a onclick="go('terms');closeSupp()"
+                  data-i18n="sm_provider_agreement">Provider Agreement</a>, <a onclick="go('terms');closeSupp()"
                   style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600"
-                  data-i18n="sm_terms">Terms &amp; Conditions</a>.</div>
+                  data-i18n="sm_terms">Terms &amp; Conditions</a> &amp; <a onclick="go('terms');closeSupp()"
+                  style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600"
+                  data-i18n="terms_s8_arb_t">Arbitration Agreement</a>.</div>
             </label>
             <div class="age" id="sagerr" data-i18n="sm_agreement_error">You must confirm this before submitting.</div>
           </div>
@@ -1859,9 +1900,15 @@
           <div class="fr">
             <div class="fg"><label><span data-i18n="f_ph">Phone</span><span class="rq">*</span></label><input type="tel"
                 id="cpph" placeholder="+52 33 1234 5678"></div>
-            <div class="fg"><label><span data-i18n="f_em">Email</span> <span
-                  style="font-size:.67rem;color:var(--gr)">(optional)</span></label><input type="email" id="cpem"
+            <div class="fg"><label><span data-i18n="f_em">Email</span><span class="rq">*</span></label><input type="email" id="cpem"
                 placeholder="you@email.com"></div>
+          </div>
+          <div class="agb" style="margin:12px 0 6px">
+            <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+              <div class="agc" id="contTermsChk" onclick="tglTermsArb('cont')"></div>
+              <div class="agt" style="font-size:.76rem"><span data-i18n="terms_arb_agree">I agree to the </span><a onclick="go('terms')" style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="footer_terms">Terms &amp; Conditions</a><span> &amp; </span><a onclick="go('terms')" style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="terms_s8_arb_t">Arbitration Agreement</a>.<span class="rq">*</span></div>
+            </label>
+            <div class="age" id="contTermsErr" style="display:none" data-i18n="terms_arb_err">You must agree to the Terms &amp; Arbitration clause before submitting.</div>
           </div>
           <div style="margin:14px 0 6px">
             <div id="turnstile-contact" data-turnstile-form="contact"></div>
@@ -1940,12 +1987,19 @@
             </select>
           </div>
           <div class="fg"><label><span data-i18n="report_details_label">Details</span><span class="rq">*</span></label><textarea id="rpdetails" data-i18n-placeholder="report_details_placeholder" placeholder="Describe what happened and any relevant context..."></textarea></div>
-          <div class="fst" data-i18n="report_contact_section">Your contact details (optional)</div>
+          <div class="fst" data-i18n="report_contact_section">Your contact details</div>
           <div class="fr">
-            <div class="fg"><label data-i18n="f_nm">Full Name</label><input type="text" id="rpnm" placeholder="e.g. Carlos Mendoza"></div>
-            <div class="fg"><label data-i18n="f_ph">Phone</label><input type="tel" id="rpph" placeholder="+52 33 1234 5678"></div>
+            <div class="fg"><label><span data-i18n="f_nm">Full Name</span></label><input type="text" id="rpnm" placeholder="e.g. Carlos Mendoza"></div>
+            <div class="fg"><label><span data-i18n="f_ph">Phone</span><span class="rq">*</span></label><input type="tel" id="rpph" placeholder="+52 33 1234 5678"></div>
           </div>
-          <div class="fg"><label data-i18n="f_em">Email</label><input type="email" id="rpem" placeholder="you@email.com"></div>
+          <div class="fg"><label><span data-i18n="f_em">Email</span><span class="rq">*</span></label><input type="email" id="rpem" placeholder="you@email.com"></div>
+          <div class="agb" style="margin:12px 0 6px">
+            <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+              <div class="agc" id="reportTermsChk" onclick="tglTermsArb('report')"></div>
+              <div class="agt" style="font-size:.76rem"><span data-i18n="terms_arb_agree">I agree to the </span><a onclick="go('terms')" style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="footer_terms">Terms &amp; Conditions</a><span> &amp; </span><a onclick="go('terms')" style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="terms_s8_arb_t">Arbitration Agreement</a>.<span class="rq">*</span></div>
+            </label>
+            <div class="age" id="reportTermsErr" style="display:none" data-i18n="terms_arb_err">You must agree to the Terms &amp; Arbitration clause before submitting.</div>
+          </div>
           <div style="margin:14px 0 6px">
             <div id="turnstile-report" data-turnstile-form="report"></div>
           </div>
@@ -2029,6 +2083,13 @@
               <option>Other</option>
             </select>
           </div>
+        </div>
+        <div class="agb" style="margin:12px 0 6px">
+          <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+            <div class="agc" id="notifyTermsChk" onclick="tglTermsArb('notify')"></div>
+            <div class="agt" style="font-size:.76rem"><span data-i18n="terms_arb_agree">I agree to the </span><a onclick="go('terms')" style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="footer_terms">Terms &amp; Conditions</a><span> &amp; </span><a onclick="go('terms')" style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="terms_s8_arb_t">Arbitration Agreement</a>.<span class="rq">*</span></div>
+          </label>
+          <div class="age" id="notifyTermsErr" style="display:none" data-i18n="terms_arb_err">You must agree to the Terms &amp; Arbitration clause before submitting.</div>
         </div>
         <div style="margin:14px 0 6px">
           <div id="turnstile-notify" data-turnstile-form="notify"></div>
