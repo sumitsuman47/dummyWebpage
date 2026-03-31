@@ -801,6 +801,10 @@ const serviceRequest = {
     setTimeout(() => {
       modals.reset('mmbody', 'mmsuc', 'merr', 'mbtn');
       utils.clearFields(['mnm', 'mcity', 'mcol', 'msvc', 'mds', 'mbg', 'mug', 'mph', 'mem']);
+      const mtChk = document.getElementById('matchTermsChk');
+      if (mtChk) { mtChk.classList.remove('on'); mtChk.dataset.checked = 'false'; }
+      const mtErr = document.getElementById('matchTermsErr');
+      if (mtErr) mtErr.style.display = 'none';
       captcha.reset('match');
     }, 320);
   },
@@ -896,9 +900,24 @@ const serviceRequest = {
       return;
     }
 
-    if (data.email && !utils.validateEmail(data.email)) {
+    if (!data.email) {
+      utils.showError('merr', 'Please enter your email address');
+      emEl.focus();
+      return;
+    }
+
+    if (!utils.validateEmail(data.email)) {
       utils.showError('merr', 'Please enter a valid email address');
       emEl.focus();
+      return;
+    }
+
+    // Terms & Arbitration agreement check
+    const matchTermsChk = document.getElementById('matchTermsChk');
+    if (!matchTermsChk || !matchTermsChk.classList.contains('on')) {
+      const termsErr = document.getElementById('matchTermsErr');
+      if (termsErr) termsErr.style.display = 'block';
+      utils.showError('merr', i18n.get('terms_arb_err'));
       return;
     }
 
@@ -1205,6 +1224,17 @@ const formHelpers = {
     if (chk) {
       chk.classList.toggle('on');
       chk.dataset.checked = chk.classList.contains('on') ? 'true' : 'false';
+    }
+  },
+
+  // Toggle Terms & Arbitration checkbox (generic, used by multiple forms)
+  toggleTermsArb(prefix) {
+    const chk = document.getElementById(prefix + 'TermsChk');
+    if (chk) {
+      chk.classList.toggle('on');
+      chk.dataset.checked = chk.classList.contains('on') ? 'true' : 'false';
+      const errEl = document.getElementById(prefix + 'TermsErr');
+      if (errEl) errEl.style.display = 'none';
     }
   },
 
@@ -1714,6 +1744,10 @@ const contactProvider = {
         const el = document.getElementById(id);
         if (el) el.value = '';
       });
+      const ctChk = document.getElementById('contTermsChk');
+      if (ctChk) { ctChk.classList.remove('on'); ctChk.dataset.checked = 'false'; }
+      const ctErr = document.getElementById('contTermsErr');
+      if (ctErr) ctErr.style.display = 'none';
       captcha.reset('contact');
     }, 320);
     this.providerId = null;
@@ -1743,9 +1777,37 @@ const contactProvider = {
     };
 
     // Validation
-    if (!data.name || !data.phone || !data.city || !data.neighbourhood || !data.service || !data.description) {
+    if (!data.name || !data.phone || !data.email || !data.city || !data.neighbourhood || !data.service || !data.description) {
       if (errEl) {
         errEl.textContent = 'Please fill all required fields';
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
+    if (!utils.validatePhone(data.phone)) {
+      if (errEl) {
+        errEl.textContent = 'Please enter a valid phone number (at least 10 digits)';
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
+    if (!utils.validateEmail(data.email)) {
+      if (errEl) {
+        errEl.textContent = 'Please enter a valid email address';
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
+    // Terms & Arbitration agreement check
+    const contTermsChk = document.getElementById('contTermsChk');
+    if (!contTermsChk || !contTermsChk.classList.contains('on')) {
+      const termsErr = document.getElementById('contTermsErr');
+      if (termsErr) termsErr.style.display = 'block';
+      if (errEl) {
+        errEl.textContent = i18n.get('terms_arb_err');
         errEl.style.display = 'block';
       }
       return;
@@ -1818,6 +1880,10 @@ const providerReport = {
           el.value = '';
         }
       });
+      const rtChk = document.getElementById('reportTermsChk');
+      if (rtChk) { rtChk.classList.remove('on'); rtChk.dataset.checked = 'false'; }
+      const rtErr = document.getElementById('reportTermsErr');
+      if (rtErr) rtErr.style.display = 'none';
       captcha.reset('report');
     }, 320);
 
@@ -1843,7 +1909,7 @@ const providerReport = {
       page_context: `${window.location.pathname}#${activePageId}`
     };
 
-    if (!data.provider_name || !data.issue_type || !data.details) {
+    if (!data.provider_name || !data.issue_type || !data.details || !data.reporter_email || !data.reporter_phone) {
       if (errEl) {
         errEl.textContent = i18n.get('report_err_required');
         errEl.style.display = 'block';
@@ -1851,7 +1917,15 @@ const providerReport = {
       return;
     }
 
-    if (data.reporter_email && !utils.validateEmail(data.reporter_email)) {
+    if (!utils.validatePhone(data.reporter_phone)) {
+      if (errEl) {
+        errEl.textContent = i18n.get('report_err_phone');
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
+    if (!utils.validateEmail(data.reporter_email)) {
       if (errEl) {
         errEl.textContent = i18n.get('report_err_email');
         errEl.style.display = 'block';
@@ -1859,9 +1933,13 @@ const providerReport = {
       return;
     }
 
-    if (data.reporter_phone && !utils.validatePhone(data.reporter_phone)) {
+    // Terms & Arbitration agreement check
+    const reportTermsChk = document.getElementById('reportTermsChk');
+    if (!reportTermsChk || !reportTermsChk.classList.contains('on')) {
+      const termsErr = document.getElementById('reportTermsErr');
+      if (termsErr) termsErr.style.display = 'block';
       if (errEl) {
-        errEl.textContent = i18n.get('report_err_phone');
+        errEl.textContent = i18n.get('terms_arb_err');
         errEl.style.display = 'block';
       }
       return;
@@ -1909,6 +1987,34 @@ const notifySubmit = {
     if (!data.name || !data.phone || !data.email || !data.whatsapp || !data.service) {
       if (errEl) {
         errEl.textContent = 'Please fill all required fields';
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
+    if (!utils.validatePhone(data.phone)) {
+      if (errEl) {
+        errEl.textContent = 'Please enter a valid phone number (at least 10 digits)';
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
+    if (!utils.validateEmail(data.email)) {
+      if (errEl) {
+        errEl.textContent = 'Please enter a valid email address';
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
+    // Terms & Arbitration agreement check
+    const notifyTermsChk = document.getElementById('notifyTermsChk');
+    if (!notifyTermsChk || !notifyTermsChk.classList.contains('on')) {
+      const termsErr = document.getElementById('notifyTermsErr');
+      if (termsErr) termsErr.style.display = 'block';
+      if (errEl) {
+        errEl.textContent = i18n.get('terms_arb_err');
         errEl.style.display = 'block';
       }
       return;
@@ -1986,6 +2092,22 @@ const providerSubmit = {
     if (!data.name || !data.phone || !data.email || !data.city || !data.neighbourhood) {
       if (errEl) {
         errEl.textContent = 'Please fill all required fields';
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
+    if (!utils.validatePhone(data.phone)) {
+      if (errEl) {
+        errEl.textContent = 'Please enter a valid phone number (at least 10 digits)';
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
+    if (!utils.validateEmail(data.email)) {
+      if (errEl) {
+        errEl.textContent = 'Please enter a valid email address';
         errEl.style.display = 'block';
       }
       return;
@@ -2105,6 +2227,22 @@ const supplierSubmit = {
     if (!data.name || !data.business || !data.phone || !data.email || !data.city) {
       if (errEl) {
         errEl.textContent = 'Please fill all required fields';
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
+    if (!utils.validatePhone(data.phone)) {
+      if (errEl) {
+        errEl.textContent = 'Please enter a valid phone number (at least 10 digits)';
+        errEl.style.display = 'block';
+      }
+      return;
+    }
+
+    if (!utils.validateEmail(data.email)) {
+      if (errEl) {
+        errEl.textContent = 'Please enter a valid email address';
         errEl.style.display = 'block';
       }
       return;
@@ -2417,6 +2555,10 @@ const notifyModal = {
     modals.hide('notifyMo');
     setTimeout(() => {
       modals.reset('nfbody', 'nfsuc', 'nferr', 'nfbtn');
+      const ntChk = document.getElementById('notifyTermsChk');
+      if (ntChk) { ntChk.classList.remove('on'); ntChk.dataset.checked = 'false'; }
+      const ntErr = document.getElementById('notifyTermsErr');
+      if (ntErr) ntErr.style.display = 'none';
       captcha.reset('notify');
     }, 320);
   }
@@ -2723,6 +2865,7 @@ window.tglCk = (el) => formHelpers.toggleCheckbox(el);
 window.pickYr = (el) => formHelpers.pickYear(el);
 window.tglAg = () => formHelpers.toggleAgreement();
 window.tglSuppAg = () => formHelpers.toggleSupplierAgreement();
+window.tglTermsArb = (prefix) => formHelpers.toggleTermsArb(prefix);
 window.addMatRow = (name, unit, price) => formHelpers.addMaterialRow(name, unit, price);
 window.removeMatRow = (id) => formHelpers.removeMaterialRow(id);
 window.selDel = (option) => formHelpers.selectDelivery(option);
