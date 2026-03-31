@@ -2326,6 +2326,23 @@ document.addEventListener('DOMContentLoaded', () => {
   pageNavigation.syncFromLocation({ updateHistory: false });
   shareMeta.update();
 
+  // Deep-link: auto-open modals from URL path or ?form= param
+  (function openModalFromUrl() {
+    const path = window.location.pathname;
+    const formParam = new URLSearchParams(window.location.search).get('form');
+    let opened = false;
+    if (path === '/apply' || formParam === 'apply') {
+      openProv();
+      opened = true;
+    } else if (path === '/request' || formParam === 'request') {
+      openMatch();
+      opened = true;
+    }
+    if (opened) {
+      window.history.replaceState({ pageId: 'home' }, '', pageNavigation.buildUrl('home'));
+    }
+  })();
+
   // Sync featured provider list height to the left column
   let fpSyncTimer;
   const syncFeaturedProviderList = () => {
@@ -2398,7 +2415,9 @@ const pageNavigation = {
     '/terms': 'terms',
     '/privacy': 'privacy',
     '/provider-agreement': 'pagree',
-    '/dispute-guidance': 'dispute'
+    '/dispute-guidance': 'dispute',
+    '/apply': 'home',
+    '/request': 'home'
   },
   currentPage: 'home',
 

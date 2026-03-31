@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 const SITE_URL = (process.env.SITE_URL || 'https://www.lumitya.com').replace(/\/$/, '');
 const INDEX_FILE = path.join(process.cwd(), 'public', 'index.html');
 const INDEX_TEMPLATE = fs.readFileSync(INDEX_FILE, 'utf8');
-const PUBLIC_PAGE_ROUTES = ['/', '/index.html', '/directory', '/pricing', '/terms', '/privacy', '/provider-agreement'];
+const PUBLIC_PAGE_ROUTES = ['/', '/index.html', '/directory', '/pricing', '/terms', '/privacy', '/provider-agreement', '/dispute-guidance', '/apply', '/request'];
 
 app.set('trust proxy', 1);
 
@@ -45,6 +45,14 @@ const SEO_BY_LANG = {
       '/provider-agreement': {
         title: 'Provider Agreement | Lumitya',
         description: 'Review the Lumitya Provider Agreement for independent contractors and suppliers using the platform.'
+      },
+      '/apply': {
+        title: 'Apply as a Service Provider | Lumitya',
+        description: 'Apply to get listed as an independent service provider on Lumitya in Guadalajara and Zapopan.'
+      },
+      '/request': {
+        title: 'Submit a Service Request | Lumitya',
+        description: 'Submit a free service request and get matched with independent providers in Guadalajara and Zapopan.'
       }
     }
   },
@@ -77,6 +85,14 @@ const SEO_BY_LANG = {
       '/provider-agreement': {
         title: 'Acuerdo de Proveedor | Lumitya',
         description: 'Revisa el Acuerdo de Proveedor de Lumitya para contratistas independientes y proveedores en la plataforma.'
+      },
+      '/apply': {
+        title: 'Aplica como Proveedor de Servicios | Lumitya',
+        description: 'Aplica para aparecer como proveedor de servicios independiente en Lumitya en Guadalajara y Zapopan.'
+      },
+      '/request': {
+        title: 'Envía una Solicitud de Servicio | Lumitya',
+        description: 'Envía una solicitud de servicio gratuita y conecta con proveedores independientes en Guadalajara y Zapopan.'
       }
     }
   }
