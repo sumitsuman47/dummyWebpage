@@ -371,7 +371,8 @@ const categories = {
     const grid = document.getElementById('catCardGrid');
     if (!grid || this.data.length === 0) return;
 
-    const top = this.data.filter(c => !c.parent_id);
+    const top = this.data.filter(c => !c.parent_id && (this.providerCounts[c.slug || c.name_en.toLowerCase()] || 0) > 0);
+    if (top.length === 0) { grid.innerHTML = ''; return; }
     grid.innerHTML = top.map(cat => {
       const icon = this._icon(cat);
       const name = this._name(cat);
@@ -853,61 +854,61 @@ const serviceRequest = {
 
     // Validation
     if (!data.name) {
-      utils.showError('merr', 'Please enter your name');
+      utils.showError('merr', i18n.get('err_enter_name'));
       nameEl.focus();
       return;
     }
 
     if (!data.city) {
-      utils.showError('merr', 'Please select a city');
+      utils.showError('merr', i18n.get('err_select_city'));
       cityEl.focus();
       return;
     }
 
     if (!data.neighbourhood) {
-      utils.showError('merr', 'Please select a neighbourhood');
+      utils.showError('merr', i18n.get('err_select_neighbourhood'));
       colEl.focus();
       return;
     }
 
     if (!data.service) {
-      utils.showError('merr', 'Please select a service');
+      utils.showError('merr', i18n.get('err_select_service'));
       svcEl.focus();
       return;
     }
 
     if (!data.description) {
-      utils.showError('merr', 'Please describe your project');
+      utils.showError('merr', i18n.get('err_describe_project'));
       dsEl.focus();
       return;
     }
 
     if (!data.timeline) {
-      utils.showError('merr', 'Please select a timeline');
+      utils.showError('merr', i18n.get('err_select_timeline'));
       ugEl.focus();
       return;
     }
 
     if (!data.phone) {
-      utils.showError('merr', 'Please enter your phone number');
+      utils.showError('merr', i18n.get('err_enter_phone'));
       phEl.focus();
       return;
     }
 
     if (!utils.validatePhone(data.phone)) {
-      utils.showError('merr', 'Please enter a valid phone number (at least 10 digits)');
+      utils.showError('merr', i18n.get('err_invalid_phone'));
       phEl.focus();
       return;
     }
 
     if (!data.email) {
-      utils.showError('merr', 'Please enter your email address');
+      utils.showError('merr', i18n.get('err_enter_email'));
       emEl.focus();
       return;
     }
 
     if (!utils.validateEmail(data.email)) {
-      utils.showError('merr', 'Please enter a valid email address');
+      utils.showError('merr', i18n.get('err_invalid_email'));
       emEl.focus();
       return;
     }
@@ -952,7 +953,7 @@ const serviceRequest = {
       document.getElementById('mmsuc').style.display = 'block';
     } catch (error) {
       console.error('Service request submission error:', error);
-      utils.showError('merr', error.message || 'Failed to submit request. Please try again.');
+      utils.showError('merr', error.message || i18n.get('err_submit_request'));
       captcha.reset('match');
       btn.disabled = false;
       btn.classList.remove('ld');
@@ -1148,7 +1149,7 @@ const formHelpers = {
     if (city && this.cityNeighborhoodMap[city]) {
       const previousValue = colEl.value;
       colEl.disabled = false;
-      colEl.innerHTML = '<option value="" disabled selected>Select neighbourhood</option>';
+      colEl.innerHTML = '<option value="" disabled selected>' + i18n.get('opt_select_neighbourhood') + '</option>';
       this.cityNeighborhoodMap[city].forEach(n => {
         colEl.innerHTML += `<option>${n}</option>`;
       });
@@ -1158,7 +1159,7 @@ const formHelpers = {
       }
     } else {
       colEl.disabled = true;
-      colEl.innerHTML = '<option value="" disabled selected>Select city first</option>';
+      colEl.innerHTML = '<option value="" disabled selected>' + i18n.get('opt_select_city_first') + '</option>';
     }
   },
 
@@ -1730,7 +1731,7 @@ const contactProvider = {
     this.providerId = providerId;
     this.providerName = providerName;
     const title = document.getElementById('cpTitle');
-    if (title) title.textContent = `Request Quote from ${providerName || 'Provider'}`;
+    if (title) title.textContent = `${i18n.get('cp_quote_title')} ${providerName || i18n.get('cp_quote_provider')}`;
     modals.show('contactMo');
     captcha.queueRender('contact');
   },
@@ -1779,7 +1780,7 @@ const contactProvider = {
     // Validation
     if (!data.name || !data.phone || !data.email || !data.city || !data.neighbourhood || !data.service || !data.description) {
       if (errEl) {
-        errEl.textContent = 'Please fill all required fields';
+        errEl.textContent = i18n.get('err_fill_required');
         errEl.style.display = 'block';
       }
       return;
@@ -1787,7 +1788,7 @@ const contactProvider = {
 
     if (!utils.validatePhone(data.phone)) {
       if (errEl) {
-        errEl.textContent = 'Please enter a valid phone number (at least 10 digits)';
+        errEl.textContent = i18n.get('err_invalid_phone');
         errEl.style.display = 'block';
       }
       return;
@@ -1795,7 +1796,7 @@ const contactProvider = {
 
     if (!utils.validateEmail(data.email)) {
       if (errEl) {
-        errEl.textContent = 'Please enter a valid email address';
+        errEl.textContent = i18n.get('err_invalid_email');
         errEl.style.display = 'block';
       }
       return;
@@ -1841,7 +1842,7 @@ const contactProvider = {
       document.getElementById('cpsuc').style.display = 'block';
     } catch (error) {
       if (errEl) {
-        errEl.textContent = error.message || 'Failed to submit request';
+        errEl.textContent = error.message || i18n.get('err_submit_request');
         errEl.style.display = 'block';
       }
       captcha.reset('contact');
@@ -1861,7 +1862,7 @@ const providerReport = {
     this.providerName = providerName || '';
 
     const providerLabel = document.getElementById('rpProviderName');
-    if (providerLabel) providerLabel.textContent = this.providerName || 'Independent provider';
+    if (providerLabel) providerLabel.textContent = this.providerName || i18n.get('report_default_provider');
 
     modals.show('reportMo');
     captcha.queueRender('report');
@@ -1986,7 +1987,7 @@ const notifySubmit = {
 
     if (!data.name || !data.phone || !data.email || !data.whatsapp || !data.service) {
       if (errEl) {
-        errEl.textContent = 'Please fill all required fields';
+        errEl.textContent = i18n.get('err_fill_required');
         errEl.style.display = 'block';
       }
       return;
@@ -1994,7 +1995,7 @@ const notifySubmit = {
 
     if (!utils.validatePhone(data.phone)) {
       if (errEl) {
-        errEl.textContent = 'Please enter a valid phone number (at least 10 digits)';
+        errEl.textContent = i18n.get('err_invalid_phone');
         errEl.style.display = 'block';
       }
       return;
@@ -2002,7 +2003,7 @@ const notifySubmit = {
 
     if (!utils.validateEmail(data.email)) {
       if (errEl) {
-        errEl.textContent = 'Please enter a valid email address';
+        errEl.textContent = i18n.get('err_invalid_email');
         errEl.style.display = 'block';
       }
       return;
@@ -2044,7 +2045,7 @@ const notifySubmit = {
       document.getElementById('nfsuc').style.display = 'block';
     } catch (error) {
       if (errEl) {
-        errEl.textContent = error.message || 'Failed to submit';
+        errEl.textContent = error.message || i18n.get('err_submit');
         errEl.style.display = 'block';
       }
       captcha.reset('notify');
@@ -2091,7 +2092,7 @@ const providerSubmit = {
     // Basic validation
     if (!data.name || !data.phone || !data.email || !data.city || !data.neighbourhood) {
       if (errEl) {
-        errEl.textContent = 'Please fill all required fields';
+        errEl.textContent = i18n.get('err_fill_required');
         errEl.style.display = 'block';
       }
       return;
@@ -2099,7 +2100,7 @@ const providerSubmit = {
 
     if (!utils.validatePhone(data.phone)) {
       if (errEl) {
-        errEl.textContent = 'Please enter a valid phone number (at least 10 digits)';
+        errEl.textContent = i18n.get('err_invalid_phone');
         errEl.style.display = 'block';
       }
       return;
@@ -2107,7 +2108,7 @@ const providerSubmit = {
 
     if (!utils.validateEmail(data.email)) {
       if (errEl) {
-        errEl.textContent = 'Please enter a valid email address';
+        errEl.textContent = i18n.get('err_invalid_email');
         errEl.style.display = 'block';
       }
       return;
@@ -2115,7 +2116,7 @@ const providerSubmit = {
 
     if (data.categories.length === 0) {
       if (errEl) {
-        errEl.textContent = 'Please select at least one service category';
+        errEl.textContent = i18n.get('err_select_category');
         errEl.style.display = 'block';
       }
       return;
@@ -2123,7 +2124,7 @@ const providerSubmit = {
 
     if (!data.agreed) {
       if (errEl) {
-        errEl.textContent = 'You must agree to the terms before submitting';
+        errEl.textContent = i18n.get('err_agree_terms');
         errEl.style.display = 'block';
       }
       return;
@@ -2168,7 +2169,7 @@ const providerSubmit = {
       document.getElementById('pmsuc').style.display = 'block';
     } catch (error) {
       if (errEl) {
-        errEl.textContent = error.message || 'Failed to submit application';
+        errEl.textContent = error.message || i18n.get('err_submit_app');
         errEl.style.display = 'block';
       }
       captcha.reset('provider');
@@ -2226,7 +2227,7 @@ const supplierSubmit = {
     // Basic validation
     if (!data.name || !data.business || !data.phone || !data.email || !data.city) {
       if (errEl) {
-        errEl.textContent = 'Please fill all required fields';
+        errEl.textContent = i18n.get('err_fill_required');
         errEl.style.display = 'block';
       }
       return;
@@ -2234,7 +2235,7 @@ const supplierSubmit = {
 
     if (!utils.validatePhone(data.phone)) {
       if (errEl) {
-        errEl.textContent = 'Please enter a valid phone number (at least 10 digits)';
+        errEl.textContent = i18n.get('err_invalid_phone');
         errEl.style.display = 'block';
       }
       return;
@@ -2242,7 +2243,7 @@ const supplierSubmit = {
 
     if (!utils.validateEmail(data.email)) {
       if (errEl) {
-        errEl.textContent = 'Please enter a valid email address';
+        errEl.textContent = i18n.get('err_invalid_email');
         errEl.style.display = 'block';
       }
       return;
@@ -2250,7 +2251,7 @@ const supplierSubmit = {
 
     if (materials.length === 0) {
       if (errEl) {
-        errEl.textContent = 'Please add at least one material';
+        errEl.textContent = i18n.get('err_add_material');
         errEl.style.display = 'block';
       }
       return;
@@ -2258,7 +2259,7 @@ const supplierSubmit = {
 
     if (!data.agreed) {
       if (errEl) {
-        errEl.textContent = 'You must agree to the terms before submitting';
+        errEl.textContent = i18n.get('err_agree_terms');
         errEl.style.display = 'block';
       }
       return;
@@ -2305,7 +2306,7 @@ const supplierSubmit = {
       document.getElementById('smsuc').style.display = 'block';
     } catch (error) {
       if (errEl) {
-        errEl.textContent = error.message || 'Failed to submit application';
+        errEl.textContent = error.message || i18n.get('err_submit_app');
         errEl.style.display = 'block';
       }
       captcha.reset('supplier');
@@ -2324,6 +2325,23 @@ document.addEventListener('DOMContentLoaded', () => {
   cookieConsent.init();
   pageNavigation.syncFromLocation({ updateHistory: false });
   shareMeta.update();
+
+  // Deep-link: auto-open modals from URL path or ?form= param
+  (function openModalFromUrl() {
+    const path = window.location.pathname;
+    const formParam = new URLSearchParams(window.location.search).get('form');
+    let opened = false;
+    if (path === '/apply' || formParam === 'apply') {
+      openProv();
+      opened = true;
+    } else if (path === '/request' || formParam === 'request') {
+      openMatch();
+      opened = true;
+    }
+    if (opened) {
+      window.history.replaceState({ pageId: 'home' }, '', pageNavigation.buildUrl('home'));
+    }
+  })();
 
   // Sync featured provider list height to the left column
   let fpSyncTimer;
@@ -2397,7 +2415,9 @@ const pageNavigation = {
     '/terms': 'terms',
     '/privacy': 'privacy',
     '/provider-agreement': 'pagree',
-    '/dispute-guidance': 'dispute'
+    '/dispute-guidance': 'dispute',
+    '/apply': 'home',
+    '/request': 'home'
   },
   currentPage: 'home',
 
