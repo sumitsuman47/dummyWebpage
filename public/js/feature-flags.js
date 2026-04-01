@@ -10,12 +10,15 @@
 const FeatureFlags = {
     // Storage
     CACHE_KEY: 'lumitya_feature_flags',
+    REFRESH_SIGNAL_KEY: 'lumitya_feature_flags_refresh',
     flags: {},
     loaded: false,
     loading: false,
     lastFetch: null,
     CACHE_DURATION: 5 * 60 * 1000, // 5 minutes
     pollIntervalId: null,
+    currentEnvironment: null,
+    refreshChannel: null,
 
     shouldUseCache(forceRefresh = false) {
         if (forceRefresh) return false;
@@ -143,6 +146,7 @@ const FeatureFlags = {
                 this.flags = data.features;
                 this.lastFetch = Date.now();
                 this.loaded = true;
+                this.currentEnvironment = data.environment || this.currentEnvironment;
 
                 // Save to localStorage
                 this.saveToCache();
@@ -314,7 +318,8 @@ const FeatureFlags = {
     saveToCache() {
         const cacheData = {
             flags: this.flags,
-            timestamp: this.lastFetch
+            timestamp: this.lastFetch,
+            environment: this.currentEnvironment
         };
 
         this.writeCache(window.sessionStorage, cacheData);
@@ -325,7 +330,11 @@ const FeatureFlags = {
      * Load flags from localStorage
      */
     loadFromCache() {
-        return this.readCache(window.sessionStorage) || this.readCache(window.localStorage);
+        const cached = this.readCache(window.sessionStorage) || this.readCache(window.localStorage);
+        if (cached && cached.environment) {
+            this.currentEnvironment = cached.environment;
+        }
+        return cached;
     },
 
     /**
@@ -348,6 +357,40 @@ const FeatureFlags = {
     async refresh() {
         this.clearCache();
         await this.init(true);
+    },
+
+    handleExternalRefreshSignal(payload) {
+        if (!payload || typeof payload !== 'object') return;
+
+        const targetEnvironment = payload.environment || null;
+        if (targetEnvironment && this.currentEnvironment && targetEnvironment !== this.currentEnvironment) {
+            return;
+        }
+
+        this.refresh().catch(error => {
+            console.warn('Feature flag sync refresh failed:', error);
+        });
+    },
+
+    listenForExternalUpdates() {
+        if (this._externalUpdateListenerAttached) return;
+        this._externalUpdateListenerAttached = true;
+
+        window.addEventListener('storage', (event) => {
+            if (event.key !== this.REFRESH_SIGNAL_KEY || !event.newValue) return;
+            try {
+                this.handleExternalRefreshSignal(JSON.parse(event.newValue));
+            } catch (error) {
+                console.warn('Invalid feature flag refresh signal:', error);
+            }
+        });
+
+        if (typeof window.BroadcastChannel === 'function') {
+            this.refreshChannel = new BroadcastChannel(this.REFRESH_SIGNAL_KEY);
+            this.refreshChannel.addEventListener('message', (event) => {
+                this.handleExternalRefreshSignal(event.data);
+            });
+        }
     },
 
     startAutoRefresh() {
@@ -433,6 +476,7 @@ const FeatureFlags = {
 
 const initialFeatureFlagsLoad = FeatureFlags.init();
 window.LUMITYA_FEATURE_FLAGS_READY = initialFeatureFlagsLoad;
+FeatureFlags.listenForExternalUpdates();
 
 // Auto-initialize DOM application once the page is ready.
 if (document.readyState === 'loading') {

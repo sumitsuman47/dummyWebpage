@@ -6,6 +6,45 @@ const featureUsage = require('../services/feature-usage');
 const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 const TURNSTILE_SECRET_KEY = process.env.TURNSTILE_SECRET_KEY || '';
 
+function resolveLumityaEnv(req) {
+  const forwardedHost = String(req.get('x-forwarded-host') || '').split(',')[0].trim().toLowerCase();
+  const hostHeader = String(req.get('host') || '').split(',')[0].trim().toLowerCase();
+  const hostname = String(req.hostname || '').trim().toLowerCase();
+  const originHost = (() => {
+    try {
+      const origin = req.get('origin');
+      return origin ? new URL(origin).hostname.toLowerCase() : '';
+    } catch (_) {
+      return '';
+    }
+  })();
+  const refererHost = (() => {
+    try {
+      const referer = req.get('referer');
+      return referer ? new URL(referer).hostname.toLowerCase() : '';
+    } catch (_) {
+      return '';
+    }
+  })();
+
+  const host = forwardedHost || originHost || refererHost || hostname || hostHeader;
+  const isLocalHost = host === 'localhost'
+    || host === '127.0.0.1'
+    || host === '0.0.0.0'
+    || host === '::1'
+    || host.endsWith('.local')
+    || /^10\./.test(host)
+    || /^192\.168\./.test(host)
+    || /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
+
+  if (isLocalHost) return 'development';
+  if (host) return 'production';
+
+  return String(process.env.LUMITYA_ENV || process.env.NODE_ENV || 'development').toLowerCase() === 'production'
+    ? 'production'
+    : 'development';
+}
+
 function requireAdmin(req, res, next) {
   const required = process.env.ADMIN_TOKEN;
   if (!required) return next();
@@ -269,7 +308,6 @@ router.get('/provider-reports', requireAdmin, async (req, res) => {
   try {
     const limit = parseInt(req.query.limit, 10) || 100;
     const reports = await supabaseService.getProviderReports(limit);
-
     res.json({
       success: true,
       reports,
@@ -304,7 +342,6 @@ router.patch('/provider-reports/:id', requireAdmin, async (req, res) => {
       resolution_notes,
       reviewed_by
     });
-
     res.json({
       success: true,
       data: result,
@@ -377,7 +414,8 @@ router.get('/provider-counts', async (req, res) => {
 // Get all public feature flags with explicit enabled/disabled state
 router.get('/features', async (req, res) => {
   try {
-    const features = await supabaseService.getPublicFeatureFlags();
+    const env = resolveLumityaEnv(req);
+    const features = await supabaseService.getPublicFeatureFlags(env);
 
     // Return as object map for easy checking
     const featureMap = {};
@@ -401,6 +439,7 @@ router.get('/features', async (req, res) => {
 
     res.json({
       success: true,
+      environment: env,
       features: featureMap,
       count: Object.keys(featureMap).length,
       timestamp: new Date().toISOString()
@@ -418,9 +457,11 @@ router.get('/features', async (req, res) => {
 // Get all feature flags (admin - includes disabled)
 router.get('/features/all', requireAdmin, async (req, res) => {
   try {
-    const features = await supabaseService.getAllFeatureFlags();
+    const env = resolveLumityaEnv(req);
+    const features = await supabaseService.getAllFeatureFlags(env);
     res.json({
       success: true,
+      environment: env,
       features: features,
       count: features.length
     });
@@ -461,6 +502,7 @@ router.patch('/features/:key', requireAdmin, async (req, res) => {
   try {
     const { key } = req.params;
     const { is_enabled, updated_by = 'admin' } = req.body;
+    const env = resolveLumityaEnv(req);
 
     if (typeof is_enabled !== 'boolean') {
       return res.status(400).json({
@@ -469,10 +511,11 @@ router.patch('/features/:key', requireAdmin, async (req, res) => {
       });
     }
 
-    const result = await supabaseService.toggleFeatureFlag(key, is_enabled, updated_by);
+    const result = await supabaseService.toggleFeatureFlag(key, is_enabled, updated_by, env);
 
     res.json({
       success: true,
+      environment: env,
       data: result,
       message: `Feature ${key} ${is_enabled ? 'enabled' : 'disabled'}`
     });
@@ -490,10 +533,12 @@ router.patch('/features/:key', requireAdmin, async (req, res) => {
 router.get('/features/audit', requireAdmin, async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 50;
-    const audit = await supabaseService.getFeatureAuditLog(limit);
+    const env = resolveLumityaEnv(req);
+    const audit = await supabaseService.getFeatureAuditLog(limit, env);
 
     res.json({
       success: true,
+      environment: env,
       audit: audit,
       count: audit.length
     });
