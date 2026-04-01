@@ -1,9 +1,25 @@
+
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+function normalizeLumityaEnv(env) {
+  return String(env || '').toLowerCase() === 'production' ? 'production' : 'development';
+}
+
+function getDefaultLumityaEnv() {
+  return normalizeLumityaEnv(process.env.LUMITYA_ENV || process.env.NODE_ENV || 'development');
+}
+
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   throw new Error('Missing Supabase configuration. Please set SUPABASE_URL and SUPABASE_ANON_KEY in .env file');
+}
+
+// Helper to get correct table name
+function getTableName(base, envOverride) {
+  const resolvedEnv = normalizeLumityaEnv(envOverride || getDefaultLumityaEnv());
+  const tableSuffix = resolvedEnv === 'production' ? '_production' : '_development';
+  return `${base}${tableSuffix}`;
 }
 
 // Supabase REST API helper
@@ -111,19 +127,20 @@ const supabaseService = {
       provider_name: data.provider_name || null,
       budget: data.budget || '',
       preferred_date: preferredDate,
+      timeline_text: timelineText,
       attachment_urls: data.attachment_urls || [],
       status: 'pending'
     };
 
     try {
-      return await supabaseRequest('service_requests', 'POST', payload);
+      return await supabaseRequest(getTableName('service_requests'), 'POST', payload);
     } catch (error) {
       const msg = String(error && error.message ? error.message : error);
 
       // Backward compatibility: older deployments may not yet have timeline_text.
       if (msg.includes("'timeline_text' column") || msg.includes('timeline_text')) {
         const { timeline_text, ...legacyPayload } = payload;
-        return supabaseRequest('service_requests', 'POST', legacyPayload);
+        return supabaseRequest(getTableName('service_requests'), 'POST', legacyPayload);
       }
 
       throw error;
@@ -132,7 +149,7 @@ const supabaseService = {
 
   // Create provider application (using contractor_join_requests table)
   async createProvider(data) {
-    return supabaseRequest('contractor_join_requests', 'POST', {
+    return supabaseRequest(getTableName('contractor_join_requests'), 'POST', {
       name: data.name,
       phone: data.phone,
       email: data.email,
@@ -161,26 +178,24 @@ const supabaseService = {
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   },
 
-  // Create supplier application (using submissions table)
+  // Create supplier application
   async createSupplier(data) {
-    return supabaseRequest('submissions', 'POST', {
-      type: 'supplier_application',
-      data: {
-        name: data.name,
-        business_name: data.business_name || null,
-        phone: data.phone,
-        email: data.email,
-        city: data.city,
-        neighbourhood: data.neighbourhood,
-        website: data.website || null,
-        materials: data.materials, // Array
-        description: data.description || null,
-        delivery_available: data.delivery_available || false,
-        delivery_cost: data.delivery_cost || null,
-        delivery_max_km: data.delivery_max_km || null,
-        min_order: data.min_order || null,
-        coverage: data.coverage || null
-      }
+    return supabaseRequest(getTableName('suppliers'), 'POST', {
+      name: data.name,
+      business_name: data.business_name || null,
+      phone: data.phone,
+      email: data.email,
+      city: data.city,
+      neighbourhood: data.neighbourhood,
+      website: data.website || null,
+      materials: data.materials,
+      description: data.description || null,
+      delivery_available: data.delivery_available || false,
+      delivery_cost: data.delivery_cost || null,
+      delivery_max_km: data.delivery_max_km || null,
+      min_order: data.min_order || null,
+      coverage: data.coverage || null,
+      status: 'pending'
     });
   },
 
@@ -196,69 +211,63 @@ const supabaseService = {
       query += `&categories=cs.[${encodeURIComponent(category)}]`;
     }
 
-    return supabaseRequest('providers', 'GET', null, query);
+    return supabaseRequest(getTableName('providers'), 'GET', null, query);
   },
 
-  // Create contact request (using submissions table)
+  // Create contact request
   async createContact(data) {
-    return supabaseRequest('submissions', 'POST', {
-      type: 'contact_request',
-      data: {
-        provider_id: data.provider_id,
-        name: data.name,
-        phone: data.phone,
-        email: data.email || null,
-        message: data.message
-      }
+    return supabaseRequest(getTableName('contacts'), 'POST', {
+      provider_id: data.provider_id,
+      name: data.name,
+      phone: data.phone,
+      email: data.email || null,
+      message: data.message
     });
   },
 
-  // Create notification subscription (using submissions table)
+  // Create notification subscription
   async createNotification(data) {
-    return supabaseRequest('submissions', 'POST', {
-      type: 'premium_notification',
-      data: {
-        name: data.name || null,
-        email: data.email,
-        phone: data.phone || null,
-        whatsapp: data.whatsapp || false,
-        service_type: data.service || null,
-        city: data.city || null
-      }
+    return supabaseRequest(getTableName('premium_notifications'), 'POST', {
+      name: data.name || '',
+      phone: data.phone || '',
+      email: data.email,
+      whatsapp: data.whatsapp || '',
+      service_type: data.service || ''
     });
   },
 
-  // Create provider fraud/issue report (using submissions table)
+  // Create provider fraud/issue report (using reported_provider table)
   async createProviderReport(data) {
-    return supabaseAdminRequest('submissions', 'POST', {
-      type: 'provider_report',
-      data: {
-        provider_id: data.provider_id || null,
-        provider_name: data.provider_name,
-        issue_type: data.issue_type,
-        details: data.details,
-        reporter_name: data.reporter_name || null,
-        reporter_email: data.reporter_email || null,
-        reporter_phone: data.reporter_phone || null,
-        page_context: data.page_context || null,
-        submitted_at: new Date().toISOString()
-      }
+    return supabaseAdminRequest(getTableName('reported_provider'), 'POST', {
+      provider_id: data.provider_id || null,
+      provider_name: data.provider_name,
+      issue_type: data.issue_type,
+      details: data.details,
+      reporter_name: data.reporter_name || null,
+      reporter_email: data.reporter_email || null,
+      reporter_phone: data.reporter_phone || null,
+      page_context: data.page_context || null,
+      report_status: 'submitted',
+      resolution_notes: null,
+      reviewed_at: null,
+      reviewed_by: null,
+      submitted_at: new Date().toISOString()
     });
   },
 
   async getProviderReports(limit = 100) {
     const safeLimit = Number.isFinite(Number(limit)) ? Math.max(1, Math.min(500, Number(limit))) : 100;
     return supabaseAdminRequest(
-      'submissions',
+      getTableName('reported_provider'),
       'GET',
       null,
-      `select=*&type=eq.provider_report&order=created_at.desc&limit=${safeLimit}`
+      `select=*&order=created_at.desc&limit=${safeLimit}`
     );
   },
 
   async updateProviderReport(reportId, { status, resolution_notes = '', reviewed_by = 'admin' }) {
     const existing = await supabaseAdminRequest(
-      'submissions',
+      getTableName('reported_provider'),
       'GET',
       null,
       `select=*&id=eq.${encodeURIComponent(reportId)}&limit=1`
@@ -270,7 +279,7 @@ const supabaseService = {
 
     const record = existing[0];
     const mergedData = {
-      ...(record.data || {}),
+      ...record,
       report_status: status,
       resolution_notes: resolution_notes || null,
       reviewed_at: new Date().toISOString(),
@@ -278,9 +287,9 @@ const supabaseService = {
     };
 
     return supabaseAdminRequest(
-      'submissions',
+      getTableName('reported_provider'),
       'PATCH',
-      { data: mergedData },
+      mergedData,
       `id=eq.${encodeURIComponent(reportId)}`
     );
   },
@@ -290,15 +299,16 @@ const supabaseService = {
   // =============================================
 
   // Get all public feature flags with explicit enabled/disabled state
-  async getPublicFeatureFlags() {
+  async getPublicFeatureFlags(envOverride) {
     try {
+      const tableName = getTableName('feature_flags', envOverride);
       const features = await supabaseRequest(
-        'feature_flags',
+        tableName,
         'GET',
         null,
         'select=feature_key,feature_name,category,is_beta,is_enabled'
       );
-      console.log(`✅ Fetched ${features.length} public feature flags from Supabase`);
+      console.log(`✅ Fetched ${features.length} public feature flags from ${tableName}`);
       return features;
     } catch (error) {
       console.error('❌ Error fetching public feature flags:', error.message);
@@ -307,15 +317,16 @@ const supabaseService = {
   },
 
   // Get all feature flags (including disabled)
-  async getAllFeatureFlags() {
+  async getAllFeatureFlags(envOverride) {
     try {
+      const tableName = getTableName('feature_flags', envOverride);
       const features = await supabaseAdminRequest(
-        'feature_flags',
+        tableName,
         'GET',
         null,
         'select=*&order=category.asc,feature_name.asc'
       );
-      console.log(`✅ Fetched ${features.length} total features from Supabase`);
+      console.log(`✅ Fetched ${features.length} total features from ${tableName}`);
       return features;
     } catch (error) {
       console.error('❌ Error fetching all features:', error.message);
@@ -324,10 +335,11 @@ const supabaseService = {
   },
 
   // Toggle feature flag
-  async toggleFeatureFlag(featureKey, isEnabled, updatedBy = 'admin') {
+  async toggleFeatureFlag(featureKey, isEnabled, updatedBy = 'admin', envOverride) {
     try {
+      const tableName = getTableName('feature_flags', envOverride);
       const result = await supabaseAdminRequest(
-        'feature_flags',
+        tableName,
         'PATCH',
         {
           is_enabled: isEnabled,
@@ -336,7 +348,7 @@ const supabaseService = {
         },
         `feature_key=eq.${featureKey}`
       );
-      console.log(`✅ Toggled feature ${featureKey} to ${isEnabled}`);
+      console.log(`✅ Toggled feature ${featureKey} to ${isEnabled} in ${tableName}`);
       return result;
     } catch (error) {
       console.error(`❌ Error toggling feature ${featureKey}:`, error.message);
@@ -345,15 +357,16 @@ const supabaseService = {
   },
 
   // Get feature flag audit log
-  async getFeatureAuditLog(limit = 50) {
+  async getFeatureAuditLog(limit = 50, envOverride) {
     try {
+      const tableName = getTableName('feature_flag_audit', envOverride);
       const audit = await supabaseAdminRequest(
-        'feature_flag_audit',
+        tableName,
         'GET',
         null,
         `select=*&order=changed_at.desc&limit=${limit}`
       );
-      console.log(`✅ Fetched ${audit.length} audit log entries from Supabase`);
+      console.log(`✅ Fetched ${audit.length} audit log entries from ${tableName}`);
       return audit;
     } catch (error) {
       console.error('❌ Error fetching audit log:', error.message);
@@ -365,7 +378,7 @@ const supabaseService = {
   async getCategories() {
     try {
       const cats = await supabaseRequest(
-        'categories',
+        getTableName('categories'),
         'GET',
         null,
         'select=id,name_en,name_es,slug,description_en,description_es,icon,parent_id&is_active=eq.true&order=name_en.asc'
@@ -383,7 +396,7 @@ const supabaseService = {
     try {
       // Fetch all providers (for counting)
       const providers = await supabaseRequest(
-        'providers',
+        getTableName('providers'),
         'GET',
         null,
         'select=id,categories&order=created_at.desc'
@@ -416,16 +429,17 @@ const supabaseService = {
   },
 
   // Check if a feature is enabled
-  async isFeatureEnabled(featureKey) {
+  async isFeatureEnabled(featureKey, envOverride) {
     try {
+      const tableName = getTableName('feature_flags', envOverride);
       const result = await supabaseRequest(
-        'feature_flags',
+        tableName,
         'GET',
         null,
         `feature_key=eq.${featureKey}&select=is_enabled`
       );
       const enabled = result.length > 0 && result[0].is_enabled;
-      console.log(`✅ Feature ${featureKey} is ${enabled ? 'enabled' : 'disabled'}`);
+      console.log(`✅ Feature ${featureKey} is ${enabled ? 'enabled' : 'disabled'} in ${tableName}`);
       return enabled;
     } catch (error) {
       console.error(`❌ Error checking feature ${featureKey}:`, error.message);
