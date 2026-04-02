@@ -376,27 +376,30 @@ const supabaseService = {
 
   // Get active categories
   async getCategories() {
-    const query = 'select=id,name_en,name_es,slug,description_en,description_es,icon,parent_id&is_active=eq.true&order=name_en.asc';
-    const candidates = [
-      envTable('categories'),
-      'categories_development',
-      'categories_production',
-      'categories'
+    const catQuery = 'select=id,name_en,name_es,slug,description_en,description_es,icon,parent_id&is_active=eq.true&order=name_en.asc';
+    const tablesToTry = [
+      getTableName('categories'),       // env-specific first (categories_production or categories_development)
+      'categories_development',         // fallback: dev table (has seed data)
+      'categories_production',          // fallback: prod table
+      'categories'                      // fallback: un-suffixed table
     ];
 
-    try {
-      const cats = await supabaseRequest(
-        getTableName('categories'),
-        'GET',
-        null,
-        'select=id,name_en,name_es,slug,description_en,description_es,icon,parent_id&is_active=eq.true&order=name_en.asc'
-      );
-      console.log(`✅ Fetched ${cats.length} active categories from Supabase`);
-      return cats;
-    } catch (error) {
-      console.error('❌ Error fetching categories:', error.message);
-      throw error;
+    let lastError;
+    for (const table of tablesToTry) {
+      try {
+        const cats = await supabaseRequest(table, 'GET', null, catQuery);
+        if (Array.isArray(cats) && cats.length > 0) {
+          console.log(`✅ Fetched ${cats.length} active categories from ${table}`);
+          return cats;
+        }
+      } catch (error) {
+        lastError = error;
+        console.warn(`⚠️ Categories not available from ${table}: ${error.message}`);
+      }
     }
+
+    console.error('❌ Error fetching categories from all tables');
+    throw lastError || new Error('No categories available');
   },
 
   // Get provider counts by category
