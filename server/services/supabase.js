@@ -376,6 +376,14 @@ const supabaseService = {
 
   // Get active categories
   async getCategories() {
+    const query = 'select=id,name_en,name_es,slug,description_en,description_es,icon,parent_id&is_active=eq.true&order=name_en.asc';
+    const candidates = [
+      envTable('categories'),
+      'categories_development',
+      'categories_production',
+      'categories'
+    ];
+
     try {
       const cats = await supabaseRequest(
         getTableName('categories'),
