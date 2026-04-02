@@ -586,6 +586,7 @@
         let allReports = [];
         const SORT_STORAGE_KEY = 'lumitya_admin_feature_sort';
         const ADMIN_TOKEN_STORAGE_KEY = 'lumitya_admin_token';
+        const FEATURE_FLAGS_REFRESH_SIGNAL_KEY = 'lumitya_feature_flags_refresh';
         const FEATURE_SCOPE_DEFINITIONS = [
             { key: 'home_page', label: 'Home Page' },
             { key: 'provider_directory', label: 'Provider Directory Page' },
@@ -992,6 +993,27 @@
                 if (data && data.success) {
                     console.log(`✅ ${data.message}`);
 
+                    const refreshSignal = {
+                        featureKey,
+                        enabled,
+                        environment: data.environment || null,
+                        timestamp: Date.now()
+                    };
+                    try {
+                        localStorage.setItem(FEATURE_FLAGS_REFRESH_SIGNAL_KEY, JSON.stringify(refreshSignal));
+                    } catch (e) {
+                        // Ignore storage errors.
+                    }
+                    if (typeof BroadcastChannel === 'function') {
+                        try {
+                            const channel = new BroadcastChannel(FEATURE_FLAGS_REFRESH_SIGNAL_KEY);
+                            channel.postMessage(refreshSignal);
+                            channel.close();
+                        } catch (e) {
+                            // Ignore broadcast errors.
+                        }
+                    }
+
                     // Update local data
                     const feature = allFeatures.find(f => f.feature_key === featureKey);
                     if (feature) {
@@ -1095,7 +1117,7 @@
         }
 
         function getReportStatus(report) {
-            return (report && report.data && report.data.report_status) || 'submitted';
+            return (report && (report.report_status || (report.data && report.data.report_status))) || 'submitted';
         }
 
         function getIssueLabel(issueType) {
@@ -1132,7 +1154,8 @@
             }
 
             tbody.innerHTML = reports.map(report => {
-                const data = report.data || {};
+                // Support both new (flat) and old (data-nested) formats for backward compatibility
+                const data = report.data || report; // Prefer flat
                 const status = getReportStatus(report);
                 const providerName = escapeHtml(data.provider_name || 'Unknown provider');
                 const reporterBits = [data.reporter_name, data.reporter_email, data.reporter_phone].filter(Boolean);

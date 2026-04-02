@@ -13,10 +13,24 @@ function getApiBase() {
   return withoutTrailingSlash.endsWith('/api') ? withoutTrailingSlash : withoutTrailingSlash + '/api';
 }
 
+// Utility to detect environment for backend table selection
+function getLumityaEnv() {
+  // Prefer explicit global, fallback to localhost detection
+  if (window.LUMITYA_ENV) return window.LUMITYA_ENV;
+  const host = (window.location.hostname || '').toLowerCase();
+  if (host === 'localhost' || host === '127.0.0.1' || host === '0.0.0.0') return 'development';
+  return 'production';
+}
+
+window.LUMITYA_ENV = getLumityaEnv();
+
 const CONFIG = {
   API_BASE: getApiBase(),
-  SITE_HASH: 'ce5fe72586b7b07039f6bf9aa17657414c8380ecb6d1efe6832ac706c8ec2d68'
+  SITE_HASH: 'ce5fe72586b7b07039f6bf9aa17657414c8380ecb6d1efe6832ac706c8ec2d68',
+  ENV: window.LUMITYA_ENV
 };
+
+// NOTE: All table access is via backend API. Backend uses ENV to select correct table name (e.g. service_requests_development or service_requests_production).
 
 // Utility functions
 const utils = {
@@ -351,6 +365,7 @@ const api = {
   },
 
   submitProviderReport(data) {
+    // No change needed, backend API is updated
     return this.request('/provider-reports', 'POST', data);
   },
 
