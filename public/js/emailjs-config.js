@@ -19,6 +19,7 @@
  * - {{description}} - Project description
  * - {{budget}} - Budget range
  * - {{timeline}} - Timeline
+ * - {{language_code}} - Submission language code (en/es)
  * 
  * Provider Application Template:
  * - {{from_name}} - Provider name
@@ -27,8 +28,13 @@
  * - {{email}} - Email
  * - {{city}} - City
  * - {{categories}} - Service categories
+ * - {{categories_html}} - Service categories as HTML pills
+ * - {{lang}} - Submission language code (en/es)
+ * - {{en_display}} - CSS display value for English blocks
+ * - {{es_display}} - CSS display value for Spanish blocks
  * - {{experience}} - Years of experience
  * - {{description}} - Description
+ * - {{language_code}} - Submission language code (en/es)
  * 
  * Supplier Application Template:
  * - {{from_name}} - Contact name
@@ -38,6 +44,7 @@
  * - {{city}} - City
  * - {{materials}} - Materials list
  * - {{delivery}} - Delivery options
+ * - {{language_code}} - Submission language code (en/es)
  */
 
 const EmailJSConfig = {
@@ -82,8 +89,69 @@ const EmailJSConfig = {
     return clean ? `${prefix}: ${clean}` : prefix;
   },
 
+  // Resolve language from payload first, then i18n/runtime fallbacks.
+  resolveLanguageCode(data = {}) {
+    const candidates = [
+      data.language_code,
+      data.lang,
+      data.language,
+      data.locale,
+      (typeof window !== 'undefined' && window.i18n && typeof window.i18n.currentLang === 'string')
+        ? window.i18n.currentLang
+        : null,
+      (typeof document !== 'undefined' && typeof document.documentElement?.lang === 'string')
+        ? document.documentElement.lang
+        : null,
+      (typeof localStorage !== 'undefined')
+        ? (localStorage.getItem('lumitya_lang') || localStorage.getItem('language'))
+        : null,
+      (typeof navigator !== 'undefined' ? navigator.language : null)
+    ];
+
+    for (const value of candidates) {
+      const normalized = String(value || '').trim().toLowerCase();
+      if (!normalized) continue;
+      if (normalized.startsWith('es')) return 'es';
+      if (normalized.startsWith('en')) return 'en';
+    }
+
+    return 'en';
+  },
+
+  escapeHtml(value) {
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  },
+
+  // Build inline-styled pills for email clients that ignore <style> classes.
+  buildCategoryPills(categories = []) {
+    const pillStyle = 'display:inline-block;font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;background:#EFF6FF;color:#1E40AF;border:1px solid #BFDBFE;margin:0 5px 6px 0';
+    const items = categories.length > 0 ? categories : ['Not specified'];
+    return items
+      .map(cat => `<span style="${pillStyle}">${this.escapeHtml(cat)}</span>`)
+      .join(' ');
+  },
+
+  // Normalize and expose language helpers for templates.
+  getLanguageTemplateFields(data = {}) {
+    const lang = this.resolveLanguageCode(data);
+    return {
+      language_code: lang,
+      lang,
+      if_lang_en: lang === 'en',
+      if_lang_es: lang === 'es',
+      en_display: lang === 'en' ? 'block' : 'none',
+      es_display: lang === 'es' ? 'block' : 'none'
+    };
+  },
+
   // Send service request notification
   async sendServiceRequest(data) {
+    const languageFields = this.getLanguageTemplateFields(data);
     const templateParams = {
       from_name: data.name,
       name: data.name,
@@ -96,6 +164,7 @@ const EmailJSConfig = {
       description: data.description,
       budget: data.budget || 'Not specified',
       timeline: data.timeline,
+      ...languageFields,
       subject: this.buildSubject('New Service Request', data.name),
       to_email: 'info@lumitya.com' // Change to your email
     };
@@ -105,10 +174,12 @@ const EmailJSConfig = {
 
   // Send provider application notification
   async sendProviderApplication(data) {
-    // Format categories as HTML badges for email template
-    const categoriesHTML = (data.services || data.categories || [])
-      .map(cat => `<span class="badge">${cat}</span>`)
-      .join(' ');
+    const languageFields = this.getLanguageTemplateFields(data);
+    const categoriesList = Array.from(new Set((data.services || data.categories || [])
+      .map(cat => String(cat || '').trim())
+      .filter(Boolean)));
+    const categoriesText = categoriesList.length > 0 ? categoriesList.join(', ') : 'Not specified';
+    const categoriesHTML = this.buildCategoryPills(categoriesList);
 
     const templateParams = {
       from_name: data.name,
@@ -120,11 +191,15 @@ const EmailJSConfig = {
       city: data.city,
       neighbourhood: data.neighbourhood,
       zone: data.coverage || 'Not specified',
-      categories: categoriesHTML || '<span class="badge">Not specified</span>',
+      // Send HTML in `categories` so EmailJS templates can render pills directly.
+      categories: categoriesHTML,
+      categories_text: categoriesText,
+      categories_html: categoriesHTML,
       experience: data.years_experience || data.experience || 'Not specified',
       team: data.team_size || 'Not specified',
       website: data.website || 'Not provided',
       description: data.description || 'No description provided',
+      ...languageFields,
       subject: this.buildSubject('New Provider Application', data.name),
       to_email: 'applications@lumitya.com' // Change to your email
     };
@@ -134,6 +209,7 @@ const EmailJSConfig = {
 
   // Send supplier application notification
   async sendSupplierApplication(data) {
+    const languageFields = this.getLanguageTemplateFields(data);
     const materialsText = data.materials?.map(m =>
       `${m.name} - ${m.price} MXN/${m.unit}`
     ).join('\n') || 'No materials listed';
@@ -151,6 +227,7 @@ const EmailJSConfig = {
       delivery: data.delivery === 'yes' ? 'Yes - ' + (data.deliveryDetails?.type || '') : 'No',
       coverage: data.coverage || 'Not specified',
       description: data.description || 'N/A',
+      ...languageFields,
       subject: this.buildSubject('New Supplier Application', data.business || data.name),
       to_email: 'applications@lumitya.com' // Change to your email
     };
@@ -160,6 +237,7 @@ const EmailJSConfig = {
 
   // Send contact provider message
   async sendContactMessage(data, providerEmail) {
+    const languageFields = this.getLanguageTemplateFields(data);
     const templateParams = {
       from_name: data.name,
       name: data.name,
@@ -167,6 +245,7 @@ const EmailJSConfig = {
       email: data.email || 'Not provided',
       email_from: data.email || 'Not provided',
       message: data.message,
+      ...languageFields,
       subject: this.buildSubject('New Contact Request', data.name),
       provider_email: providerEmail,
       to_email: providerEmail
@@ -177,6 +256,7 @@ const EmailJSConfig = {
 
   // Send premium plan notification request
   async sendNotifyRequest(data) {
+    const languageFields = this.getLanguageTemplateFields(data);
     const templateParams = {
       from_name: data.name,
       name: data.name,
@@ -185,6 +265,7 @@ const EmailJSConfig = {
       email_from: data.email,
       whatsapp: data.whatsapp,
       service: data.service,
+      ...languageFields,
       subject: this.buildSubject('Premium Plan Interest', data.name),
       to_email: 'premium@lumitya.com' // Change to your email
     };
@@ -214,7 +295,8 @@ const EmailJSConfig = {
       return response;
     } catch (error) {
       console.error('❌ Email send error:', error);
-      throw new Error('Failed to send notification: ' + error.text || error.message);
+      const detail = (error && (error.text || error.message)) ? (error.text || error.message) : String(error);
+      throw new Error('Failed to send notification: ' + detail);
     }
   }
 };

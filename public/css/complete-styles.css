@@ -67,6 +67,29 @@
   --z-toast: 8500;
 }
 
+.ui-icon {
+  width: 1em;
+  height: 1em;
+  object-fit: contain;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.ui-icon-sm {
+  width: 14px;
+  height: 14px;
+}
+
+.ui-icon-md {
+  width: 18px;
+  height: 18px;
+}
+
+.ui-icon-lg {
+  width: 24px;
+  height: 24px;
+}
+
 *,
 *::before,
 *::after {

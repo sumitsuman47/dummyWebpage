@@ -161,6 +161,10 @@ const utils = {
     return /^\+?[\d\s\-()]+$/.test(phone) && phone.replace(/\D/g, '').length >= 10;
   },
 
+  getLanguageCode() {
+    return document.documentElement.lang === 'es' ? 'es' : 'en';
+  },
+
   getFormData(ids) {
     const data = {};
     ids.forEach(id => {
@@ -393,7 +397,7 @@ const categories = {
       this.data = Array.isArray(res.data) ? res.data : [];
       this.loaded = true;
     } catch (e) {
-      console.warn('Could not load categories from Supabase, using static fallback.', e);
+      console.warn('Could not load categories from Supabase.', e);
       this.data = [];
       this.loaded = false;
     }
@@ -418,27 +422,27 @@ const categories = {
     return (document.documentElement.lang || 'en').toLowerCase().startsWith('es') ? 'es' : 'en';
   },
 
-  // Emoji fallbacks keyed by slug (used when icon field is blank in DB)
+  // Icon fallbacks keyed by slug (used when icon field is blank in DB)
   _iconMap: {
-    'air-conditioning': '&#10052;',
-    'construction':     '&#127959;',
-    'electrical':       '&#9889;',
-    'floor-installation': '&#129510;',
-    'garden-services':  '&#127807;',
-    'home-cleaning':    '&#129529;',
-    'painting':         '&#127912;',
-    'roof-repair':      '&#127968;',
-    'plumbing':         '&#128295;',
-    'architecture':     '&#127963;',
-    'carpentry':        '&#128296;',
-    'renovation':       '&#128296;',
-    'materials':        '&#129521;',
-    'hvac':             '&#10052;',
+    'air-conditioning': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-hvac.svg" alt="Air conditioning">',
+    'construction': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-roofing.svg" alt="Construction">',
+    'electrical': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-electrical.svg" alt="Electrical">',
+    'floor-installation': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-floor-installation.svg" alt="Floor installation">',
+    'garden-services': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-garden.svg" alt="Garden services">',
+    'home-cleaning': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-home-cleaning.svg" alt="Home cleaning">',
+    'painting': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-painting.svg" alt="Painting">',
+    'roof-repair': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-roofing.svg" alt="Roof repair">',
+    'plumbing': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-plumbing.svg" alt="Plumbing">',
+    'architecture': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-architecture.svg" alt="Architecture">',
+    'carpentry': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-painting.svg" alt="Carpentry">',
+    'renovation': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-painting.svg" alt="Renovation">',
+    'materials': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-materials.svg" alt="Materials">',
+    'hvac': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-hvac.svg" alt="HVAC">',
   },
 
   _icon(cat) {
     if (cat.icon) return cat.icon;
-    return this._iconMap[cat.slug] || '&#128296;';
+    return this._iconMap[cat.slug] || '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-painting.svg" alt="Category">';
   },
 
   _name(cat) {
@@ -528,11 +532,21 @@ const categories = {
   // Render checkboxes in the provider modal .cg grid
   renderProviderCheckboxes() {
     const grid = document.querySelector('#provMo .cg');
-    if (!grid || this.data.length === 0) return;
+    if (!grid) return;
+
+    if (this.data.length === 0) {
+      grid.innerHTML = '';
+      return;
+    }
 
     const checkSvg = `<svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
     const top = this.data.filter(c => !c.parent_id);
+    if (top.length === 0) {
+      grid.innerHTML = '';
+      return;
+    }
+
     grid.innerHTML = top.map(cat => {
       const icon = this._icon(cat);
       const name = this._name(cat);
@@ -671,7 +685,7 @@ const siteGate = {
     const err = document.getElementById('gateErr');
 
     if (btn) {
-      btn.textContent = 'Enter →';
+      btn.textContent = 'Enter';
       btn.disabled = false;
     }
     if (inp) {
@@ -771,7 +785,7 @@ const siteGate = {
         inp.style.borderColor = '#E5E9F5';
         err.style.display = 'none';
       }, 2000);
-      btn.textContent = 'Enter →';
+      btn.textContent = 'Enter';
       btn.disabled = false;
     }
   },
@@ -974,7 +988,8 @@ const serviceRequest = {
       budget: bgEl?.value || null,
       timeline: ugEl.value,
       phone: phEl.value.trim(),
-      email: emEl?.value.trim() || null
+      email: emEl?.value.trim() || null,
+      language_code: utils.getLanguageCode()
     };
 
     // Validation
@@ -1901,7 +1916,8 @@ const contactProvider = {
       timeline: timelineValue,
       preferred_date: null, // Will be parsed from timeline in Supabase service
       provider_id: this.providerId,
-      provider_name: this.providerName
+      provider_name: this.providerName,
+      language_code: utils.getLanguageCode()
     };
 
     // Validation
@@ -2076,7 +2092,8 @@ const notifySubmit = {
       phone: document.getElementById('nfph')?.value.trim(),
       email: document.getElementById('nfem')?.value.trim(),
       whatsapp: document.getElementById('nfwa')?.value.trim(),
-      service: document.getElementById('nfsvc')?.value
+      service: document.getElementById('nfsvc')?.value,
+      language_code: utils.getLanguageCode()
     };
 
     if (!data.name || !data.phone || !data.email || !data.whatsapp || !data.service) {
@@ -2156,7 +2173,8 @@ const providerSubmit = {
       experience: '',
       description: document.getElementById('pdsc')?.value.trim(),
       coverage: document.getElementById('pzn')?.value,
-      agreed: document.getElementById('agchk')?.classList.contains('on')
+      agreed: document.getElementById('agchk')?.classList.contains('on'),
+      language_code: utils.getLanguageCode()
     };
 
     // Get selected categories
@@ -2273,7 +2291,8 @@ const supplierSubmit = {
       delivery: document.querySelector('.del-opt.sel')?.dataset.selected || 'no',
       coverage: document.getElementById('szn')?.value,
       description: document.getElementById('sdsc')?.value.trim(),
-      agreed: document.getElementById('sagchk')?.classList.contains('on')
+      agreed: document.getElementById('sagchk')?.classList.contains('on'),
+      language_code: utils.getLanguageCode()
     };
 
     if (data.delivery === 'yes') {

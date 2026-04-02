@@ -67,7 +67,7 @@ Provider Information:
 
 Service Details:
 - Location: {{city}}, {{neighbourhood}}
-- Categories: {{categories}}
+- Categories: {{categories_html}} (for HTML pill rendering) or {{categories}} (plain text)
 - Experience: {{experience}}
 - Coverage: {{coverage}}
 
