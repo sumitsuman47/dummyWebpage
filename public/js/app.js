@@ -424,25 +424,25 @@ const categories = {
 
   // Icon fallbacks keyed by slug (used when icon field is blank in DB)
   _iconMap: {
-    'air-conditioning': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-hvac.svg" alt="Air conditioning">',
-    'construction': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-roofing.svg" alt="Construction">',
-    'electrical': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-electrical.svg" alt="Electrical">',
-    'floor-installation': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-floor-installation.svg" alt="Floor installation">',
-    'garden-services': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-garden.svg" alt="Garden services">',
-    'home-cleaning': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-home-cleaning.svg" alt="Home cleaning">',
-    'painting': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-painting.svg" alt="Painting">',
-    'roof-repair': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-roofing.svg" alt="Roof repair">',
-    'plumbing': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-plumbing.svg" alt="Plumbing">',
-    'architecture': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-architecture.svg" alt="Architecture">',
-    'carpentry': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-painting.svg" alt="Carpentry">',
-    'renovation': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-painting.svg" alt="Renovation">',
-    'materials': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-materials.svg" alt="Materials">',
-    'hvac': '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-hvac.svg" alt="HVAC">',
+    'air-conditioning': '<img class="ui-icon ui-icon-md" src="/images/lumitya-icons/category-hvac.svg" alt="Air conditioning">',
+    'construction': '<img class="ui-icon ui-icon-md" src="/images/lumitya-icons/category-roofing.svg" alt="Construction">',
+    'electrical': '<img class="ui-icon ui-icon-md" src="/images/lumitya-icons/category-electrical.svg" alt="Electrical">',
+    'floor-installation': '<img class="ui-icon ui-icon-md" src="/images/lumitya-icons/category-floor-installation.svg" alt="Floor installation">',
+    'garden-services': '<img class="ui-icon ui-icon-md" src="/images/lumitya-icons/category-garden.svg" alt="Garden services">',
+    'home-cleaning': '<img class="ui-icon ui-icon-md" src="/images/lumitya-icons/category-home-cleaning.svg" alt="Home cleaning">',
+    'painting': '<img class="ui-icon ui-icon-md" src="/images/lumitya-icons/category-painting.svg" alt="Painting">',
+    'roof-repair': '<img class="ui-icon ui-icon-md" src="/images/lumitya-icons/category-roofing.svg" alt="Roof repair">',
+    'plumbing': '<img class="ui-icon ui-icon-md" src="/images/lumitya-icons/category-plumbing.svg" alt="Plumbing">',
+    'architecture': '<img class="ui-icon ui-icon-md" src="/images/lumitya-icons/category-architecture.svg" alt="Architecture">',
+    'carpentry': '<img class="ui-icon ui-icon-md" src="/images/lumitya-icons/category-painting.svg" alt="Carpentry">',
+    'renovation': '<img class="ui-icon ui-icon-md" src="/images/lumitya-icons/category-painting.svg" alt="Renovation">',
+    'materials': '<img class="ui-icon ui-icon-md" src="/images/lumitya-icons/category-materials.svg" alt="Materials">',
+    'hvac': '<img class="ui-icon ui-icon-md" src="/images/lumitya-icons/category-hvac.svg" alt="HVAC">',
   },
 
   _icon(cat) {
     if (cat.icon) return cat.icon;
-    return this._iconMap[cat.slug] || '<img class="ui-icon ui-icon-md" src="images/lumitya-icons/category-painting.svg" alt="Category">';
+    return this._iconMap[cat.slug] || '<img class="ui-icon ui-icon-md" src="/images/lumitya-icons/category-painting.svg" alt="Category">';
   },
 
   _name(cat) {
