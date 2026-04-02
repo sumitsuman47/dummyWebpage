@@ -34,6 +34,108 @@ const CONFIG = {
 
 // Utility functions
 const utils = {
+  ensureAlertModal() {
+    let modal = document.getElementById('lumityaFormAlert');
+    if (modal) return modal;
+
+    modal = document.createElement('div');
+    modal.id = 'lumityaFormAlert';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.style.cssText = 'position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,0.32);backdrop-filter:blur(3px);z-index:100000;padding:20px;opacity:0;transition:opacity 220ms ease;';
+    modal.innerHTML = [
+      '<div id="lumityaFormAlertCard" style="width:100%;max-width:460px;background:linear-gradient(180deg,#fffdf8 0%,#ffffff 100%);border-radius:14px;box-shadow:0 20px 40px rgba(15,23,42,0.18);padding:22px 20px 18px;border:1px solid #e8dfd0;transform:translateY(14px) scale(0.985);transition:transform 220ms ease;">',
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">',
+      '<h3 id="lumityaFormAlertTitle" style="margin:0;font-family:\'Sora\',sans-serif;font-size:1.05rem;color:#5f4b32;">Please review this form</h3>',
+      '<button id="lumityaFormAlertClose" type="button" aria-label="Close alert" style="border:none;background:#f3ede3;color:#7a6751;width:32px;height:32px;border-radius:999px;font-size:1rem;font-weight:700;cursor:pointer;">x</button>',
+      '</div>',
+      '<p id="lumityaFormAlertMessage" style="margin:14px 0 16px;color:#5b6470;line-height:1.5;font-family:\'DM Sans\',sans-serif;"></p>',
+      '<button id="lumityaFormAlertAction" type="button" style="width:100%;border:none;background:#d9c7ab;color:#473729;font-family:\'DM Sans\',sans-serif;font-size:0.92rem;font-weight:700;padding:11px 12px;border-radius:10px;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,0.4);">Review form</button>',
+      '</div>'
+    ].join('');
+
+    document.body.appendChild(modal);
+
+    const closeBtn = document.getElementById('lumityaFormAlertClose');
+    const actionBtn = document.getElementById('lumityaFormAlertAction');
+    if (closeBtn) closeBtn.addEventListener('click', () => this.hideAlertModal());
+    if (actionBtn) actionBtn.addEventListener('click', () => this.hideAlertModal());
+    modal.addEventListener('click', (event) => {
+      if (event.target === modal) this.hideAlertModal();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && modal.style.display === 'flex') {
+        this.hideAlertModal();
+      }
+    });
+
+    return modal;
+  },
+
+  getAlertCopy() {
+    const hasI18n = typeof i18n !== 'undefined' && typeof i18n.get === 'function';
+    return {
+      title: hasI18n ? i18n.get('alert_form_title') : 'Please review this form',
+      messageFallback: hasI18n ? i18n.get('alert_form_message_fallback') : 'Please review the highlighted fields and continue when ready.',
+      actionLabel: hasI18n ? i18n.get('alert_form_close_action') : 'Review form',
+      closeLabel: hasI18n ? i18n.get('alert_form_close_label') : 'Close alert'
+    };
+  },
+
+  showAlertModal(message, title) {
+    const modal = this.ensureAlertModal();
+    const titleEl = document.getElementById('lumityaFormAlertTitle');
+    const messageEl = document.getElementById('lumityaFormAlertMessage');
+    const closeBtn = document.getElementById('lumityaFormAlertClose');
+    const actionBtn = document.getElementById('lumityaFormAlertAction');
+    const card = document.getElementById('lumityaFormAlertCard');
+    const copy = this.getAlertCopy();
+
+    if (titleEl) titleEl.textContent = title || copy.title;
+    if (messageEl) messageEl.textContent = message || copy.messageFallback;
+    if (actionBtn) actionBtn.textContent = copy.actionLabel;
+    if (closeBtn) closeBtn.setAttribute('aria-label', copy.closeLabel);
+
+    modal.style.display = 'flex';
+    // Trigger transition on next frame.
+    requestAnimationFrame(() => {
+      modal.style.opacity = '1';
+      if (card) card.style.transform = 'translateY(0) scale(1)';
+    });
+    if (closeBtn) closeBtn.focus();
+  },
+
+  hideAlertModal() {
+    const modal = document.getElementById('lumityaFormAlert');
+    const card = document.getElementById('lumityaFormAlertCard');
+    if (!modal || modal.style.display !== 'flex') return;
+
+    modal.style.opacity = '0';
+    if (card) card.style.transform = 'translateY(14px) scale(0.985)';
+    setTimeout(() => {
+      if (modal.style.opacity === '0') {
+        modal.style.display = 'none';
+      }
+    }, 220);
+  },
+
+  showFormError(errorTarget, message) {
+    if (!message) return;
+
+    if (typeof errorTarget === 'string') {
+      const el = document.getElementById(errorTarget);
+      if (el) {
+        el.textContent = message;
+        el.style.display = 'block';
+      }
+    } else if (errorTarget) {
+      errorTarget.textContent = message;
+      errorTarget.style.display = 'block';
+    }
+
+    this.showAlertModal(message);
+  },
+
   async hash(str) {
     const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
     return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
@@ -45,6 +147,9 @@ const utils = {
       el.textContent = message;
       el.style.display = 'block';
       setTimeout(() => el.style.display = 'none', 5000);
+    }
+    if (message) {
+      this.showAlertModal(message);
     }
   },
 
@@ -166,13 +271,12 @@ const captcha = {
 
   showError(errorTarget, message) {
     if (typeof errorTarget === 'string') {
-      utils.showError(errorTarget, message);
+      utils.showFormError(errorTarget, message);
       return;
     }
 
     if (errorTarget) {
-      errorTarget.textContent = message;
-      errorTarget.style.display = 'block';
+      utils.showFormError(errorTarget, message);
     }
   },
 
@@ -803,10 +907,21 @@ const safetyConfirm = {
 
 // Service Request Form
 const serviceRequest = {
+  resetFormState() {
+    modals.reset('mmbody', 'mmsuc', 'merr', 'mbtn');
+    utils.clearFields(['mnm', 'mcity', 'mcol', 'msvc', 'mds', 'mbg', 'mug', 'mph', 'mem']);
+    formHelpers.updateNeighbourhood('mcol', 'mcity');
+    const mtChk = document.getElementById('matchTermsChk');
+    if (mtChk) { mtChk.classList.remove('on'); mtChk.dataset.checked = 'false'; }
+    const mtErr = document.getElementById('matchTermsErr');
+    if (mtErr) mtErr.style.display = 'none';
+  },
+
   open(provName, provId) {
     console.log('📝 serviceRequest.open() called with:', { provName, provId });
     this.providerName = provName || '';
     this.providerId = provId || 0;
+    this.resetFormState();
     console.log('✅ Opening matchMo modal');
     modals.show('matchMo');
     captcha.queueRender('match');
@@ -815,12 +930,7 @@ const serviceRequest = {
   close() {
     modals.hide('matchMo');
     setTimeout(() => {
-      modals.reset('mmbody', 'mmsuc', 'merr', 'mbtn');
-      utils.clearFields(['mnm', 'mcity', 'mcol', 'msvc', 'mds', 'mbg', 'mug', 'mph', 'mem']);
-      const mtChk = document.getElementById('matchTermsChk');
-      if (mtChk) { mtChk.classList.remove('on'); mtChk.dataset.checked = 'false'; }
-      const mtErr = document.getElementById('matchTermsErr');
-      if (mtErr) mtErr.style.display = 'none';
+      this.resetFormState();
       captcha.reset('match');
     }, 320);
   },
@@ -1742,11 +1852,22 @@ const contactProvider = {
   providerId: null,
   providerName: null,
 
+  resetFormState() {
+    modals.reset('cpbody', 'cpsuc', 'cperr', 'cpbtn');
+    utils.clearFields(['cpnm', 'cpcity', 'cpcol', 'cpsvc', 'cpmg', 'cpph', 'cpem', 'cpbg', 'cptimeline']);
+    formHelpers.updateNeighbourhood('cpcol', 'cpcity');
+    const ctChk = document.getElementById('contTermsChk');
+    if (ctChk) { ctChk.classList.remove('on'); ctChk.dataset.checked = 'false'; }
+    const ctErr = document.getElementById('contTermsErr');
+    if (ctErr) ctErr.style.display = 'none';
+  },
+
   open(providerId, providerName) {
     this.providerId = providerId;
     this.providerName = providerName;
     const title = document.getElementById('cpTitle');
     if (title) title.textContent = `${i18n.get('cp_quote_title')} ${providerName || i18n.get('cp_quote_provider')}`;
+    this.resetFormState();
     modals.show('contactMo');
     captcha.queueRender('contact');
   },
@@ -1754,16 +1875,7 @@ const contactProvider = {
   close() {
     modals.hide('contactMo');
     setTimeout(() => {
-      modals.reset('cpbody', 'cpsuc', 'cperr', 'cpbtn');
-      // Reset form fields
-      ['cpnm', 'cpcity', 'cpcol', 'cpsvc', 'cpmg', 'cpph', 'cpem', 'cpbg', 'cptimeline'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-      });
-      const ctChk = document.getElementById('contTermsChk');
-      if (ctChk) { ctChk.classList.remove('on'); ctChk.dataset.checked = 'false'; }
-      const ctErr = document.getElementById('contTermsErr');
-      if (ctErr) ctErr.style.display = 'none';
+      this.resetFormState();
       captcha.reset('contact');
     }, 320);
     this.providerId = null;
@@ -1794,26 +1906,17 @@ const contactProvider = {
 
     // Validation
     if (!data.name || !data.phone || !data.email || !data.city || !data.neighbourhood || !data.service || !data.description) {
-      if (errEl) {
-        errEl.textContent = i18n.get('err_fill_required');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, i18n.get('err_fill_required'));
       return;
     }
 
     if (!utils.validatePhone(data.phone)) {
-      if (errEl) {
-        errEl.textContent = i18n.get('err_invalid_phone');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, i18n.get('err_invalid_phone'));
       return;
     }
 
     if (!utils.validateEmail(data.email)) {
-      if (errEl) {
-        errEl.textContent = i18n.get('err_invalid_email');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, i18n.get('err_invalid_email'));
       return;
     }
 
@@ -1822,10 +1925,7 @@ const contactProvider = {
     if (!contTermsChk || !contTermsChk.classList.contains('on')) {
       const termsErr = document.getElementById('contTermsErr');
       if (termsErr) termsErr.style.display = 'block';
-      if (errEl) {
-        errEl.textContent = i18n.get('terms_arb_err');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, i18n.get('terms_arb_err'));
       return;
     }
 
@@ -1856,10 +1956,7 @@ const contactProvider = {
       document.getElementById('cpbody').style.display = 'none';
       document.getElementById('cpsuc').style.display = 'block';
     } catch (error) {
-      if (errEl) {
-        errEl.textContent = error.message || i18n.get('err_submit_request');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, error.message || i18n.get('err_submit_request'));
       captcha.reset('contact');
       btn.disabled = false;
       btn.classList.remove('ld');
@@ -1872,6 +1969,15 @@ const providerReport = {
   providerId: null,
   providerName: null,
 
+  resetFormState() {
+    modals.reset('rpbody', 'rpsuc', 'rperr', 'rpbtn');
+    utils.clearFields(['rptype', 'rpdetails', 'rpnm', 'rpem', 'rpph']);
+    const rtChk = document.getElementById('reportTermsChk');
+    if (rtChk) { rtChk.classList.remove('on'); rtChk.dataset.checked = 'false'; }
+    const rtErr = document.getElementById('reportTermsErr');
+    if (rtErr) rtErr.style.display = 'none';
+  },
+
   open(providerId, providerName) {
     this.providerId = providerId || null;
     this.providerName = providerName || '';
@@ -1879,6 +1985,7 @@ const providerReport = {
     const providerLabel = document.getElementById('rpProviderName');
     if (providerLabel) providerLabel.textContent = this.providerName || i18n.get('report_default_provider');
 
+    this.resetFormState();
     modals.show('reportMo');
     captcha.queueRender('report');
   },
@@ -1886,20 +1993,7 @@ const providerReport = {
   close() {
     modals.hide('reportMo');
     setTimeout(() => {
-      modals.reset('rpbody', 'rpsuc', 'rperr', 'rpbtn');
-      ['rptype', 'rpdetails', 'rpnm', 'rpem', 'rpph'].forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        if (el.tagName === 'SELECT') {
-          el.selectedIndex = 0;
-        } else {
-          el.value = '';
-        }
-      });
-      const rtChk = document.getElementById('reportTermsChk');
-      if (rtChk) { rtChk.classList.remove('on'); rtChk.dataset.checked = 'false'; }
-      const rtErr = document.getElementById('reportTermsErr');
-      if (rtErr) rtErr.style.display = 'none';
+      this.resetFormState();
       captcha.reset('report');
     }, 320);
 
@@ -1926,26 +2020,17 @@ const providerReport = {
     };
 
     if (!data.provider_name || !data.issue_type || !data.details || !data.reporter_email || !data.reporter_phone) {
-      if (errEl) {
-        errEl.textContent = i18n.get('report_err_required');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, i18n.get('report_err_required'));
       return;
     }
 
     if (!utils.validatePhone(data.reporter_phone)) {
-      if (errEl) {
-        errEl.textContent = i18n.get('report_err_phone');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, i18n.get('report_err_phone'));
       return;
     }
 
     if (!utils.validateEmail(data.reporter_email)) {
-      if (errEl) {
-        errEl.textContent = i18n.get('report_err_email');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, i18n.get('report_err_email'));
       return;
     }
 
@@ -1954,10 +2039,7 @@ const providerReport = {
     if (!reportTermsChk || !reportTermsChk.classList.contains('on')) {
       const termsErr = document.getElementById('reportTermsErr');
       if (termsErr) termsErr.style.display = 'block';
-      if (errEl) {
-        errEl.textContent = i18n.get('terms_arb_err');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, i18n.get('terms_arb_err'));
       return;
     }
 
@@ -1973,10 +2055,7 @@ const providerReport = {
       document.getElementById('rpbody').style.display = 'none';
       document.getElementById('rpsuc').style.display = 'block';
     } catch (error) {
-      if (errEl) {
-        errEl.textContent = error.message || i18n.get('report_err_submit');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, error.message || i18n.get('report_err_submit'));
       captcha.reset('report');
       btn.disabled = false;
       btn.classList.remove('ld');
@@ -2001,26 +2080,17 @@ const notifySubmit = {
     };
 
     if (!data.name || !data.phone || !data.email || !data.whatsapp || !data.service) {
-      if (errEl) {
-        errEl.textContent = i18n.get('err_fill_required');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, i18n.get('err_fill_required'));
       return;
     }
 
     if (!utils.validatePhone(data.phone)) {
-      if (errEl) {
-        errEl.textContent = i18n.get('err_invalid_phone');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, i18n.get('err_invalid_phone'));
       return;
     }
 
     if (!utils.validateEmail(data.email)) {
-      if (errEl) {
-        errEl.textContent = i18n.get('err_invalid_email');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, i18n.get('err_invalid_email'));
       return;
     }
 
@@ -2029,10 +2099,7 @@ const notifySubmit = {
     if (!notifyTermsChk || !notifyTermsChk.classList.contains('on')) {
       const termsErr = document.getElementById('notifyTermsErr');
       if (termsErr) termsErr.style.display = 'block';
-      if (errEl) {
-        errEl.textContent = i18n.get('terms_arb_err');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, i18n.get('terms_arb_err'));
       return;
     }
 
@@ -2059,10 +2126,7 @@ const notifySubmit = {
       document.getElementById('nfbody').style.display = 'none';
       document.getElementById('nfsuc').style.display = 'block';
     } catch (error) {
-      if (errEl) {
-        errEl.textContent = error.message || i18n.get('err_submit');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, error.message || i18n.get('err_submit'));
       captcha.reset('notify');
       btn.disabled = false;
       btn.classList.remove('ld');
@@ -2106,42 +2170,27 @@ const providerSubmit = {
 
     // Basic validation
     if (!data.name || !data.phone || !data.email || !data.city || !data.neighbourhood) {
-      if (errEl) {
-        errEl.textContent = i18n.get('err_fill_required');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, i18n.get('err_fill_required'));
       return;
     }
 
     if (!utils.validatePhone(data.phone)) {
-      if (errEl) {
-        errEl.textContent = i18n.get('err_invalid_phone');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, i18n.get('err_invalid_phone'));
       return;
     }
 
     if (!utils.validateEmail(data.email)) {
-      if (errEl) {
-        errEl.textContent = i18n.get('err_invalid_email');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, i18n.get('err_invalid_email'));
       return;
     }
 
     if (data.categories.length === 0) {
-      if (errEl) {
-        errEl.textContent = i18n.get('err_select_category');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, i18n.get('err_select_category'));
       return;
     }
 
     if (!data.agreed) {
-      if (errEl) {
-        errEl.textContent = i18n.get('err_agree_terms');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, i18n.get('err_agree_terms'));
       return;
     }
 
@@ -2183,10 +2232,7 @@ const providerSubmit = {
       document.getElementById('pmbody').style.display = 'none';
       document.getElementById('pmsuc').style.display = 'block';
     } catch (error) {
-      if (errEl) {
-        errEl.textContent = error.message || i18n.get('err_submit_app');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, error.message || i18n.get('err_submit_app'));
       captcha.reset('provider');
       btn.disabled = false;
       btn.classList.remove('ld');
@@ -2241,42 +2287,27 @@ const supplierSubmit = {
 
     // Basic validation
     if (!data.name || !data.business || !data.phone || !data.email || !data.city) {
-      if (errEl) {
-        errEl.textContent = i18n.get('err_fill_required');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, i18n.get('err_fill_required'));
       return;
     }
 
     if (!utils.validatePhone(data.phone)) {
-      if (errEl) {
-        errEl.textContent = i18n.get('err_invalid_phone');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, i18n.get('err_invalid_phone'));
       return;
     }
 
     if (!utils.validateEmail(data.email)) {
-      if (errEl) {
-        errEl.textContent = i18n.get('err_invalid_email');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, i18n.get('err_invalid_email'));
       return;
     }
 
     if (materials.length === 0) {
-      if (errEl) {
-        errEl.textContent = i18n.get('err_add_material');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, i18n.get('err_add_material'));
       return;
     }
 
     if (!data.agreed) {
-      if (errEl) {
-        errEl.textContent = i18n.get('err_agree_terms');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, i18n.get('err_agree_terms'));
       return;
     }
 
@@ -2320,10 +2351,7 @@ const supplierSubmit = {
       document.getElementById('smbody').style.display = 'none';
       document.getElementById('smsuc').style.display = 'block';
     } catch (error) {
-      if (errEl) {
-        errEl.textContent = error.message || i18n.get('err_submit_app');
-        errEl.style.display = 'block';
-      }
+      utils.showFormError(errEl, error.message || i18n.get('err_submit_app'));
       captcha.reset('supplier');
       btn.disabled = false;
       btn.classList.remove('ld');
@@ -2404,7 +2432,23 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       const openModal = document.querySelector('.mo.on');
       if (openModal) {
-        modals.hide(openModal.id);
+        const closeById = {
+          matchMo: () => serviceRequest.close(),
+          provMo: () => providerApp.close(),
+          suppMo: () => supplierApp.close(),
+          contactMo: () => contactProvider.close(),
+          reportMo: () => providerReport.close(),
+          notifyMo: () => notifyModal.close(),
+          applyChoiceMo: () => applyChoice.close(),
+          safetyConfirmMo: () => safetyConfirm.close()
+        };
+
+        const closeHandler = closeById[openModal.id];
+        if (closeHandler) {
+          closeHandler();
+        } else {
+          modals.hide(openModal.id);
+        }
       }
     }
   });
@@ -2510,6 +2554,31 @@ window.addEventListener('popstate', () => {
 
 // Provider/Supplier Applications
 const providerApp = {
+  resetFormState() {
+    modals.reset('pmbody', 'pmsuc', 'perr', 'pbtn');
+    utils.clearFields(['pnm', 'pbz', 'pph', 'pem', 'pcity', 'pcol', 'pwb', 'ptm', 'pdsc', 'pzn']);
+    formHelpers.updateNeighbourhood('pcol', 'pcity');
+
+    document.querySelectorAll('#provMo .ck').forEach(label => {
+      label.classList.remove('sel', 'on');
+      const input = label.querySelector('input[type="checkbox"]');
+      if (input) input.checked = false;
+    });
+
+    document.querySelectorAll('#provMo .yc').forEach(y => {
+      y.classList.remove('sel', 'on');
+      delete y.dataset.selected;
+    });
+
+    const agChk = document.getElementById('agchk');
+    if (agChk) { agChk.classList.remove('on'); agChk.dataset.checked = 'false'; }
+
+    ['caterr', 'yrerr', 'agerr'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+  },
+
   open() {
     console.log('🏗️ providerApp.open() called');
     // Check if contractor joining is enabled via feature flag
@@ -2520,6 +2589,7 @@ const providerApp = {
       return;
     }
     console.log('✅ contractor_joining is enabled or flags not loaded');
+    this.resetFormState();
     modals.show('provMo');
     captcha.queueRender('provider');
   },
@@ -2527,13 +2597,43 @@ const providerApp = {
   close() {
     modals.hide('provMo');
     setTimeout(() => {
-      modals.reset('pmbody', 'pmsuc', 'perr', 'pbtn');
+      this.resetFormState();
       captcha.reset('provider');
     }, 320);
   }
 };
 
 const supplierApp = {
+  resetFormState() {
+    modals.reset('smbody', 'smsuc', 'serr', 'sbtn');
+    utils.clearFields(['snm', 'sbz', 'sph', 'sem', 'scity', 'scol', 'swb', 'szn', 'sdsc', 'delCostType', 'delCostVal', 'delMaxKm', 'delMinOrd']);
+    formHelpers.updateNeighbourhood('scol', 'scity');
+
+    const matContainer = document.getElementById('matRows');
+    if (matContainer) {
+      matContainer.innerHTML = '';
+      formHelpers.addMaterialRow('Cement 50kg', 'bag', '');
+      formHelpers.addMaterialRow('Sand', 'm3', '');
+      formHelpers.addMaterialRow('Gravel', 'm3', '');
+    }
+
+    document.querySelectorAll('.del-opt').forEach(opt => {
+      opt.classList.remove('sel');
+      delete opt.dataset.selected;
+    });
+
+    const delDetails = document.getElementById('delDetails');
+    if (delDetails) delDetails.style.display = 'none';
+
+    const sagChk = document.getElementById('sagchk');
+    if (sagChk) { sagChk.classList.remove('on'); sagChk.dataset.checked = 'false'; }
+
+    ['materr', 'delerr', 'sagerr'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+  },
+
   open() {
     // Check if supplier joining is enabled via feature flag
     const flags = window.FeatureFlags;
@@ -2541,6 +2641,7 @@ const supplierApp = {
       console.warn('🚫 Supplier application is disabled');
       return;
     }
+    this.resetFormState();
     modals.show('suppMo');
     captcha.queueRender('supplier');
   },
@@ -2548,7 +2649,7 @@ const supplierApp = {
   close() {
     modals.hide('suppMo');
     setTimeout(() => {
-      modals.reset('smbody', 'smsuc', 'serr', 'sbtn');
+      this.resetFormState();
       captcha.reset('supplier');
     }, 320);
   }
@@ -2581,7 +2682,17 @@ const applyChoice = {
 };
 
 const notifyModal = {
+  resetFormState() {
+    modals.reset('nfbody', 'nfsuc', 'nferr', 'nfbtn');
+    utils.clearFields(['nfnm', 'nfph', 'nfem', 'nfwa', 'nfsvc']);
+    const ntChk = document.getElementById('notifyTermsChk');
+    if (ntChk) { ntChk.classList.remove('on'); ntChk.dataset.checked = 'false'; }
+    const ntErr = document.getElementById('notifyTermsErr');
+    if (ntErr) ntErr.style.display = 'none';
+  },
+
   open() {
+    this.resetFormState();
     modals.show('notifyMo');
     captcha.queueRender('notify');
   },
@@ -2589,11 +2700,7 @@ const notifyModal = {
   close() {
     modals.hide('notifyMo');
     setTimeout(() => {
-      modals.reset('nfbody', 'nfsuc', 'nferr', 'nfbtn');
-      const ntChk = document.getElementById('notifyTermsChk');
-      if (ntChk) { ntChk.classList.remove('on'); ntChk.dataset.checked = 'false'; }
-      const ntErr = document.getElementById('notifyTermsErr');
-      if (ntErr) ntErr.style.display = 'none';
+      this.resetFormState();
       captcha.reset('notify');
     }, 320);
   }
