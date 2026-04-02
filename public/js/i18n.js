@@ -679,6 +679,10 @@ const translations = {
         err_submit_app: 'Failed to submit application',
         err_submit: 'Failed to submit',
         err_form_error: 'Form error. Please refresh the page.',
+        alert_form_title: 'Please review this form',
+        alert_form_message_fallback: 'Please review the highlighted fields and continue when ready.',
+        alert_form_close_action: 'Review form',
+        alert_form_close_label: 'Close alert',
     },
 
     es: {
@@ -1356,6 +1360,10 @@ const translations = {
         err_submit_app: 'Error al enviar la solicitud',
         err_submit: 'Error al enviar',
         err_form_error: 'Error del formulario. Por favor recarga la página.',
+        alert_form_title: 'Revisa este formulario',
+        alert_form_message_fallback: 'Revisa los campos marcados y continúa cuando estés listo.',
+        alert_form_close_action: 'Revisar formulario',
+        alert_form_close_label: 'Cerrar alerta',
     }
 };
 
