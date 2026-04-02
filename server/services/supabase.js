@@ -6,6 +6,19 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   throw new Error('Missing Supabase configuration. Please set SUPABASE_URL and SUPABASE_ANON_KEY in .env file');
 }
 
+const getRuntimeEnv = () => {
+  const explicit = String(process.env.LUMITYA_ENV || '').toLowerCase();
+  if (explicit === 'development' || explicit === 'production') return explicit;
+  return String(process.env.NODE_ENV || '').toLowerCase() === 'production' ? 'production' : 'development';
+};
+
+const envTable = (baseName) => `${baseName}_${getRuntimeEnv()}`;
+
+const isMissingTableError = (error) => {
+  const msg = String(error && error.message ? error.message : error || '');
+  return msg.includes('PGRST205') || msg.includes('Could not find the table');
+};
+
 // Supabase REST API helper
 const supabaseRequest = async (table, method = 'GET', body = null, query = '') => {
   const url = `${SUPABASE_URL}/rest/v1/${table}${query ? '?' + query : ''}`;
@@ -132,7 +145,7 @@ const supabaseService = {
 
   // Create provider application (using contractor_join_requests table)
   async createProvider(data) {
-    return supabaseRequest('contractor_join_requests', 'POST', {
+    const payload = {
       name: data.name,
       phone: data.phone,
       email: data.email,
@@ -150,7 +163,26 @@ const supabaseService = {
       id_checked: false,
       move_to_provider_list: false,
       status: 'pending'
-    });
+    };
+
+    const candidates = [
+      envTable('contractor_join_requests'),
+      'contractor_join_requests_production',
+      'contractor_join_requests_development',
+      'contractor_join_requests'
+    ];
+
+    let lastError;
+    for (const table of candidates) {
+      try {
+        return await supabaseRequest(table, 'POST', payload);
+      } catch (error) {
+        lastError = error;
+        if (!isMissingTableError(error)) throw error;
+      }
+    }
+
+    throw lastError || new Error('No contractor join requests table available');
   },
 
   // Generate initials from name
@@ -291,15 +323,25 @@ const supabaseService = {
 
   // Get all public feature flags with explicit enabled/disabled state
   async getPublicFeatureFlags() {
+    const candidates = [envTable('feature_flags'), 'feature_flags'];
     try {
-      const features = await supabaseRequest(
-        'feature_flags',
-        'GET',
-        null,
-        'select=feature_key,feature_name,category,is_beta,is_enabled'
-      );
-      console.log(`✅ Fetched ${features.length} public feature flags from Supabase`);
-      return features;
+      let lastError;
+      for (const table of candidates) {
+        try {
+          const features = await supabaseRequest(
+            table,
+            'GET',
+            null,
+            'select=feature_key,feature_name,category,is_beta,is_enabled'
+          );
+          console.log(`✅ Fetched ${features.length} public feature flags from Supabase (${table})`);
+          return features;
+        } catch (error) {
+          lastError = error;
+          if (!isMissingTableError(error)) throw error;
+        }
+      }
+      throw lastError || new Error('No feature flags table available');
     } catch (error) {
       console.error('❌ Error fetching public feature flags:', error.message);
       throw error;
@@ -308,15 +350,25 @@ const supabaseService = {
 
   // Get all feature flags (including disabled)
   async getAllFeatureFlags() {
+    const candidates = [envTable('feature_flags'), 'feature_flags'];
     try {
-      const features = await supabaseAdminRequest(
-        'feature_flags',
-        'GET',
-        null,
-        'select=*&order=category.asc,feature_name.asc'
-      );
-      console.log(`✅ Fetched ${features.length} total features from Supabase`);
-      return features;
+      let lastError;
+      for (const table of candidates) {
+        try {
+          const features = await supabaseAdminRequest(
+            table,
+            'GET',
+            null,
+            'select=*&order=category.asc,feature_name.asc'
+          );
+          console.log(`✅ Fetched ${features.length} total features from Supabase (${table})`);
+          return features;
+        } catch (error) {
+          lastError = error;
+          if (!isMissingTableError(error)) throw error;
+        }
+      }
+      throw lastError || new Error('No feature flags table available');
     } catch (error) {
       console.error('❌ Error fetching all features:', error.message);
       throw error;
@@ -325,19 +377,29 @@ const supabaseService = {
 
   // Toggle feature flag
   async toggleFeatureFlag(featureKey, isEnabled, updatedBy = 'admin') {
+    const candidates = [envTable('feature_flags'), 'feature_flags'];
     try {
-      const result = await supabaseAdminRequest(
-        'feature_flags',
-        'PATCH',
-        {
-          is_enabled: isEnabled,
-          updated_at: new Date().toISOString(),
-          updated_by: updatedBy
-        },
-        `feature_key=eq.${featureKey}`
-      );
-      console.log(`✅ Toggled feature ${featureKey} to ${isEnabled}`);
-      return result;
+      let lastError;
+      for (const table of candidates) {
+        try {
+          const result = await supabaseAdminRequest(
+            table,
+            'PATCH',
+            {
+              is_enabled: isEnabled,
+              updated_at: new Date().toISOString(),
+              updated_by: updatedBy
+            },
+            `feature_key=eq.${featureKey}`
+          );
+          console.log(`✅ Toggled feature ${featureKey} to ${isEnabled} (${table})`);
+          return result;
+        } catch (error) {
+          lastError = error;
+          if (!isMissingTableError(error)) throw error;
+        }
+      }
+      throw lastError || new Error('No feature flags table available');
     } catch (error) {
       console.error(`❌ Error toggling feature ${featureKey}:`, error.message);
       throw error;
@@ -346,15 +408,25 @@ const supabaseService = {
 
   // Get feature flag audit log
   async getFeatureAuditLog(limit = 50) {
+    const candidates = [envTable('feature_flag_audit'), 'feature_flag_audit'];
     try {
-      const audit = await supabaseAdminRequest(
-        'feature_flag_audit',
-        'GET',
-        null,
-        `select=*&order=changed_at.desc&limit=${limit}`
-      );
-      console.log(`✅ Fetched ${audit.length} audit log entries from Supabase`);
-      return audit;
+      let lastError;
+      for (const table of candidates) {
+        try {
+          const audit = await supabaseAdminRequest(
+            table,
+            'GET',
+            null,
+            `select=*&order=changed_at.desc&limit=${limit}`
+          );
+          console.log(`✅ Fetched ${audit.length} audit log entries from Supabase (${table})`);
+          return audit;
+        } catch (error) {
+          lastError = error;
+          if (!isMissingTableError(error)) throw error;
+        }
+      }
+      throw lastError || new Error('No feature audit table available');
     } catch (error) {
       console.error('❌ Error fetching audit log:', error.message);
       throw error;
@@ -363,15 +435,76 @@ const supabaseService = {
 
   // Get active categories
   async getCategories() {
+    const query = 'select=id,name_en,name_es,slug,description_en,description_es,icon,parent_id&is_active=eq.true&order=name_en.asc';
+    const candidates = [
+      envTable('categories'),
+      'categories_development',
+      'categories_production',
+      'categories'
+    ];
+
     try {
-      const cats = await supabaseRequest(
-        'categories',
-        'GET',
-        null,
-        'select=id,name_en,name_es,slug,description_en,description_es,icon,parent_id&is_active=eq.true&order=name_en.asc'
-      );
-      console.log(`✅ Fetched ${cats.length} active categories from Supabase`);
-      return cats;
+      let lastError;
+      for (const table of candidates) {
+        try {
+          const cats = await supabaseRequest(table, 'GET', null, query);
+          console.log(`✅ Fetched ${cats.length} active categories from Supabase (${table})`);
+          return cats;
+        } catch (error) {
+          lastError = error;
+          if (!isMissingTableError(error)) throw error;
+        }
+      }
+      const providerCandidates = [
+        envTable('providers'),
+        'providers_development',
+        'providers_production',
+        'providers'
+      ];
+
+      for (const table of providerCandidates) {
+        try {
+          const providers = await supabaseRequest(
+            table,
+            'GET',
+            null,
+            'select=categories&limit=1000'
+          );
+
+          const seen = new Set();
+          const derived = [];
+          (Array.isArray(providers) ? providers : []).forEach((provider) => {
+            const list = Array.isArray(provider && provider.categories) ? provider.categories : [];
+            list.forEach((raw) => {
+              const name = String(raw || '').trim();
+              if (!name) return;
+              const key = name.toLowerCase();
+              if (seen.has(key)) return;
+              seen.add(key);
+              derived.push({
+                id: null,
+                name_en: name,
+                name_es: name,
+                slug: key.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
+                description_en: '',
+                description_es: '',
+                icon: null,
+                parent_id: null
+              });
+            });
+          });
+
+          if (derived.length > 0) {
+            derived.sort((a, b) => a.name_en.localeCompare(b.name_en));
+            console.log(`✅ Derived ${derived.length} categories from Supabase provider data (${table})`);
+            return derived;
+          }
+        } catch (error) {
+          if (!isMissingTableError(error)) throw error;
+        }
+      }
+
+      throw lastError || new Error('No categories source available in Supabase');
     } catch (error) {
       console.error('❌ Error fetching categories:', error.message);
       throw error;

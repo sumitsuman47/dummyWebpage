@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <polygon points="16,4 29,16 3,16" fill="#60A5FA" fill-opacity="0.25" stroke="#1B3A6B" stroke-width="2.2" stroke-linejoin="round"/>
+  <rect x="6" y="16" width="20" height="12" rx="1.5" fill="#60A5FA" fill-opacity="0.15" stroke="#1B3A6B" stroke-width="2"/>
+  <path d="M8 16l2 12M12 16l2 12M16 16v12M20 16l-2 12M24 16l-2 12" stroke="#1B3A6B" stroke-width="1.2" stroke-opacity="0.35"/>
+  <rect x="13" y="20" width="6" height="8" rx="1" fill="#1B3A6B" fill-opacity="0.25" stroke="#1B3A6B" stroke-width="1.6"/>
+</svg>

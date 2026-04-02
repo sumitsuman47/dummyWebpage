@@ -10,7 +10,7 @@ const translations = {
         gateSubtitle: 'This site is password protected. Enter your access password to continue.',
         gatePlaceholder: 'Enter password',
         gateError: 'Incorrect password. Please try again.',
-        gateBtn: 'Enter →',
+        gateBtn: 'Enter',
         gateSecurity: '🔒 Secured with SHA-256 · Password never stored in plain text',
         seo_title: 'Lumitya — Home Service & Materials Platform',
         seo_description: 'Lumitya connects homeowners with independent contractors and material suppliers in Guadalajara and Zapopan.',
@@ -31,10 +31,10 @@ const translations = {
         disclaimer: 'Lumitya is a digital listing & matching platform. We connect homeowners with independent contractors and material suppliers. We do not supervise, guarantee, or endorse any work or products.',
         disclaimer_head: 'Lumitya is a digital listing & matching platform.',
         disclaimer_body: 'We connect homeowners with independent contractors and material suppliers. We do not supervise, guarantee, or endorse any work or products.',
-        safety_tip_title: '⚠ Safety Tip:',
+        safety_tip_title: 'Safety Tip:',
         safety_tip_title_text: 'Safety Tip',
         safety_tip_body: 'Lumitya only connects you with independent providers. Always verify credentials, request written agreements, and avoid making advance payments without proper safeguards.',
-        payment_risk_title: '🚫 Important:',
+        payment_risk_title: 'Important:',
         payment_risk_body: 'Avoid making large advance payments without a written agreement and proper verification of the provider.',
         cookie_title: 'Your privacy choices',
         cookie_desc: 'We use essential cookies to run this site and optional cookies to improve experience. You can accept all cookies or keep essential only.',
@@ -48,9 +48,9 @@ const translations = {
         safety_ack_error: 'Please check this box before submitting.',
 
         // Navigation
-        findProviders: '🔍 Find Providers',
+        findProviders: 'Find Providers',
         forContractors: 'For Contractors',
-        joinSupplier: '🏪 Join as Supplier',
+        joinSupplier: 'Join as Supplier',
             getMatched: 'Service Request - Free',
 
         // Service Request Modal
@@ -110,7 +110,7 @@ const translations = {
         phone: 'Phone',
         email: 'Email',
         emailOptional: '(optional)',
-        privateSecure: '🔒 Private & secure.',
+        privateSecure: 'Private & secure.',
 
         // Provider Application
         applyProvider: 'Become a Provider',
@@ -129,22 +129,22 @@ const translations = {
         deliveryOptions: 'Delivery Options',
 
         // Modal Titles
-        pm_tg: '👤 Apply to List',
+        pm_tg: 'Apply to List',
         pm_h: 'Apply as a Service Provider',
         pm_s: 'Get listed in Guadalajara & Zapopan.',
         pm_s1: 'Personal Information',
 
-        sm_tg: '🏪 Join as Supplier',
+        sm_tg: 'Join as Supplier',
         sm_h: 'Register as a Material Supplier',
         sm_s: 'List your materials & prices for homeowners in Guadalajara & Zapopan.',
 
-        cp_tg: '📞 Contact',
+        cp_tg: 'Contact',
         cp_h: 'Message Sent!',
         cp_h_title: 'Request Quote from Provider',
         cp_h_subtitle: 'We will send your request to the provider.',
         cp_s: 'Your message goes directly to the provider.',
         cp_p: 'The provider will contact you directly. Always conduct your own due diligence before hiring.',
-        cp_b: 'Send Request →',
+        cp_b: 'Send Request',
 
         id_verified: 'ID Verified',
         id_pending: 'ID Verification Pending',
@@ -169,7 +169,7 @@ const translations = {
         report_issue_noshow: 'No-show',
         report_issue_misrep: 'Misrepresentation',
         report_provider_btn: 'Report this provider',
-        report_modal_tag: '⚠ Report',
+        report_modal_tag: 'Report',
         report_modal_title: 'Report this provider',
         report_modal_subtitle: 'Submit a report for review. Lumitya may investigate misuse, no-shows, or misrepresentation.',
         report_modal_tip_title: 'For review only',
@@ -181,7 +181,7 @@ const translations = {
         report_details_placeholder: 'Describe what happened and any relevant context...',
         report_contact_section: 'Your contact details',
         report_private_note: 'Submitted securely for internal review.',
-        report_submit_btn: 'Submit report →',
+        report_submit_btn: 'Submit report',
         report_success_title: 'Report submitted',
         report_success_desc: 'Your report has been recorded and will be reviewed within 5 business days. Lumitya is not obligated to take any specific action and will investigate at its discretion.',
         report_disclaimer_note: 'Note: Submission of a report does not guarantee removal. Fair use: Submitting false or malicious reports is a violation of the Provider Agreement and may result in suspension of your own account.',
@@ -238,7 +238,7 @@ const translations = {
         ag_tc: 'Terms & Conditions',
         err_ag: 'You must confirm this before submitting.',
         fn_p: 'Reviewed before publishing.',
-        ps_b: 'Submit Application →',
+        ps_b: 'Submit Application',
         ps_h: 'Application Received!',
         ps_p: 'We\'ll review your details and send a payment link within 48 hours. Your profile goes live after payment is confirmed.',
         cl: 'Close',
@@ -369,7 +369,7 @@ const translations = {
         dispute_contact_line: 'For communication, contact:',
         footer_contact: 'Contact',
         footer_rights: '© 2026 Lumitya. All rights reserved.',
-        legal_back: '← Back',
+        legal_back: 'Back',
         terms_title: 'TERMS OF SERVICE — LUMITYA',
         terms_s1_t: '1. Nature of the Service',
         terms_s1_p1: 'Lumitya is a digital platform that connects homeowners with independent service providers for home-related projects.',
@@ -604,7 +604,7 @@ const translations = {
         sm_terms: 'Terms & Conditions',
         sm_agreement_error: 'You must confirm this before submitting.',
         sm_reviewed: 'Reviewed before publishing.',
-        sm_submit_btn: 'Submit Application →',
+        sm_submit_btn: 'Submit Application',
         sm_success_title: 'Application Received!',
         sm_success_desc: 'We\'ll review your details and send a payment link within 48 hours. Your listing goes live after payment is confirmed.',
 
@@ -640,22 +640,22 @@ const translations = {
         f_dsc_placeholder: 'Describe your services, area of operation, and past projects...',
 
         // ── Notify form (notifyMo) ──
-        nf_tg: '🔔 Premium Plan',
+        nf_tg: 'Premium Plan',
         nf_h: 'Get Notified When Premium Launches',
         nf_s: 'Leave your details and we\'ll reach out as soon as it\'s available.',
         nf_wa: 'WhatsApp Number',
         nf_svc: 'Type of Service You Provide',
         opt_select_service_type: 'Select your service type',
-        nf_privacy: '🔒 We\'ll only use this to notify you.',
-        nf_submit: 'Submit →',
+        nf_privacy: 'We\'ll only use this to notify you.',
+        nf_submit: 'Submit',
         nf_success_title: 'You\'re on the List!',
         nf_success_desc: 'We\'ll notify you by email and WhatsApp as soon as the Premium plan is available.',
 
         // ── Contact form (contactMo) extras ──
-        cp_private: '🔒 Private.',
+        cp_private: 'Private.',
         cp_quote_title: 'Request Quote from',
         cp_quote_provider: 'Provider',
-        req_whatsapp_note: '📱 You may receive contact via phone or WhatsApp from listed providers.',
+        req_whatsapp_note: 'You may receive contact via phone or WhatsApp from listed providers.',
 
         // ── Report form extras ──
         report_default_provider: 'Independent provider',
@@ -691,7 +691,7 @@ const translations = {
         gateSubtitle: 'Este sitio está protegido por contraseña. Ingresa tu contraseña para continuar.',
         gatePlaceholder: 'Ingresa la contraseña',
         gateError: 'Contraseña incorrecta. Por favor intenta de nuevo.',
-        gateBtn: 'Entrar →',
+        gateBtn: 'Entrar',
         gateSecurity: '🔒 Asegurado con SHA-256 · Contraseña nunca se almacena en texto plano',
         seo_title: 'Lumitya — Plataforma de Servicios para el Hogar y Materiales',
         seo_description: 'Lumitya conecta propietarios con contratistas independientes y proveedores de materiales en Guadalajara y Zapopan.',
@@ -712,10 +712,10 @@ const translations = {
         disclaimer: 'Lumitya es una plataforma digital de listados y emparejamiento. Conectamos propietarios de casas con contratistas independientes y proveedores de materiales. No supervisamos, garantizamos ni respaldamos ningún trabajo o producto.',
         disclaimer_head: 'Lumitya es una plataforma digital de listados y emparejamiento.',
         disclaimer_body: 'Conectamos propietarios de casas con contratistas independientes y proveedores de materiales. No supervisamos, garantizamos ni respaldamos ningún trabajo o producto.',
-        safety_tip_title: '⚠ Consejo de Seguridad:',
+        safety_tip_title: 'Consejo de Seguridad:',
         safety_tip_title_text: 'Consejo de seguridad',
         safety_tip_body: 'Lumitya solo te conecta con proveedores independientes. Verifica siempre las credenciales, solicita acuerdos por escrito y evita hacer pagos anticipados sin las debidas garantías.',
-        payment_risk_title: '🚫 Importante:',
+        payment_risk_title: 'Importante:',
         payment_risk_body: 'Evita realizar pagos anticipados elevados sin un acuerdo por escrito y una verificación adecuada del proveedor.',
         cookie_title: 'Tus preferencias de privacidad',
         cookie_desc: 'Usamos cookies esenciales para operar este sitio y cookies opcionales para mejorar la experiencia. Puedes aceptar todas o mantener solo las esenciales.',
@@ -729,9 +729,9 @@ const translations = {
         safety_ack_error: 'Debes marcar esta casilla antes de enviar.',
 
         // Navegación
-        findProviders: '🔍 Buscar Proveedores',
+        findProviders: 'Buscar Proveedores',
         forContractors: 'Para Contratistas',
-        joinSupplier: '🏪 Únete como Proveedor',
+        joinSupplier: 'Únete como Proveedor',
             getMatched: 'Solicitud de Servicio - Gratis',
 
         // Modal de Solicitud de Servicio
@@ -791,7 +791,7 @@ const translations = {
         phone: 'Teléfono',
         email: 'Correo Electrónico',
         emailOptional: '(opcional)',
-        privateSecure: '🔒 Privado y seguro.',
+        privateSecure: 'Privado y seguro.',
 
         // Aplicación de Proveedor
         applyProvider: 'Conviértete en Proveedor',
@@ -810,22 +810,22 @@ const translations = {
         deliveryOptions: 'Opciones de Entrega',
 
         // Títulos de Modales
-        pm_tg: '👤 Solicitar Listado',
+        pm_tg: 'Solicitar Listado',
         pm_h: 'Aplicar como Proveedor de Servicios',
         pm_s: 'Obtén tu listado en Guadalajara y Zapopan.',
         pm_s1: 'Información Personal',
 
-        sm_tg: '🏪 Únete como Proveedor',
+        sm_tg: 'Únete como Proveedor',
         sm_h: 'Regístrate como Proveedor de Materiales',
         sm_s: 'Lista tus materiales y precios para propietarios en Guadalajara y Zapopan.',
 
-        cp_tg: '📞 Contacto',
+        cp_tg: 'Contacto',
         cp_h: '¡Mensaje Enviado!',
         cp_h_title: 'Solicitar Cotización al Proveedor',
         cp_h_subtitle: 'Enviaremos tu solicitud al proveedor.',
         cp_s: 'Tu mensaje va directamente al proveedor.',
         cp_p: 'El proveedor se comunicará contigo directamente. Siempre realiza tu propia investigación antes de contratar.',
-        cp_b: 'Enviar Solicitud →',
+        cp_b: 'Enviar Solicitud',
 
         id_verified: 'ID Verificado',
         id_pending: 'Verificación de ID Pendiente',
@@ -850,7 +850,7 @@ const translations = {
         report_issue_noshow: 'No se presentó',
         report_issue_misrep: 'Representación engañosa',
         report_provider_btn: 'Reportar este proveedor',
-        report_modal_tag: '⚠ Reporte',
+        report_modal_tag: 'Reporte',
         report_modal_title: 'Reportar este proveedor',
         report_modal_subtitle: 'Envía un reporte para revisión. Lumitya puede investigar uso indebido, ausencias o representación engañosa.',
         report_modal_tip_title: 'Solo para revisión',
@@ -862,7 +862,7 @@ const translations = {
         report_details_placeholder: 'Describe lo que sucedió y cualquier contexto relevante...',
         report_contact_section: 'Tus datos de contacto',
         report_private_note: 'Enviado de forma segura para revisión interna.',
-        report_submit_btn: 'Enviar reporte →',
+        report_submit_btn: 'Enviar reporte',
         report_success_title: 'Reporte enviado',
         report_success_desc: 'Tu reporte ha sido registrado y será revisado dentro de 5 días hábiles. Lumitya no está obligado a tomar ninguna acción específica e investigará a su discreción.',
         report_disclaimer_note: 'Nota: El envío de un reporte no garantiza la eliminación. Uso justo: Enviar reportes falsos o maliciosos viola el Acuerdo de Proveedor y puede resultar en la suspensión de tu cuenta.',
@@ -919,7 +919,7 @@ const translations = {
         ag_tc: 'Términos y Condiciones',
         err_ag: 'Debes confirmar esto antes de enviar.',
         fn_p: 'Revisado antes de publicar.',
-        ps_b: 'Enviar solicitud →',
+        ps_b: 'Enviar solicitud',
         ps_h: '¡Solicitud recibida!',
         ps_p: 'Revisaremos tus datos y enviaremos un enlace de pago en 48 horas. Tu perfil se publicará después de confirmar el pago.',
         cl: 'Cerrar',
@@ -1050,7 +1050,7 @@ const translations = {
         dispute_contact_line: 'Para comunicación, contáctanos en:',
         footer_contact: 'Contacto',
         footer_rights: '© 2026 Lumitya. Todos los derechos reservados.',
-        legal_back: '← Regresar',
+        legal_back: 'Regresar',
         terms_title: 'TÉRMINOS DE SERVICIO — LUMITYA',
         terms_s1_t: '1. Naturaleza del Servicio',
         terms_s1_p1: 'Lumitya es una plataforma digital que conecta propietarios de viviendas con proveedores de servicios independientes para proyectos relacionados con el hogar.',
@@ -1285,7 +1285,7 @@ const translations = {
         sm_terms: 'Términos y Condiciones',
         sm_agreement_error: 'Debes confirmar esto antes de enviar.',
         sm_reviewed: 'Revisado antes de publicar.',
-        sm_submit_btn: 'Enviar Solicitud →',
+        sm_submit_btn: 'Enviar Solicitud',
         sm_success_title: '¡Solicitud Recibida!',
         sm_success_desc: 'Revisaremos tus detalles y enviaremos un enlace de pago dentro de 48 horas. Tu listado se activa después de confirmar el pago.',
 
@@ -1321,22 +1321,22 @@ const translations = {
         f_dsc_placeholder: 'Describe tus servicios, área de operación y proyectos anteriores...',
 
         // ── Notify form (notifyMo) ──
-        nf_tg: '🔔 Plan Premium',
+        nf_tg: 'Plan Premium',
         nf_h: 'Recibe Notificación Cuando se Lance el Plan Premium',
         nf_s: 'Déjanos tus datos y te contactaremos en cuanto esté disponible.',
         nf_wa: 'Número de WhatsApp',
         nf_svc: 'Tipo de Servicio que Ofreces',
         opt_select_service_type: 'Selecciona tu tipo de servicio',
-        nf_privacy: '🔒 Solo usaremos esto para notificarte.',
-        nf_submit: 'Enviar →',
+        nf_privacy: 'Solo usaremos esto para notificarte.',
+        nf_submit: 'Enviar',
         nf_success_title: '¡Estás en la Lista!',
         nf_success_desc: 'Te notificaremos por correo electrónico y WhatsApp tan pronto como el plan Premium esté disponible.',
 
         // ── Contact form (contactMo) extras ──
-        cp_private: '🔒 Privado.',
+        cp_private: 'Privado.',
         cp_quote_title: 'Solicitar Cotización de',
         cp_quote_provider: 'Proveedor',
-        req_whatsapp_note: '📱 Puedes recibir contacto por teléfono o WhatsApp de los proveedores listados.',
+        req_whatsapp_note: 'Puedes recibir contacto por teléfono o WhatsApp de los proveedores listados.',
 
         // ── Report form extras ──
         report_default_provider: 'Proveedor independiente',
