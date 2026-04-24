@@ -1,0 +1,2126 @@
+<!DOCTYPE html>
+<html lang="es" id="htmlLang">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <script>
+    (function restoreDeepLinkFrom404Redirect() {
+      var search = window.location.search || '';
+      if (!search.startsWith('?p=')) return;
+
+      try {
+        var target = decodeURIComponent(search.slice(3));
+        if (target && target.charAt(0) === '/') {
+          window.history.replaceState(null, '', target);
+        }
+      } catch (e) {
+        // Ignore malformed redirect payloads.
+      }
+    })();
+  </script>
+  <title>Lumitya — Home Service & Materials Platform</title>
+  <meta name="description" content="Lumitya connects homeowners with independent contractors and material suppliers in Guadalajara and Zapopan.">
+  <link rel="canonical" href="https://www.lumitya.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.lumitya.com/">
+  <meta property="og:site_name" content="Lumitya">
+  <meta property="og:locale" content="es_MX">
+  <meta property="og:title" content="Lumitya — Home Service & Materials Platform">
+  <meta property="og:description" content="Lumitya connects homeowners with independent contractors and material suppliers in Guadalajara and Zapopan.">
+  <meta property="og:image" content="https://www.lumitya.com/images/blueLumityaLogo.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Lumitya — Home Service & Materials Platform">
+  <meta name="twitter:description" content="Lumitya connects homeowners with independent contractors and material suppliers in Guadalajara and Zapopan.">
+  <meta name="twitter:image" content="https://www.lumitya.com/images/blueLumityaLogo.svg">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/complete-styles.css">
+  <link rel="stylesheet" href="css/provider-card-styles.css">
+  <script>
+    (function preloadFeatureFlags() {
+      const CACHE_KEY = 'lumitya_feature_flags';
+      const CACHE_DURATION = 5 * 60 * 1000;
+
+      function readCache(storage) {
+        try {
+          const raw = storage.getItem(CACHE_KEY);
+          if (!raw) return null;
+
+          const parsed = JSON.parse(raw);
+          if (!parsed || !parsed.flags || !parsed.timestamp) return null;
+
+          if (Date.now() - parsed.timestamp > CACHE_DURATION) {
+            storage.removeItem(CACHE_KEY);
+            return null;
+          }
+
+          return parsed;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function buildPreloadCss(flags) {
+        const rules = [];
+
+        Object.keys(flags).forEach((featureKey) => {
+          const isEnabled = flags[featureKey] && flags[featureKey].enabled === true;
+          if (isEnabled) {
+            rules.push('[data-feature-disabled="' + featureKey + '"]{display:none !important;}');
+          } else {
+            rules.push('[data-feature="' + featureKey + '"]{display:none !important;}');
+          }
+        });
+
+        return rules.join('\n');
+      }
+
+      const cached = readCache(window.sessionStorage) || readCache(window.localStorage);
+      if (!cached) return;
+
+      window.__LUMITYA_PRELOADED_FLAGS__ = cached;
+
+      const css = buildPreloadCss(cached.flags);
+      if (!css) return;
+
+      const preloadStyle = document.createElement('style');
+      preloadStyle.id = 'lumitya-feature-flags-preload';
+      preloadStyle.textContent = css;
+      document.head.appendChild(preloadStyle);
+    })();
+  </script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileLoad" async defer></script>
+  <script src="js/runtime-config.js"></script>
+  <script src="js/feature-flags.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/emailjs-config.js"></script>
+  <script src="js/app.js" defer></script>
+</head>
+
+<body>
+
+  <!-- ON-DEMAND PASSWORD GATE -->
+  <div id="siteGate" data-feature="password_gate" style="
+  position:fixed;inset:0;z-index:99999;
+  background:rgba(15,31,75,.78);
+  display:none;align-items:center;justify-content:center;
+  font-family:'DM Sans',sans-serif;
+">
+    <div style="
+    background:#fff;border-radius:18px;padding:40px 36px;
+    width:100%;max-width:420px;margin:16px;
+    box-shadow:0 24px 60px rgba(0,0,0,.35);
+    text-align:center;position:relative;
+  ">
+      <button type="button" onclick="closeGate()" aria-label="Close password prompt" style="position:absolute;top:14px;right:14px;border:none;background:transparent;color:#64748B;font-size:1.1rem;cursor:pointer">&#10005;</button>
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:24px">
+        <img src="images/blueLumityaLogo.svg" alt="Lumitya Logo" style="height:62px;width:auto;object-fit:contain">
+        <span style="font-family:'Sora',sans-serif;font-size:1.4rem;font-weight:700;color:#0F1F4B">Lumitya</span>
+      </div>
+      <h3 style="font-family:'Sora',sans-serif;font-size:1.2rem;color:#0F1F4B;margin:0 0 8px">Enter Password</h3>
+      <p style="font-size:.84rem;color:#64748B;line-height:1.55;margin:0 0 18px">Password access is required before this action can continue.</p>
+      <div style="position:relative;margin-bottom:12px">
+        <input id="gateInput" type="password" placeholder="Enter password" style="width:100%;font-family:'DM Sans',sans-serif;font-size:.88rem;color:#0F172A;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:10px;padding:13px 46px 13px 14px;outline:none;transition:border .2s" onkeydown="if(event.key==='Enter')checkGate()">
+        <button type="button" onclick="toggleGatePw()" aria-label="Toggle password visibility" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);border:none;background:transparent;cursor:pointer;padding:4px">
+          <svg id="eyeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+        </button>
+      </div>
+      <div id="gateErr" style="display:none;font-size:.74rem;color:#DC2626;margin-bottom:10px;font-weight:600;animation:shake .3s ease">Incorrect password. Please try again.</div>
+      <button type="button" onclick="checkGate()" id="gateBtn" data-feature="password_gate" style="width:100%;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:700;color:#fff;background:#2B4DB3;border:none;border-radius:10px;padding:13px;cursor:pointer;transition:all .2s;box-shadow:0 4px 14px rgba(43,77,179,.3)" onmouseover="this.style.background='#3B5FC0'" onmouseout="this.style.background='#2B4DB3'">Enter</button>
+      <p style="font-size:.68rem;color:#9CA3AF;margin-top:18px"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-lock-secure.svg" alt=""> Secured with SHA-256 · Password never stored in plain text</p>
+    </div>
+  </div>
+
+
+
+
+  <div class="ab" id="ab" data-feature="home_page">
+    <strong data-i18n="disclaimer_head">Lumitya is a digital listing &amp; matching platform.</strong>
+    <span data-i18n="disclaimer_body">We connect homeowners with independent contractors and material suppliers. We do not supervise, guarantee, or
+      endorse any work or products.</span>
+    <button class="abx" onclick="document.getElementById('ab').style.display='none'"
+      aria-label="Dismiss">&#10005;</button>
+  </div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nl" onclick="go('home')" role="button" aria-label="Home" data-feature="home_page">
+      <div class="nli" style="width:80px;height:80px;display:flex;align-items:center;justify-content:center">
+        <img src="images/blueLumityaLogo.svg" alt="Lumitya" style="height:62px;width:auto;object-fit:contain">
+      </div>
+      <div class="nlw">
+        <span class="nlt">Lumitya</span>
+        <span class="nltg">Connecting Local Expertise.</span>
+      </div>
+    </div>
+    <div class="nr">
+      <div class="ls">
+        <button class="lb" id="ben" onclick="setLang('en')" data-feature="language_switcher">EN</button>
+        <button class="lb on" id="bes" onclick="setLang('es')" data-feature="language_switcher">ES</button>
+      </div>
+      <button class="nbtn" id="nvd" onclick="go('directory')" data-feature="provider_directory"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-search-providers.svg" alt=""> <span data-i18n="findProviders">Find
+        Providers</span></button>
+      <button class="nbtn" id="nvp" onclick="go('pricing')" data-i18n="forContractors" data-feature="pricing_page">For
+        Contractors</button>
+      <button class="nbtn-primary" onclick="openSupplier()" data-feature="supplier_application"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-supplier-store.svg" alt=""> <span data-i18n="joinSupplier">Join as Supplier</span></button>
+        <button class="nbtn-cta" onclick="openMatch()" data-i18n="getMatched" data-feature="service_request_form">Service
+          Request - Free</button>
+    </div>
+    <!-- Mobile language switcher: visible only on mobile (displayed between logo and hamburger) -->
+    <div class="mob-lang-sw" id="mobLangSw">
+      <button class="lb" id="mben2" onclick="setLang('en')" data-feature="language_switcher">EN</button>
+      <button class="lb on" id="mbes2" onclick="setLang('es')" data-feature="language_switcher">ES</button>
+    </div>
+    <button class="hbg" id="hbgBtn" onclick="toggleMobNav()" aria-label="Menu" data-feature="mobile_responsive">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- MOBILE NAV DRAWER -->
+  <div class="mob-nav" id="mobNav" data-feature="mobile_responsive">
+    <div class="mob-overlay" onclick="toggleMobNav()"></div>
+    <div class="mob-drawer">
+      <div class="mob-hdr">
+        <div class="nl" onclick="go('home');toggleMobNav()" style="cursor:pointer" data-feature="home_page">
+          <div class="nli" style="width:34px;height:34px">
+            <img src="images/blueLumityaLogo.svg" alt="Lumitya" style="height:19px;width:auto;object-fit:contain">
+          </div>
+          <span class="nlt" style="font-size:.92rem">Lumitya</span>
+        </div>
+        <button class="mob-cls" onclick="toggleMobNav()">&#10005;</button>
+      </div>
+      <div class="mob-body">
+        <div
+          style="display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 0 14px;border-bottom:1px solid var(--bd);margin-bottom:8px;background:var(--bp);margin:-16px -18px 8px;padding-left:18px;padding-right:18px;padding-top:14px;padding-bottom:14px;border-radius:0">
+          <span style="font-size:.76rem;font-weight:600;color:var(--gr);text-transform:uppercase;letter-spacing:.06em"
+            data-i18n-mob-lang="true">Language</span>
+          <div class="ls" style="transform:scale(1.15)">
+            <button class="lb" id="mben" onclick="setLang('en');syncLangBtns('en')"
+              data-feature="language_switcher">EN</button>
+            <button class="lb on" id="mbes" onclick="setLang('es');syncLangBtns('es')"
+              data-feature="language_switcher">ES</button>
+          </div>
+        </div>
+        <button class="nbtn" id="mob-nvd" onclick="go('directory');toggleMobNav()" data-feature="provider_directory"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-search-providers.svg" alt=""> <span data-i18n="findProviders">Find Providers</span></button>
+        <button class="nbtn" id="mob-nvp" onclick="go('pricing');toggleMobNav()" data-i18n="forContractors"
+          data-feature="pricing_page">For
+          Contractors</button>
+        <button class="nbtn-primary" id="mob-nsup" onclick="closeMobNav();openSupplier()" data-feature="supplier_application"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-supplier-store.svg" alt=""> <span data-i18n="joinSupplier">Join as Supplier</span></button>
+        <div class="mob-dvd"></div>
+        <button class="nbtn-cta" onclick="closeMobNav();openMatch()" data-i18n="getMatched"
+          data-feature="service_request_form">Service Request - Free</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOME PAGE -->
+  <div class="page active" id="page-home" data-feature="home_page">
+    <section class="hero">
+      <div class="hi">
+        <div>
+          <h1>
+            <span data-i18n="h_title">Find a Local Professional for Your Home Project.</span><br>
+            <em data-i18n="h_title_em">In Under 2 Minutes.</em>
+          </h1>
+          <p class="hs" data-i18n="h_desc">Submit your project request and independent contractors in Guadalajara &amp; Zapopan will reach out to you directly — no middleman, no commission, no hassle.</p>
+
+          <div class="hd"><strong>Platform notice:</strong> <span data-i18n="h_notice">Lumitya provides a listing and
+              matching service only. We do not supervise, guarantee, or endorse any work. All agreements are made
+              directly between homeowners and providers.</span></div>
+          <div class="uwarn uwarn--hero" data-feature="home_safety_notice">
+            <div class="uwarn-title"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-safety-warning.svg" alt=""> <span data-i18n="safety_tip_title">Safety Tip:</span></div>
+            <p data-i18n="safety_tip_body">Lumitya only connects you with independent providers. Always verify credentials, request written agreements, and avoid making advance payments without proper safeguards.</p>
+          </div>
+          <div class="ha">
+            <button class="bh" onclick="openMatch()" data-i18n="h_btn1" data-feature="service_request_form">Find
+              Providers</button>
+            <button class="bho" onclick="go('directory')" data-i18n="h_btn2" data-feature="provider_directory">Browse
+              Listings</button>
+            <button class="bho" onclick="openProv()" data-i18n="h_btn3" data-feature="home_join_provider_button">Join as
+              Provider</button>
+          </div>
+        </div>
+        <div class="hv" data-feature="premium_featured_listing">
+          <div class="hcs">
+            <div class="hc">
+              <div class="hcl">Homeowner Request</div>
+              <div class="hct">Kitchen Renovation</div>
+              <div class="hcr">
+                <div class="hcd"></div><span class="hss">Budget: MXN 25,000</span>
+              </div>
+              <div class="hcr">
+                <div class="hcd" style="background:#93C5FD"></div><span class="hss">Expected start date: Apr 2026</span>
+              </div>
+              <div class="hcr">
+                <div class="hcd" style="background:#FCD34D"></div><span class="hss">Colony: Americana</span>
+              </div>
+            </div>
+            <div class="hc">
+              <div class="hcl">Homeowner Request</div>
+              <div class="hct">Bathroom Remodel</div>
+              <div class="hcr">
+                <div class="hcd"></div><span class="hss">Budget: MXN 18,000</span>
+              </div>
+              <div class="hcr">
+                <div class="hcd" style="background:#93C5FD"></div><span class="hss">Expected start date: Mar 2026</span>
+              </div>
+              <div class="hcr">
+                <div class="hcd" style="background:#FCD34D"></div><span class="hss">Colony: Providencia</span>
+              </div>
+            </div>
+            <div class="hc">
+              <div class="hcl">Homeowner Request</div>
+              <div class="hct">Roof Waterproofing</div>
+              <div class="hcr">
+                <div class="hcd"></div><span class="hss">Budget: MXN 12,000</span>
+              </div>
+              <div class="hcr">
+                <div class="hcd" style="background:#93C5FD"></div><span class="hss">Expected start date: May 2026</span>
+              </div>
+              <div class="hcr">
+                <div class="hcd" style="background:#FCD34D"></div><span class="hss">Colony: Chapalita</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="how" id="homeProviderSignals" data-feature="home_provider_signals">
+      <div class="si">
+        <span class="stg" data-i18n="home_provider_stats_tag">Live Directory Snapshot</span>
+        <h2 id="homeProviderCountLine" data-i18n="home_provider_count_generic">Local providers available</h2>
+        <ul class="bls" style="margin-top:14px">
+          <li><span class="bch"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span data-i18n="home_provider_signal_verified">Profiles with verified information</span></li>
+          <li><span class="bch"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span data-i18n="home_provider_signal_growth">Growing network of independent professionals</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="how">
+      <div class="si">
+        <span class="stg" data-i18n="how_title">How It Works</span>
+        <h2 data-i18n="how_subtitle">Fast. Simple. Transparent.</h2>
+        <p class="ss" data-i18n="how_desc">Three steps to connect with independent service providers in your area.</p>
+        <div class="sr">
+          <div class="step">
+            <div class="snum">01</div>
+            <h3 data-i18n="step1_title">1. Describe Your Project</h3>
+            <p data-i18n="step1_desc">Tell us what you need.</p>
+          </div>
+          <div class="step">
+            <div class="snum">02</div>
+            <h3 data-i18n="step2_title">2. Get Connected</h3>
+            <p data-i18n="step2_desc">We share your request with relevant local providers.</p>
+          </div>
+          <div class="step">
+            <div class="snum">03</div>
+            <h3 data-i18n="step3_title">3. Choose with Confidence</h3>
+            <p data-i18n="step3_desc">Compare options and hire the provider that fits your needs.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="svc" data-feature="category_chips">
+      <div class="si">
+        <span class="stg" data-i18n="cat_title">Service Categories</span>
+        <h2 data-i18n="cat_title">Browse by Category</h2>
+        <p class="ss" data-i18n="cat_desc">Independent professionals and suppliers across the most common home service
+          categories.</p>
+        <div class="sg" id="catCardGrid">
+          <div class="sc">
+            <div class="sci"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/category-architecture.svg" alt="Architecture"></div>
+            <h3 data-i18n="arch">Architecture &amp; Design</h3>
+            <p data-i18n="arch_d">Architects and designers for new builds, additions, and redesigns.</p>
+          </div>
+          <div class="sc">
+            <div class="sci"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/category-plumbing.svg" alt="Plumbing"></div>
+            <h3 data-i18n="plumb">Plumbing</h3>
+            <p data-i18n="plumb_d">Independent plumbers for installations, pipe repairs, and drainage.</p>
+          </div>
+          <div class="sc">
+            <div class="sci"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/category-electrical.svg" alt="Electrical"></div>
+            <h3 data-i18n="elec">Electrical</h3>
+            <p data-i18n="elec_d">Electricians for residential wiring, panels, lighting, and repairs.</p>
+          </div>
+          <div class="sc">
+            <div class="sci"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/category-roofing.svg" alt="Roofing"></div>
+            <h3 data-i18n="roof">Roof &amp; Waterproofing</h3>
+            <p data-i18n="roof_d">Roofing professionals for repair, installation, and waterproofing.</p>
+          </div>
+          <div class="sc">
+            <div class="sci"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/category-materials.svg" alt="Materials"></div>
+            <h3 data-i18n="mat">Material Supply</h3>
+            <p data-i18n="mat_d">Suppliers of cement, steel, concrete, sand, and building materials with delivery.</p>
+          </div>
+          <div class="sc">
+            <div class="sci"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/category-painting.svg" alt="Renovation"></div>
+            <h3 data-i18n="reno">Renovation &amp; Remodeling</h3>
+            <p data-i18n="reno_d">Contractors for full-room or whole-home renovation projects.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="plat">
+      <div class="pin">
+        <div>
+          <span class="stg" data-i18n="about_title">What Lumitya Is</span>
+          <h2 data-i18n="about_title">A Digital Matching Platform — Nothing More.</h2>
+          <p class="ss" data-i18n="about_desc">We built Lumitya to make it easier to connect with local providers. We do not
+            manage, supervise, or participate in any work.</p>
+          <div class="pdsc" data-i18n="about_disclaimer">Lumitya does <strong>not</strong> employ, supervise, certify,
+            or endorse any provider. All contractors are independent third parties. Any agreement is directly between
+            you and the provider. Always conduct your own due diligence before hiring.</div>
+        </div>
+        <div class="pits">
+          <div class="pit">
+            <div class="piic"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/icon-search-providers.svg" alt="Matching"></div>
+            <div>
+              <div class="pitn" data-i18n="pit1_title">Digital Listing &amp; Matching</div>
+              <div class="pidc" data-i18n="pit1_desc">We list independent contractors and route your request to relevant
+                ones in your area.</div>
+            </div>
+          </div>
+          <div class="pit">
+            <div class="piic"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/icon-profile-user.svg" alt="Identity"></div>
+            <div>
+              <div class="pitn" data-i18n="pit2_title">Identity Check (INE / CURP)</div>
+              <div class="pidc" data-i18n="pit2_desc">We collect basic identity documents for listing purposes only. NOT
+                professional license verification.</div>
+            </div>
+          </div>
+          <div class="pit">
+            <div class="piic"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/icon-success-check.svg" alt="Reviews"></div>
+            <div>
+              <div class="pitn" data-i18n="pit3_title">User Reviews</div>
+              <div class="pidc" data-i18n="pit3_desc">Reviews reflect user opinions only. Lumitya does not guarantee
+                their accuracy.</div>
+            </div>
+          </div>
+          <div class="pit">
+            <div class="piic"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/icon-important-alert.svg" alt="Agreement"></div>
+            <div>
+              <div class="pitn" data-i18n="pit4_title">Your Agreement, Your Risk</div>
+              <div class="pidc" data-i18n="pit4_desc">Any contract or dispute is solely between you and the provider.
+                Lumitya is not a party to any agreement.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="trust-sec">
+      <div class="si">
+        <span class="stg" data-i18n="trust_tag">TRUST SYSTEM</span>
+        <h2 data-i18n="trust_title">Verification Levels</h2>
+        <p class="ss" data-i18n="trust_desc">Neutral profile and activity signals to help users evaluate independent service providers without implying endorsement or specific performance outcomes.</p>
+        <div class="trust-grid">
+          <article class="trust-card">
+            <div class="trust-level" data-i18n="trust_l1_label">Level 1</div>
+            <h3 data-i18n="trust_l1_title">Basic Verification</h3>
+            <ul class="trust-list">
+              <li><span class="bch"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span data-i18n="trust_l1_i1">Identity document submitted (INE/CURP)</span></li>
+            </ul>
+          </article>
+          <article class="trust-card">
+            <div class="trust-level" data-i18n="trust_l2_label">Level 2</div>
+            <h3 data-i18n="trust_l2_title">Verified Profile</h3>
+            <ul class="trust-list">
+              <li><span class="bch"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span data-i18n="trust_l2_i1">Identity verified</span></li>
+              <li><span class="bch"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span data-i18n="trust_l2_i2">Contact validated</span></li>
+              <li><span class="bch"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span data-i18n="trust_l2_i3">Work references provided</span></li>
+            </ul>
+          </article>
+          <article class="trust-card">
+            <div class="trust-level" data-i18n="trust_l3_label">Level 3</div>
+            <h3 data-i18n="trust_l3_title">Established Profile</h3>
+            <ul class="trust-list">
+              <li><span class="bch"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span data-i18n="trust_l3_i1">Verified profile</span></li>
+              <li><span class="bch"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span data-i18n="trust_l3_i2">Completed jobs via platform</span></li>
+              <li><span class="bch"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span data-i18n="trust_l3_i3">Positive user reviews</span></li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="fp">
+      <div class="si">
+        <div class="fpi">
+          <div>
+            <span class="stg" data-i18n="fp_tag">For Suppliers &amp; Contractors</span>
+            <h2 data-i18n="list_title">Grow your business with consistent visibility.</h2>
+            <p style="color:var(--gr);line-height:1.74;font-size:.95rem" data-i18n="list_desc">Join Lumitya to receive project requests from homeowners in your area. No commissions - just access to opportunities.</p>
+            <p style="color:var(--gr);line-height:1.6;font-size:.85rem;margin-top:8px" data-i18n="list_expectation_note">Results may vary depending on location, demand, and profile activity.</p>
+            <ul class="bls">
+              <li><span class="bch"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span data-i18n="list_b1">Increase your local visibility</span></li>
+              <li><span class="bch"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span data-i18n="list_b2">Receive project requests based on demand and availability in your area</span></li>
+              <li><span class="bch"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span data-i18n="list_b3">Manage your profile and availability</span></li>
+              <li><span class="bch"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span data-i18n="list_b4">You remain fully independent</span></li>
+            </ul>
+            <div style="display:flex;gap:11px;flex-wrap:wrap">
+              <button class="bh" onclick="go('pricing')" data-i18n="list_btn1">See Plans &amp; Pricing</button>
+              <button class="bho" onclick="openSupplier()" data-feature="supplier_application"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-supplier-store.svg" alt=""> <span data-i18n="joinSupplier">Join as Supplier</span></button>
+            </div>
+          </div>
+          <div class="pvlist" data-feature="premium_featured_listing" aria-label="Featured providers">
+            <div class="pvc pvc--promo">
+              <div class="pv-badge pv-badge--lvl2" data-i18n="trust_l2_label">Level 2</div>
+              <div class="pvh">
+                <div class="pvav">AM</div>
+                <div>
+                  <div class="pvnm">Alberto Mora</div>
+                  <div class="pvrl">Material Supplier · Guadalajara</div>
+                </div>
+              </div>
+              <div class="pvst">
+                <div class="pvs">
+                  <div class="pvsn">120</div>
+                  <div class="pvsl" data-i18n="profile_completed_jobs">Completed jobs</div>
+                </div>
+                <div class="pvs">
+                  <div class="pvsn">4.6</div>
+                  <div class="pvsl" data-i18n="profile_user_ratings">User ratings</div>
+                </div>
+              </div>
+              <div class="pv-meta">
+                <div class="pv-meta-item"><span class="pv-meta-lbl" data-i18n="profile_verification">Verification</span><span class="pv-meta-val" data-i18n="trust_l2_title">Verified Profile</span></div>
+                <div class="pv-meta-item"><span class="pv-meta-lbl" data-i18n="profile_last_active">Last active</span><span class="pv-meta-val">2h ago</span></div>
+                <div class="pv-meta-item"><span class="pv-meta-lbl" data-i18n="profile_response_rate">Response rate</span><span class="pv-meta-val">94%</span></div>
+              </div>
+              <div class="pvdn">Independent provider. Not employed or supervised by Lumitya. Payment = listing
+                visibility only.</div>
+              <div class="pv-report">
+                <div class="pv-report-title" data-i18n="report_issue_title">Report Issue</div>
+                <div class="pv-report-tags">
+                  <span class="pv-report-tag" data-i18n="report_issue_fraud">Suspected fraud</span>
+                  <span class="pv-report-tag" data-i18n="report_issue_noshow">No-show</span>
+                  <span class="pv-report-tag" data-i18n="report_issue_misrep">Misrepresentation</span>
+                </div>
+                <button class="pv-btn pv-btn--ghost" onclick="openProviderReport('', 'Alberto Mora')" data-i18n="report_provider_btn">Report this provider</button>
+              </div>
+            </div>
+
+            <div class="pvc pvc--promo">
+              <div class="pv-badge pv-badge--lvl3" data-i18n="trust_l3_label">Level 3</div>
+              <div class="pvh">
+                <div class="pvav" style="background:var(--bm)">SR</div>
+                <div>
+                  <div class="pvnm">Sofia Rivera</div>
+                  <div class="pvrl">Electrical · Zapopan</div>
+                </div>
+              </div>
+              <div class="pvst">
+                <div class="pvs">
+                  <div class="pvsn">88</div>
+                  <div class="pvsl" data-i18n="profile_completed_jobs">Completed jobs</div>
+                </div>
+                <div class="pvs">
+                  <div class="pvsn">4.8</div>
+                  <div class="pvsl" data-i18n="profile_user_ratings">User ratings</div>
+                </div>
+              </div>
+              <div class="pv-meta">
+                <div class="pv-meta-item"><span class="pv-meta-lbl" data-i18n="profile_verification">Verification</span><span class="pv-meta-val" data-i18n="trust_l3_title">Established Profile</span></div>
+                <div class="pv-meta-item"><span class="pv-meta-lbl" data-i18n="profile_last_active">Last active</span><span class="pv-meta-val">45m ago</span></div>
+                <div class="pv-meta-item"><span class="pv-meta-lbl" data-i18n="profile_response_rate">Response rate</span><span class="pv-meta-val">97%</span></div>
+              </div>
+              <div class="pvdn">Independent provider. Not employed or supervised by Lumitya. Service agreements are
+                directly with the provider.</div>
+              <div class="pv-report">
+                <div class="pv-report-title" data-i18n="report_issue_title">Report Issue</div>
+                <div class="pv-report-tags">
+                  <span class="pv-report-tag" data-i18n="report_issue_fraud">Suspected fraud</span>
+                  <span class="pv-report-tag" data-i18n="report_issue_noshow">No-show</span>
+                  <span class="pv-report-tag" data-i18n="report_issue_misrep">Misrepresentation</span>
+                </div>
+                <button class="pv-btn pv-btn--ghost" onclick="openProviderReport('', 'Sofia Rivera')" data-i18n="report_provider_btn">Report this provider</button>
+              </div>
+            </div>
+
+            <div class="pvc pvc--promo">
+              <div class="pv-badge pv-badge--lvl3" data-i18n="trust_l3_label">Level 3</div>
+              <div class="pvh">
+                <div class="pvav" style="background:var(--bl)">JG</div>
+                <div>
+                  <div class="pvnm">Jorge García</div>
+                  <div class="pvrl">Plumbing · Guadalajara</div>
+                </div>
+              </div>
+              <div class="pvst">
+                <div class="pvs">
+                  <div class="pvsn">102</div>
+                  <div class="pvsl" data-i18n="profile_completed_jobs">Completed jobs</div>
+                </div>
+                <div class="pvs">
+                  <div class="pvsn">4.7</div>
+                  <div class="pvsl" data-i18n="profile_user_ratings">User ratings</div>
+                </div>
+              </div>
+              <div class="pv-meta">
+                <div class="pv-meta-item"><span class="pv-meta-lbl" data-i18n="profile_verification">Verification</span><span class="pv-meta-val" data-i18n="trust_l3_title">Established Profile</span></div>
+                <div class="pv-meta-item"><span class="pv-meta-lbl" data-i18n="profile_last_active">Last active</span><span class="pv-meta-val">3h ago</span></div>
+                <div class="pv-meta-item"><span class="pv-meta-lbl" data-i18n="profile_response_rate">Response rate</span><span class="pv-meta-val">95%</span></div>
+              </div>
+              <div class="pvdn">Independent provider. Not employed or supervised by Lumitya. Listing visibility only.
+              </div>
+              <div class="pv-report">
+                <div class="pv-report-title" data-i18n="report_issue_title">Report Issue</div>
+                <div class="pv-report-tags">
+                  <span class="pv-report-tag" data-i18n="report_issue_fraud">Suspected fraud</span>
+                  <span class="pv-report-tag" data-i18n="report_issue_noshow">No-show</span>
+                  <span class="pv-report-tag" data-i18n="report_issue_misrep">Misrepresentation</span>
+                </div>
+                <button class="pv-btn pv-btn--ghost" onclick="openProviderReport('', 'Jorge García')" data-i18n="report_provider_btn">Report this provider</button>
+              </div>
+            </div>
+
+            <div class="pvc pvc--promo">
+              <div class="pv-badge pv-badge--lvl3" data-i18n="trust_l3_label">Level 3</div>
+              <div class="pvh">
+                <div class="pvav" style="background:var(--dk)">LM</div>
+                <div>
+                  <div class="pvnm">Lucía Martínez</div>
+                  <div class="pvrl">Painting · Zapopan</div>
+                </div>
+              </div>
+              <div class="pvst">
+                <div class="pvs">
+                  <div class="pvsn">76</div>
+                  <div class="pvsl" data-i18n="profile_completed_jobs">Completed jobs</div>
+                </div>
+                <div class="pvs">
+                  <div class="pvsn">4.9</div>
+                  <div class="pvsl" data-i18n="profile_user_ratings">User ratings</div>
+                </div>
+              </div>
+              <div class="pv-meta">
+                <div class="pv-meta-item"><span class="pv-meta-lbl" data-i18n="profile_verification">Verification</span><span class="pv-meta-val" data-i18n="trust_l3_title">Established Profile</span></div>
+                <div class="pv-meta-item"><span class="pv-meta-lbl" data-i18n="profile_last_active">Last active</span><span class="pv-meta-val">1h ago</span></div>
+                <div class="pv-meta-item"><span class="pv-meta-lbl" data-i18n="profile_response_rate">Response rate</span><span class="pv-meta-val">98%</span></div>
+              </div>
+              <div class="pvdn">Independent provider. Not employed or supervised by Lumitya. Quotes and payments handled
+                directly.</div>
+              <div class="pv-report">
+                <div class="pv-report-title" data-i18n="report_issue_title">Report Issue</div>
+                <div class="pv-report-tags">
+                  <span class="pv-report-tag" data-i18n="report_issue_fraud">Suspected fraud</span>
+                  <span class="pv-report-tag" data-i18n="report_issue_noshow">No-show</span>
+                  <span class="pv-report-tag" data-i18n="report_issue_misrep">Misrepresentation</span>
+                </div>
+                <button class="pv-btn pv-btn--ghost" onclick="openProviderReport('', 'Lucía Martínez')" data-i18n="report_provider_btn">Report this provider</button>
+              </div>
+            </div>
+
+            <div class="pvc pvc--promo">
+              <div class="pv-badge pv-badge--lvl2" data-i18n="trust_l2_label">Level 2</div>
+              <div class="pvh">
+                <div class="pvav" style="background:var(--gr)">DC</div>
+                <div>
+                  <div class="pvnm">Diego Cruz</div>
+                  <div class="pvrl">Roof &amp; Waterproofing · Guadalajara</div>
+                </div>
+              </div>
+              <div class="pvst">
+                <div class="pvs">
+                  <div class="pvsn">64</div>
+                  <div class="pvsl" data-i18n="profile_completed_jobs">Completed jobs</div>
+                </div>
+                <div class="pvs">
+                  <div class="pvsn">4.5</div>
+                  <div class="pvsl" data-i18n="profile_user_ratings">User ratings</div>
+                </div>
+              </div>
+              <div class="pv-meta">
+                <div class="pv-meta-item"><span class="pv-meta-lbl" data-i18n="profile_verification">Verification</span><span class="pv-meta-val" data-i18n="trust_l2_title">Verified Profile</span></div>
+                <div class="pv-meta-item"><span class="pv-meta-lbl" data-i18n="profile_last_active">Last active</span><span class="pv-meta-val">6h ago</span></div>
+                <div class="pv-meta-item"><span class="pv-meta-lbl" data-i18n="profile_response_rate">Response rate</span><span class="pv-meta-val">91%</span></div>
+              </div>
+              <div class="pvdn">Independent provider. Not employed or supervised by Lumitya. Listing visibility only.
+              </div>
+              <div class="pv-report">
+                <div class="pv-report-title" data-i18n="report_issue_title">Report Issue</div>
+                <div class="pv-report-tags">
+                  <span class="pv-report-tag" data-i18n="report_issue_fraud">Suspected fraud</span>
+                  <span class="pv-report-tag" data-i18n="report_issue_noshow">No-show</span>
+                  <span class="pv-report-tag" data-i18n="report_issue_misrep">Misrepresentation</span>
+                </div>
+                <button class="pv-btn pv-btn--ghost" onclick="openProviderReport('', 'Diego Cruz')" data-i18n="report_provider_btn">Report this provider</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="local">
+      <div class="si">
+        <span class="stg" data-i18n="wwo_tag">Where We Operate</span>
+        <h2 data-i18n="active_title">Active in Guadalajara &amp; Zapopan</h2>
+        <p style="color:var(--gr);font-size:.91rem;line-height:1.7;max-width:500px;margin:0 auto"
+          data-i18n="active_desc">We started here to build a focused, quality network. More cities across Jalisco coming
+          in 2026.</p>
+        <div class="ccs">
+          <div class="cc on">
+            <div class="ccdot"></div>
+            <div class="ccic"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/icon-city-active.svg" alt="Active city"></div>
+            <div class="ccn">Guadalajara</div>
+            <div class="ccst">Jalisco, México</div>
+            <div class="ccb lv"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""> <span data-i18n="city_active">Active</span></div>
+          </div>
+          <div class="cc on">
+            <div class="ccdot"></div>
+            <div class="ccic"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/icon-city-active.svg" alt="Active city"></div>
+            <div class="ccn">Zapopan</div>
+            <div class="ccst">Jalisco, México</div>
+            <div class="ccb lv"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""> <span data-i18n="city_active">Active</span></div>
+          </div>
+          <div class="cc off">
+            <div class="ccic" style="opacity:.4"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/icon-city-soon.svg" alt="Soon city"></div>
+            <div class="ccn" style="opacity:.5">Tlaquepaque</div>
+            <div class="ccst" style="opacity:.4">Jalisco</div>
+            <div class="ccb sn2"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-coming-soon-hourglass.svg" alt=""> <span data-i18n="city_soon">Soon</span></div>
+          </div>
+          <div class="cc off">
+            <div class="ccic" style="opacity:.4"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/icon-city-soon.svg" alt="Soon city"></div>
+            <div class="ccn" style="opacity:.5">Tonalá</div>
+            <div class="ccst" style="opacity:.4">Jalisco</div>
+            <div class="ccb sn2"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-coming-soon-hourglass.svg" alt=""> <span data-i18n="city_soon">Soon</span></div>
+          </div>
+        </div>
+        <div class="expb"><span><img class="ui-icon ui-icon-md" src="/images/lumitya-icons/icon-get-listed-rocket.svg" alt=""></span>
+          <div><strong style="color:var(--bl);font-size:.85rem" data-i18n="expand_title">Growing city by city.</strong>
+            <span style="font-size:.82rem;color:var(--gr)" data-i18n="expand_desc">Quality first. More Jalisco cities in
+              2026.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="fcta">
+      <h2 data-i18n="footer_title">Need a Home Service Provider?</h2>
+      <p data-i18n="footer_desc">Submit your request in under 2 minutes. We forward it to listed independent service providers in your
+        area.</p>
+      <button class="bcw" onclick="openMatch()" data-i18n="footer_btn">Submit a Request</button>
+    </section>
+
+    <section>
+      <div class="si" style="padding-top:0">
+        <div class="uwarn uwarn--hero home-fraud-card" style="max-width:760px;margin:0 auto 24px">
+          <div class="uwarn-title" data-i18n="home_fraud_title">Report fraud</div>
+          <p data-i18n="home_fraud_desc">If you suspect fraud, report it immediately and include any relevant details so our team can review it.</p>
+          <a class="bh fraud-mail-btn" href="mailto:contact@lumitya.com?subject=Report%20a%20fraud" data-i18n="home_fraud_btn">Report a fraud</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="share-sec" data-feature="social_share_section">
+      <div class="share-wrap">
+        <span class="share-tag" data-i18n="share_tag">Share Lumitya</span>
+        <h2 data-i18n="share_title">Share Lumitya with your network</h2>
+        <p data-i18n="share_desc">Help more homeowners discover Lumitya on their favorite apps and social platforms.</p>
+        <div class="share-grid">
+          <button class="share-btn share-native" type="button" onclick="shareSite('native')">
+            <span class="share-ico"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-search-providers.svg" alt=""></span><span data-i18n="share_native">Share</span>
+          </button>
+          <button class="share-btn share-copy" type="button" onclick="shareSite('copy')">
+            <span class="share-ico">⎘</span><span data-i18n="share_copy">Copy Link</span>
+          </button>
+          <button class="share-btn share-facebook" type="button" onclick="shareSite('facebook')">
+            <span class="share-ico">f</span><span data-i18n="share_facebook">Facebook</span>
+          </button>
+          <button class="share-btn share-whatsapp" type="button" onclick="shareSite('whatsapp')">
+            <span class="share-ico">✆</span><span data-i18n="share_whatsapp">WhatsApp</span>
+          </button>
+          <button class="share-btn share-telegram" type="button" onclick="shareSite('telegram')">
+            <span class="share-ico"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-contact-phone.svg" alt=""></span><span data-i18n="share_telegram">Telegram</span>
+          </button>
+          <button class="share-btn share-x" type="button" onclick="shareSite('x')">
+            <span class="share-ico">X</span><span data-i18n="share_x">X</span>
+          </button>
+        </div>
+        <p class="share-feedback" id="shareFeedback" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <footer>
+      <div class="fi">
+        <div>
+          <div class="flo">
+            <div class="fli"><img src="images/whiteLumityaLogo.svg" alt="Lumitya"
+                style="height:50px;width:auto;object-fit:contain"></div>
+            <div class="flw"><span class="flt">Lumitya</span><span class="fltg" data-i18n="footer_tagline">Connecting
+                Local Expertise.</span></div>
+          </div>
+          <p class="fab" data-i18n="footer_location">Digital platform. Guadalajara &amp; Zapopan, Mexico.</p>
+          <div class="fln" data-i18n="footer_disclaimer">Technology platform only. We do not employ, supervise, or
+            endorse contractors. All agreements are solely between homeowners and independent providers.</div>
+        </div>
+        <div data-feature="footer_platform_column">
+          <h4 data-i18n="footer_platform">Platform</h4>
+          <ul>
+            <li data-feature="footer_link_home"><a onclick="go('home')" data-i18n="footer_home">Home</a></li>
+            <li data-feature="footer_link_directory"><a onclick="go('directory')" data-i18n="footer_find">Find
+                Providers</a></li>
+            <li data-feature="footer_link_pricing"><a onclick="go('pricing')" data-i18n="footer_contractors">For
+                Contractors</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 data-i18n="footer_legal">Legal</h4>
+          <ul>
+            <li data-feature="terms_page"><a href="/terms" onclick="go('terms'); return false;"
+                data-i18n="footer_terms">Terms &amp; Conditions</a></li>
+            <li data-feature="privacy_page"><a href="/privacy" onclick="go('privacy'); return false;"
+                data-i18n="footer_privacy">Privacy Notice</a></li>
+            <li data-feature="dispute_guidance"><a href="/dispute" onclick="go('dispute'); return false;"
+                data-i18n="footer_dispute_guidance">Dispute Guidance</a></li>
+            <li data-feature="provider_agreement_page"><a href="/provider-agreement" onclick="go('pagree'); return false;"
+                data-i18n="footer_provider_agreement">Provider Agreement</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 data-i18n="footer_contact">Contact</h4>
+          <ul>
+            <li><a href="mailto:contact@lumitya.com">contact@lumitya.com</a></li>
+            <li><a href="https://wa.me/523347880249" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp +52 33 4788 0249" title="WhatsApp"><svg width="14" height="14" viewBox="0 0 32 32" fill="none" style="vertical-align:-2px"><circle cx="16" cy="16" r="16" fill="#25D366"/><path d="M24.2 20.5c-.3.8-1.7 1.6-2.3 1.7-.6.1-1.3.2-2.2-.1-.5-.2-1.2-.4-2.1-.8-3.6-1.6-6-5.4-6.2-5.7-.2-.3-1.5-2-.5-3.8.5-.9 1-1.1 1.4-1.1h1c.3 0 .6 0 .9.7.3.8 1 2.6 1.1 2.8.1.2.1.5 0 .7-.1.2-.2.4-.4.6-.2.2-.4.4-.5.5-.2.2-.3.4-.1.8.2.4.9 1.5 2 2.5 1.4 1.2 2.6 1.6 3 1.8.4.2.6.1.8-.1.2-.2.8-.9 1-1.2.2-.3.5-.3.8-.2.3.1 2 .9 2.3 1 .3.2.5.2.6.3.1.1.1.8-.2 1.6Z" fill="white"/></svg> <span>+52 33 4788 0249</span></a></li>
+            <li><a>Guadalajara, Jalisco</a></li>
+            <li><a>México</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="fbt"><span data-i18n="footer_rights">&#169; 2026 Lumitya. All rights reserved.</span><span><a
+            href="/terms" data-feature="terms_page" onclick="go('terms'); return false;" style="color:rgba(255,255,255,.32);cursor:pointer"
+            data-i18n="footer_terms">Terms</a>
+          &#183; <a href="/privacy" data-feature="privacy_page" onclick="go('privacy'); return false;"
+            style="color:rgba(255,255,255,.32);cursor:pointer" data-i18n="footer_privacy">Privacy</a></span></div>
+    </footer>
+  </div>
+
+  <!-- PRICING PAGE -->
+  <div class="page" id="page-pricing" data-feature="pricing_page">
+    <div class="ph">
+      <h1 data-i18n="pricing_title">Simple, Transparent Pricing</h1>
+      <p data-i18n="pricing_subtitle">Monthly subscription for listing visibility. No commissions. No guarantee of work.
+      </p>
+    </div>
+    <div class="pricing">
+      <div class="si">
+        <div style="text-align:center;margin-bottom:36px"><span class="stg" data-i18n="pricing_tag">Contractor
+            Plans</span>
+          <h2 style="margin:0 auto 9px" data-i18n="pricing_choose">Choose Your Plan</h2>
+          <p style="color:var(--gr);font-size:.86rem;max-width:490px;margin:0 auto" data-i18n="pricing_desc">Guadalajara
+            &amp; Zapopan market entry pricing. Plans are for listing access only.</p>
+        </div>
+        <div class="pgd">
+          <div class="pcd ft">
+            <div class="pbdg">&#10022; <span data-i18n="plan_basic_badge">Basic Plan</span></div>
+            <h3 data-i18n="plan_basic_title">Basic Listing</h3>
+            <div class="ppr">MXN 800</div>
+            <div class="pmo" data-i18n="plan_month">/ month</div>
+            <div class="pdv"></div>
+            <ul class="pls">
+              <li><span class="pck"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span data-i18n="plan_basic_f1">Profile listing on Lumitya
+                  directory</span></li>
+              <li><span class="pck"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span data-i18n="plan_basic_f2">Up to 3 leads per month (by
+                  area)</span></li>
+              <li><span class="pck"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span data-i18n="plan_basic_f3">Rating and review visibility</span>
+              </li>
+              <li><span class="pck"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span data-i18n="plan_basic_f4">Lead notifications via email &amp;
+                  WhatsApp</span></li>
+              <li><span class="pck"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span data-i18n="plan_basic_f5">Identity-checked badge on
+                  profile</span></li>
+              <li><span class="pck"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span data-i18n="plan_basic_f6">Direct contact is not enabled.</span></li>
+            </ul>
+            <div class="pnt" data-i18n="plan_basic_note">Payment grants listing visibility only. Lumitya does not
+              guarantee leads, contracts, or revenue.</div>
+            <button class="btnP btnPm" onclick="openApplyChoice()" data-i18n="plan_basic_btn"
+              data-feature="contractor_application">Apply &amp; Get
+              Listed</button>
+          </div>
+          <div class="pcd" data-feature="premium_plans">
+            <div class="pbds">&#8987; <span data-i18n="plan_premium_badge">Coming Soon</span></div>
+            <h3 data-i18n="plan_premium_title">Premium Listing</h3>
+            <div class="ppr" style="color:var(--gr)">MXN 1,500</div>
+            <div class="pmo" data-i18n="plan_month">/ month</div>
+            <div class="pdv"></div>
+            <ul class="pls">
+              <li><span class="pck" style="background:#F3F4F6;color:var(--gr)"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span
+                  data-i18n="plan_premium_f1">Priority placement in search results</span></li>
+              <li><span class="pck" style="background:#F3F4F6;color:var(--gr)"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span
+                  data-i18n="plan_premium_f2">More leads per month</span></li>
+              <li><span class="pck" style="background:#F3F4F6;color:var(--gr)"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span
+                  data-i18n="plan_premium_f3">Highlighted profile card</span></li>
+              <li><span class="pck" style="background:#F3F4F6;color:var(--gr)"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span
+                  data-i18n="plan_premium_f4">Everything in Basic</span></li>
+              <li><span class="pck" style="background:#F3F4F6;color:var(--gr)"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span
+                  data-i18n="plan_premium_f5">Early access to new features</span></li>
+                <li><span class="pck" style="background:#F3F4F6;color:var(--gr)"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""></span><span
+                  data-i18n="plan_premium_f6">Directly reached by homeowners using the Contact button</span></li>
+            </ul>
+            <div class="pnt" data-i18n="plan_premium_note">Premium plan launching soon. Join Basic now and upgrade when
+              available.</div>
+            <button class="btnP btnPo" style="border:1.5px solid var(--bd) !important" onclick="openNotify()"
+              data-i18n="plan_premium_btn" data-feature="premium_notifications">Notify Me When Available</button>
+          </div>
+        </div>
+        <div class="pgu"><strong>Important:</strong> <span data-i18n="pricing_important">Subscription fees are for
+            platform listing access only. Lumitya does not guarantee the number of leads, project value, or revenue.
+            Fees are non-refundable unless required by law.</span></div>
+        <div style="margin-top:50px">
+          <h3
+            style="font-family:'Sora',sans-serif;text-align:center;font-size:1.15rem;color:var(--bl);margin-bottom:28px"
+            data-i18n="pricing_how_title">How to Get Listed</h3>
+          <div class="pgr">
+            <div class="pgs">
+              <div class="pgn">1</div>
+              <h4 data-i18n="pricing_step1_title">Apply Online</h4>
+              <p data-i18n="pricing_step1_desc">Fill out the supplier or provider form with your service details and
+                area.</p>
+            </div>
+            <div class="pgs">
+              <div class="pgn">2</div>
+              <h4 data-i18n="pricing_step2_title">Submit Documents</h4>
+              <p data-i18n="pricing_step2_desc">INE, proof of address, RFC (if business). Identity only — not license
+                verification.</p>
+            </div>
+            <div class="pgs">
+              <div class="pgn">3</div>
+              <h4 data-i18n="pricing_step3_title">Pay Subscription</h4>
+              <p data-i18n="pricing_step3_desc">Once approved, receive a payment link. Profile goes live after payment.
+              </p>
+            </div>
+            <div class="pgs">
+              <div class="pgn">4</div>
+              <h4 data-i18n="pricing_step4_title">Receive Leads</h4>
+              <p data-i18n="pricing_step4_desc">Get notifications via email and WhatsApp. You close the deal directly.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <div class="fi">
+        <div>
+          <div class="flo">
+            <div class="fli"><img src="images/whiteLumityaLogo.svg" alt="Lumitya"
+                style="height:50px;width:auto;object-fit:contain"></div>
+            <div class="flw"><span class="flt">Lumitya</span></div>
+          </div>
+          <p class="fab" data-i18n="footer_location">Digital platform. Guadalajara &amp; Zapopan, Mexico.</p>
+        </div>
+        <div data-feature="footer_platform_column">
+          <h4 data-i18n="footer_platform">Platform</h4>
+          <ul>
+            <li data-feature="footer_link_home"><a onclick="go('home')" data-i18n="footer_home">Home</a></li>
+            <li data-feature="footer_link_directory"><a onclick="go('directory')" data-i18n="footer_find">Find
+                Providers</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 data-i18n="footer_legal">Legal</h4>
+          <ul>
+            <li data-feature="terms_page"><a href="/terms" onclick="go('terms'); return false;" data-i18n="footer_terms">Terms &amp; Conditions</a>
+            </li>
+            <li data-feature="privacy_page"><a href="/privacy" onclick="go('privacy'); return false;" data-i18n="footer_privacy">Privacy Notice</a>
+            </li>
+            <li data-feature="dispute_guidance"><a href="/dispute" onclick="go('dispute'); return false;" data-i18n="footer_dispute_guidance">Dispute Guidance</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 data-i18n="footer_contact">Contact</h4>
+          <ul>
+            <li><a href="mailto:contact@lumitya.com">contact@lumitya.com</a></li>
+            <li><a href="https://wa.me/523347880249" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp +52 33 4788 0249" title="WhatsApp"><svg width="14" height="14" viewBox="0 0 32 32" fill="none" style="vertical-align:-2px"><circle cx="16" cy="16" r="16" fill="#25D366"/><path d="M24.2 20.5c-.3.8-1.7 1.6-2.3 1.7-.6.1-1.3.2-2.2-.1-.5-.2-1.2-.4-2.1-.8-3.6-1.6-6-5.4-6.2-5.7-.2-.3-1.5-2-.5-3.8.5-.9 1-1.1 1.4-1.1h1c.3 0 .6 0 .9.7.3.8 1 2.6 1.1 2.8.1.2.1.5 0 .7-.1.2-.2.4-.4.6-.2.2-.4.4-.5.5-.2.2-.3.4-.1.8.2.4.9 1.5 2 2.5 1.4 1.2 2.6 1.6 3 1.8.4.2.6.1.8-.1.2-.2.8-.9 1-1.2.2-.3.5-.3.8-.2.3.1 2 .9 2.3 1 .3.2.5.2.6.3.1.1.1.8-.2 1.6Z" fill="white"/></svg> <span>+52 33 4788 0249</span></a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="fbt"><span data-i18n="footer_rights">&#169; 2026 Lumitya. All rights reserved.</span></div>
+    </footer>
+  </div>
+
+  <!-- DIRECTORY PAGE -->
+  <div class="page" id="page-directory" data-feature="provider_directory">
+    <div class="dh">
+      <h1 data-i18n="dir_title">Browse Listed Providers</h1>
+      <p data-i18n="dir_desc">Independent contractors and material suppliers in Guadalajara &amp; Zapopan.</p>
+        <div class="ddc"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-safety-warning.svg" alt=""> <span data-i18n="dir_disclaimer">Lumitya lists independent contractors. We do not
+          supervise or guarantee their work. Always conduct your own due diligence before hiring.</span></div>
+      <div class="dbar">
+        <div class="dsr" data-feature="provider_search"><input type="text" id="dsearch"
+            data-i18n-placeholder="dir_search_placeholder" placeholder="Search by name or service..."
+            oninput="renderDir()"></div>
+        <select class="dsl" id="dcity" onchange="renderDir()" data-feature="provider_city_filter">
+          <option value="" data-i18n="dir_all_cities">All Cities</option>
+          <option>Guadalajara</option>
+          <option>Zapopan</option>
+        </select>
+      </div>
+      <div style="height:18px"></div>
+      <div class="dtabs">
+        <button class="dtab on" id="tabCon" onclick="setDirTab('contractors')">
+          <span class="dtab-icon"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-profile-user.svg" alt=""></span><span data-i18n="dir_contractors">Contractors</span>
+          <span class="dtab-count" id="tabConCnt">0 <span data-i18n="dir_listed">listed</span></span>
+        </button>
+        <button class="dtab" id="tabSup" onclick="setDirTab('suppliers')" data-feature="supplier_directory">
+          <span class="dtab-icon"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-supplier-store.svg" alt=""></span><span data-i18n="dir_suppliers">Suppliers</span>
+          <span class="dtab-count" id="tabSupCnt">0 listed</span>
+        </button>
+      </div>
+    </div>
+    <div class="dcw" data-feature="provider_category_filter">
+      <div class="dchs" id="catChips">
+        <button class="dch on" data-cat="" onclick="setCat(this)" data-i18n="cat_all">All</button>
+        <button class="dch" data-cat="interior design,custom furniture" onclick="setCat(this)"
+          data-i18n="cat_architecture">Architecture</button>
+        <button class="dch" data-cat="plumbing,instalaciones" onclick="setCat(this)"
+          data-i18n="cat_plumbing">Plumbing</button>
+        <button class="dch" data-cat="electrical,electricidad" onclick="setCat(this)"
+          data-i18n="cat_electrical">Electrical</button>
+        <button class="dch" data-cat="roofing" onclick="setCat(this)" data-i18n="cat_roofing">Roofing</button>
+        <button class="dch" data-cat="remodeling,construction,carpentry" onclick="setCat(this)"
+          data-i18n="cat_renovation">Renovation</button>
+        <button class="dch" data-cat="home styling" onclick="setCat(this)" data-i18n="cat_materials">Materials</button>
+        <button class="dch" data-cat="painting" onclick="setCat(this)" data-i18n="cat_painting">Painting</button>
+      </div>
+    </div>
+    <div class="dsec">
+      <div class="din">
+        <p class="dcnt" id="dcount"></p>
+        <div class="dg" id="dgrid"></div>
+        <div class="dem" id="dempty" style="display:none">
+          <div class="demico"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/icon-get-listed-rocket.svg" alt=""></div>
+          <h3 data-i18n="empty_dir_title">This area's directory is being built.</h3>
+          <p data-i18n="empty_dir_desc">We're onboarding independent providers in Guadalajara &amp; Zapopan. Check back soon — or be the first listed in your area.</p>
+          <button class="bh" onclick="openApplyChoice()" style="margin-top:16px;font-size:0.82rem" data-feature="join_modal">Apply to Get Listed</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- ADMIN IMPORT PANEL (Password Protected - Hidden by Default) -->
+    <!-- <div style="padding:0 5% 56px;background:var(--lt)"> -->
+    <!-- Password Gate -->
+    <!-- <div id="adminGate" style="max-width:420px;margin:32px auto;text-align:center">
+    <div style="background:#fff;border:1.5px solid var(--bd);border-radius:14px;padding:28px 24px;box-shadow:0 4px 16px rgba(43,77,179,.06)">
+      <div style="font-size:1.6rem;margin-bottom:10px"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/icon-lock-secure.svg" alt=""></div>
+      <h3 style="font-family:'Sora',sans-serif;font-size:.95rem;font-weight:700;color:var(--dk);margin-bottom:4px">Admin Access Required</h3>
+      <p style="font-size:.78rem;color:var(--gr);margin-bottom:16px;line-height:1.55">Enter the admin password to access the provider import tools.</p>
+      <div style="display:flex;gap:8px;max-width:320px;margin:0 auto">
+        <input type="password" id="adminPw" placeholder="Enter password" style="flex:1;font-family:'DM Sans',sans-serif;font-size:.84rem;color:var(--dk);background:var(--lt);border:1.5px solid var(--bd);border-radius:8px;padding:10px 13px;outline:none;transition:border .2s" onkeydown="if(event.key==='Enter')unlockAdmin()">
+        <button onclick="unlockAdmin()" style="font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;color:#fff;background:var(--bl);border:none;border-radius:8px;padding:10px 18px;cursor:pointer;white-space:nowrap;transition:all .2s">Unlock</button>
+      </div>
+      <div id="adminPwErr" style="display:none;font-size:.72rem;color:var(--rd);margin-top:8px">Incorrect password. Try again.</div>
+    </div>
+  </div> -->
+
+    <!-- Hidden Import Panel (shown after correct password) -->
+    <!-- <div id="adminPanel" style="display:none"> -->
+    <!-- Database Status -->
+    <!-- <div style="max-width:800px;margin:0 auto 16px">
+      <div id="fbStatus" style="padding:10px 16px;border-radius:8px 8px 0 0;font-size:.78rem;font-weight:600;display:flex;align-items:center;gap:8px;background:#F0FDF4;border:1px solid #86EFAC;color:#16A34A">
+        <span>⏳ Checking connection…</span>
+      </div> -->
+    <!-- <div style="background:var(--lt);border:1px solid var(--bd);border-top:none;border-radius:0 0 8px 8px;padding:10px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <button onclick="testSupabaseConnection()" style="font-family:'DM Sans',sans-serif;font-size:.74rem;font-weight:600;color:#fff;background:var(--bl);border:none;border-radius:6px;padding:6px 14px;cursor:pointer;transition:all .2s">🔌 Test Connection</button>
+        <span id="sbTestResult" style="font-size:.76rem;font-weight:600;line-height:1.5"></span>
+      </div> -->
+    <!-- </div> -->
+
+    <!-- <div class="imp-wrap">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <h3 style="margin:0">&#128196; Import Providers from Excel</h3>
+        <button onclick="lockAdmin()" style="font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:600;color:var(--gr);background:var(--lt);border:1px solid var(--bd);border-radius:6px;padding:5px 12px;cursor:pointer;transition:all .2s"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-lock-secure.svg" alt=""> Lock</button>
+      </div>
+      <p>Upload a .xlsx, .xls, or .csv file to bulk-add providers to the directory. Use the template below to ensure correct formatting.</p>
+      <div class="imp-drop" id="impDrop">
+        <input type="file" id="impFile" accept=".xlsx,.xls,.csv" onchange="handleImpFile(this)">
+        <div class="imp-drop-ic">&#128196;</div>
+        <div class="imp-drop-t">Drop your Excel file here, or click to browse</div>
+        <div class="imp-drop-s">Accepts .xlsx, .xls, .csv</div>
+      </div>
+      <br>
+      <button class="imp-tpl" onclick="downloadTemplate()">&#11015; Download Excel template</button>
+      <div class="imp-note" style="margin-top:10px">
+        <strong>Required columns:</strong> name, title_en, title_es, category, city, neighbourhood, rating, reviews, jobs, years_exp, color, initials, top_rated, tags_en, tags_es, review1_author, review1_stars, review1_date, review1_en, review1_es, review2_author, review2_stars, review2_date, review2_en, review2_es -->
+    <!-- </div>
+      <div class="imp-pre" id="impPre">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin:12px 0 8px">
+          <span class="imp-status" id="impPreCount">0 rows ready</span>
+          <div class="imp-actions">
+            <button class="imp-btn imp-btn-cl" onclick="resetImport()">&#10005; Clear</button>
+            <button class="imp-btn imp-btn-ok" onclick="applyImport()"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""> Import Providers</button>
+          </div>
+        </div> -->
+    <!-- <div style="overflow-x:auto"> -->
+    <!-- <table class="imp-tbl"><thead><tr><th>#</th><th>Name</th><th>Title</th><th>Category</th><th>City</th><th>Rating</th><th>Status</th></tr></thead>
+          <tbody id="impTbody"></tbody></table> -->
+    <!-- </div> -->
+    <!-- </div> -->
+    <!-- </div> -->
+
+    <!-- Manage Existing Providers -->
+    <!-- <div class="imp-wrap" style="margin-top:18px"> -->
+    <!-- <h3 style="margin-bottom:10px">&#128221; Manage Listed Providers (<span id="adminProvCount">0</span>)</h3>
+      <p style="margin-bottom:12px">View, and delete providers currently listed. Changes sync to Supabase.</p>
+      <button onclick="refreshAdminTable()" style="font-family:'DM Sans',sans-serif;font-size:.76rem;font-weight:600;color:var(--bl);background:var(--bp);border:1px solid rgba(43,77,179,.2);border-radius:6px;padding:6px 14px;cursor:pointer;margin-bottom:12px;transition:all .2s">&#128260; Refresh List</button>
+      <button onclick="clearAllProviders()" style="font-family:'DM Sans',sans-serif;font-size:.76rem;font-weight:600;color:var(--rd);background:#FEF2F2;border:1px solid #FECACA;border-radius:6px;padding:6px 14px;cursor:pointer;margin-bottom:12px;margin-left:6px;transition:all .2s">&#128465; Delete All</button> -->
+    <!-- <div style="overflow-x:auto">
+        <table class="imp-tbl"><thead><tr><th>#</th><th>Name</th><th>Title</th><th>Category</th><th>City</th><th>Rating</th><th>Action</th></tr></thead>
+        <tbody id="adminTbody"></tbody></table>
+      </div> -->
+    <!-- </div> -->
+    <!-- </div> -->
+    <!-- </div> -->
+    <!-- <footer><div class="fi"><div><div class="flo"><div class="fli"><svg viewBox="0 0 32 36" fill="none" width="18" height="18"><path d="M8 18L16 10L24 18V28H20V22H12V28H8Z" fill="white" opacity=".9"/></svg></div><div class="flw"><span class="flt">Lumitya</span></div></div><p class="fab">Digital platform. Guadalajara &amp; Zapopan, Mexico.</p></div><div><h4>Platform</h4><ul><li><a onclick="go('home')">Home</a></li></ul></div><div><h4>Legal</h4><ul><li><a onclick="go('terms')">Terms</a></li><li><a onclick="go('privacy')">Privacy</a></li></ul></div><div><h4>Contact</h4><ul><li><a href="/cdn-cgi/l/email-protection#bcdfd3d2c8dddfc8d3fcd0c9d1d5c8c5dd92dfd3d1"><span class="__cf_email__" data-cfemail="89eae6e7fde8eafde6c9e5fce4e0fdf0e8a7eae6e4">[email&#160;protected]</span></a></li></ul></div></div><div class="fbt"><span>&#169; 2026 Lumitya. All rights reserved.</span></div></footer> -->
+    <!-- </div> -->
+
+    <!-- TERMS PAGE -->
+    <div class="page" id="page-terms" data-feature="terms_page">
+      <div class="lpg">
+        <div class="si">
+          <button class="lbk" onclick="go('home')" data-i18n="legal_back"> Back</button>
+          <h1 data-i18n="terms_title">TERMS OF SERVICE — LUMITYA</h1>
+          <span class="lup">Last updated: March 30, 2026 · Version 1.0</span>
+          <h2 data-i18n="terms_s1_t">1. Nature of the Service</h2>
+          <p data-i18n="terms_s1_p1">Lumitya is a digital platform that connects homeowners with independent service providers for home-related projects.</p>
+          <p data-i18n="terms_s1_p2">Lumitya acts solely as a digital intermediary that facilitates contact between users and independent service providers.</p>
+          <p data-i18n="terms_s1_p3">While Lumitya may perform basic identity verification, it does not evaluate, rank, or confirm the quality, legality, or safety of any services offered.</p>
+          <p data-i18n="terms_s1_p4">Users acknowledge that they are solely responsible for evaluating and selecting service providers, entering into agreements, and verifying credentials, licenses, and insurance where applicable.</p>
+          <p data-i18n="terms_s1_p5">You must be at least 18 years of age to use Lumitya. By accessing or using the platform, you represent and warrant that you are 18 years of age or older. If you are under 18, you may not use the platform. Users are solely responsible for ensuring they meet this age requirement.</p>
+          <h2 data-i18n="terms_s2_t">2. No Employment or Agency Relationship</h2>
+          <p data-i18n="terms_s2_p1">Lumitya does not employ, contract, or act as an agent, broker, or representative of any service provider.</p>
+          <p data-i18n="terms_s2_p2">All providers operate independently and are solely responsible for their services.</p>
+          <h2 data-i18n="terms_s3_t">3. User Responsibilities</h2>
+          <p data-i18n="terms_s3_intro">Users agree to:</p>
+          <ul>
+            <li data-i18n="terms_s3_l1">Conduct their own due diligence before hiring any provider</li>
+            <li data-i18n="terms_s3_l2">Verify credentials, licenses, and experience where applicable</li>
+            <li data-i18n="terms_s3_l3">Enter into written agreements directly with providers</li>
+            <li data-i18n="terms_s3_l4">Avoid making unsecured advance payments</li>
+          </ul>
+          <h2 data-i18n="terms_prohibited_t">4. Prohibited Activities</h2>
+          <p data-i18n="terms_prohibited_intro">Users must not:</p>
+          <ul>
+            <li data-i18n="terms_prohibited_l1">Submit fraudulent listings</li>
+            <li data-i18n="terms_prohibited_l2">Violate intellectual property rights</li>
+            <li data-i18n="terms_prohibited_l3">Use the platform for illegal activities</li>
+            <li data-i18n="terms_prohibited_l4">Attempt to hack or disrupt services</li>
+          </ul>
+          <h2 data-i18n="terms_s4_t">5. Contractor Responsibilities</h2>
+          <p data-i18n="terms_s4_intro">Service providers agree to:</p>
+          <ul>
+            <li data-i18n="terms_s4_l1">Provide accurate and truthful information</li>
+            <li data-i18n="terms_s4_l2">Maintain valid identification (INE/CURP)</li>
+            <li data-i18n="terms_s4_l3">Communicate transparently with users</li>
+            <li data-i18n="terms_s4_l4">Comply with applicable laws and regulations</li>
+          </ul>
+          <h2 data-i18n="terms_s5_t">6. Subscription Terms</h2>
+          <p data-i18n="terms_s5_p1">Contractor subscription fees grant access to platform visibility only. Lumitya does not guarantee the receipt of leads, client engagement, or business outcomes.</p>
+          <p data-i18n="terms_s5_p2">Lead distribution may vary based on location, demand, and platform activity.</p>
+          <h2 data-i18n="terms_s6_t">7. Limitation of Liability</h2>
+          <p data-i18n="terms_s6_intro">Lumitya is not responsible for:</p>
+          <ul>
+            <li data-i18n="terms_s6_l1">The quality, timing, legality, or safety of services</li>
+            <li data-i18n="terms_s6_l2">Any agreements made between users and providers</li>
+            <li data-i18n="terms_s6_l3">Any damages, disputes, or losses arising from interactions</li>
+          </ul>
+          <p data-i18n="terms_s6_p1">Nothing in these Terms shall exclude or limit liability in cases where such limitation is not permitted under applicable Mexican law.</p>
+          <p data-i18n="terms_s6_p2">Lumitya complies with applicable consumer protection regulations under the Ley Federal de Protección al Consumidor (LFPC) and the Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP), and will cooperate with PROFECO and other competent authorities when required.</p>
+          <h2 data-i18n="terms_s7_t">8. Platform Integrity</h2>
+          <p data-i18n="terms_s7_intro">Lumitya reserves the right to:</p>
+          <ul>
+            <li data-i18n="terms_s7_l1">Suspend or remove accounts that violate these terms</li>
+            <li data-i18n="terms_s7_l2">Investigate reports of misuse or fraud</li>
+            <li data-i18n="terms_s7_l3">Restrict access to maintain platform integrity</li>
+          </ul>
+          <h2 data-i18n="terms_s8_t">9. Dispute Handling</h2>
+          <p data-i18n="terms_s8_p1">Lumitya is not a party to agreements between users and providers.</p>
+          <p data-i18n="terms_s8_p2">However, users may report issues through the platform for review and possible action on accounts.</p>
+          <h3 data-i18n="terms_s8_arb_t">Arbitration Agreement</h3>
+          <p data-i18n="terms_s8_arb_p1">Any dispute, controversy, or claim arising out of or relating to the use of Lumitya (lumitya.com), including but not limited to its services, content, or these Terms, shall be resolved exclusively through binding arbitration.</p>
+          <p data-i18n="terms_s8_arb_p2">The arbitration shall be conducted in accordance with the rules of the Arbitration Center of Mexico (Centro de Arbitraje de México — CAM) or another recognized arbitration institution, as determined by Lumitya.</p>
+          <p data-i18n="terms_s8_arb_p3">The seat of arbitration shall be Guadalajara, Jalisco, Mexico, and the proceedings shall be conducted in English or Spanish.</p>
+          <p data-i18n="terms_s8_arb_p4">The arbitration shall be conducted by a single arbitrator. The decision of the arbitrator shall be final and binding on both parties.</p>
+          <p data-i18n="terms_s8_arb_p5">Users agree to waive any right to participate in class actions, class arbitrations, or representative actions.</p>
+          <p data-i18n="terms_s8_arb_p6">Notwithstanding the foregoing, Lumitya reserves the right to seek injunctive or equitable relief in competent courts to protect its intellectual property, confidential information, or prevent misuse of the platform.</p>
+          <h2 data-i18n="terms_s9_t">10. Force Majeure</h2>
+          <p data-i18n="terms_s9_p">Lumitya shall not be liable for any failure or delay in performing its obligations where such failure or delay results from circumstances beyond its reasonable control, including but not limited to acts of God, government actions, internet or communications failures, civil disturbances, or pandemic-related disruptions.</p>
+          <h2 data-i18n="terms_s10_t">11. Modifications</h2>
+          <p data-i18n="terms_s10_p1">Lumitya may update these Terms at any time. In the event of material changes, registered users will be notified by email at least 7 days before the changes take effect. Continued use of the platform after notification constitutes acceptance of the updated Terms.</p>
+        </div>
+      </div>
+      <footer>
+        <div class="fi">
+          <div>
+            <div class="flo">
+              <div class="fli"><img src="images/whiteLumityaLogo.svg" alt="Lumitya"
+                  style="height:50px;width:auto;object-fit:contain"></div>
+              <div class="flw"><span class="flt">Lumitya</span></div>
+            </div>
+          </div>
+          <div data-feature="footer_platform_column">
+            <h4 data-i18n="footer_platform">Platform</h4>
+            <ul>
+              <li data-feature="footer_link_home"><a onclick="go('home')" data-i18n="footer_home">Home</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 data-i18n="footer_legal">Legal</h4>
+            <ul>
+              <li data-feature="terms_page"><a href="/terms" onclick="go('terms'); return false;"
+                  data-i18n="footer_terms">Terms &amp; Conditions</a></li>
+              <li data-feature="privacy_page"><a href="/privacy" onclick="go('privacy'); return false;" data-i18n="footer_privacy">Privacy Notice</a></li>
+              <li data-feature="dispute_guidance"><a href="/dispute" onclick="go('dispute'); return false;"
+                  data-i18n="footer_dispute_guidance">Dispute Guidance</a></li>
+              <li data-feature="provider_agreement_page"><a href="/provider-agreement" onclick="go('pagree'); return false;" data-i18n="footer_provider_agreement">Provider
+                  Agreement</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 data-i18n="footer_contact">Contact</h4>
+            <ul>
+              <li><a href="mailto:contact@lumitya.com">contact@lumitya.com</a></li>
+              <li><a href="https://wa.me/523347880249" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp +52 33 4788 0249" title="WhatsApp"><svg width="14" height="14" viewBox="0 0 32 32" fill="none" style="vertical-align:-2px"><circle cx="16" cy="16" r="16" fill="#25D366"/><path d="M24.2 20.5c-.3.8-1.7 1.6-2.3 1.7-.6.1-1.3.2-2.2-.1-.5-.2-1.2-.4-2.1-.8-3.6-1.6-6-5.4-6.2-5.7-.2-.3-1.5-2-.5-3.8.5-.9 1-1.1 1.4-1.1h1c.3 0 .6 0 .9.7.3.8 1 2.6 1.1 2.8.1.2.1.5 0 .7-.1.2-.2.4-.4.6-.2.2-.4.4-.5.5-.2.2-.3.4-.1.8.2.4.9 1.5 2 2.5 1.4 1.2 2.6 1.6 3 1.8.4.2.6.1.8-.1.2-.2.8-.9 1-1.2.2-.3.5-.3.8-.2.3.1 2 .9 2.3 1 .3.2.5.2.6.3.1.1.1.8-.2 1.6Z" fill="white"/></svg> <span>+52 33 4788 0249</span></a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="fbt"><span data-i18n="footer_rights">&#169; 2026 Lumitya. All rights reserved.</span></div>
+      </footer>
+    </div>
+
+    <!-- PRIVACY PAGE -->
+    <div class="page" id="page-privacy" data-feature="privacy_page">
+      <div class="lpg">
+        <div class="si">
+          <button class="lbk" onclick="go('home')" data-i18n="legal_back"> Back</button>
+          <h1 data-i18n="privacy_title">PRIVACY NOTICE — LUMITYA</h1>
+          <h2 data-i18n="privacy_s1_t">1. Data Collection</h2>
+          <p data-i18n="privacy_s1_b">Personal data collected may include identification information (such as INE or CURP), contact details, and location data.</p>
+          <h2 data-i18n="privacy_s2_t">2. Purpose of Data Processing</h2>
+          <p data-i18n="privacy_s2_intro">Data is used to:</p>
+          <ul>
+            <li data-i18n="privacy_s2_l1">Facilitate connections between users and providers</li>
+            <li data-i18n="privacy_s2_l2">Verify basic identity information</li>
+            <li data-i18n="privacy_s2_l3">Improve platform functionality and security</li>
+            <li data-i18n="privacy_s2_l4">We may use third-party services such as hosting, analytics, and communication tools.</li>
+          </ul>
+          <h2 data-i18n="privacy_s3_t">3. Data Security and Retention</h2>
+          <p data-i18n="privacy_s3_b">Data will be stored securely using industry-standard encryption and retained only for as long as necessary to fulfill the purposes described herein, or as required by law.</p>
+          <p data-i18n="privacy_s3_b2">Data is retained for up to 24 months unless required otherwise by law.</p>
+          <h2 data-i18n="privacy_s4_t">4. Data Sharing</h2>
+          <p data-i18n="privacy_s4_intro">Lumitya may share necessary information with:</p>
+          <ul>
+            <li data-i18n="privacy_s4_l1">Other users for the purpose of connection</li>
+            <li data-i18n="privacy_s4_l2">Service providers supporting platform operations (hosting, messaging, analytics)</li>
+          </ul>
+          <h2 data-i18n="privacy_s5_t">5. User Rights (ARCO)</h2>
+          <p><span data-i18n="privacy_s5_b">Users may exercise their ARCO rights (Access, Rectification, Cancellation, Opposition) by contacting:</span> <strong><a href="mailto:contact@lumitya.com">contact@lumitya.com</a></strong></p>
+          <p data-i18n="privacy_s5_processing">ARCO requests will be acknowledged and processed within 20 business days of receipt, in accordance with Article 32 of the Ley Federal de Protección de Datos Personales en Posesión de los Particulares (LFPDPPP). Lumitya may request additional information to verify the identity of the requesting party before processing.</p>
+          <h2 data-i18n="privacy_s6_t">6. Updates</h2>
+          <p data-i18n="privacy_s6_b">This Privacy Notice may be updated periodically. Users will be notified of significant changes.</p>
+          <h2 data-i18n="privacy_s7_t">7. Responsible Party</h2>
+          <p><span data-i18n="privacy_s7_b">The responsible party for the treatment of your personal data is Sumit Suman, individual, with RFC XXSU910131UP0, with address in Guadalajara, Jalisco, Mexico. You can contact us at contact@lumitya.com.</span></p>
+        </div>
+      </div>
+      <footer>
+        <div class="fi">
+          <div>
+            <div class="flo">
+              <div class="fli"><img src="images/whiteLumityaLogo.svg" alt="Lumitya"
+                  style="height:50px;width:auto;object-fit:contain"></div>
+              <div class="flw"><span class="flt">Lumitya</span></div>
+            </div>
+          </div>
+          <div data-feature="footer_platform_column">
+            <h4 data-i18n="footer_platform">Platform</h4>
+            <ul>
+              <li data-feature="footer_link_home"><a onclick="go('home')" data-i18n="footer_home">Home</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 data-i18n="footer_legal">Legal</h4>
+            <ul>
+              <li data-feature="terms_page"><a href="/terms" onclick="go('terms'); return false;" data-i18n="footer_terms">Terms</a></li>
+              <li data-feature="privacy_page"><a href="/privacy" onclick="go('privacy'); return false;" data-i18n="footer_privacy">Privacy</a></li>
+              <li data-feature="dispute_guidance"><a href="/dispute" onclick="go('dispute'); return false;" data-i18n="footer_dispute_guidance">Dispute Guidance</a></li>
+              <li data-feature="provider_agreement_page"><a href="/provider-agreement" onclick="go('pagree'); return false;" data-i18n="footer_provider_agreement">Provider
+                  Agreement</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 data-i18n="footer_contact">Contact</h4>
+            <ul>
+              <li><a href="mailto:contact@lumitya.com">contact@lumitya.com</a></li>
+              <li><a href="https://wa.me/523347880249" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp +52 33 4788 0249" title="WhatsApp"><svg width="14" height="14" viewBox="0 0 32 32" fill="none" style="vertical-align:-2px"><circle cx="16" cy="16" r="16" fill="#25D366"/><path d="M24.2 20.5c-.3.8-1.7 1.6-2.3 1.7-.6.1-1.3.2-2.2-.1-.5-.2-1.2-.4-2.1-.8-3.6-1.6-6-5.4-6.2-5.7-.2-.3-1.5-2-.5-3.8.5-.9 1-1.1 1.4-1.1h1c.3 0 .6 0 .9.7.3.8 1 2.6 1.1 2.8.1.2.1.5 0 .7-.1.2-.2.4-.4.6-.2.2-.4.4-.5.5-.2.2-.3.4-.1.8.2.4.9 1.5 2 2.5 1.4 1.2 2.6 1.6 3 1.8.4.2.6.1.8-.1.2-.2.8-.9 1-1.2.2-.3.5-.3.8-.2.3.1 2 .9 2.3 1 .3.2.5.2.6.3.1.1.1.8-.2 1.6Z" fill="white"/></svg> <span>+52 33 4788 0249</span></a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="fbt"><span data-i18n="footer_rights">&#169; 2026 Lumitya. All rights reserved.</span></div>
+      </footer>
+    </div>
+
+    <!-- PROVIDER AGREEMENT PAGE -->
+    <div class="page" id="page-pagree" data-feature="provider_agreement_page">
+      <div class="lpg">
+        <div class="si">
+          <button class="lbk" onclick="go('pricing')" data-i18n="legal_back"> Back</button>
+          <h1 data-i18n="pagree_title">Service Provider Agreement</h1><span class="lup" data-i18n="pagree_updated">Last updated: March 2026</span>
+          <div class="lwn" data-i18n="pagree_intro">By applying to list on Lumitya, you agree to the terms of this agreement as well general terms and conditions.</div>
+          <h2 data-i18n="pagree_s1_t">1. Independent Status</h2>
+          <p data-i18n="pagree_s1_b">The Provider is an independent contractor, not an employee of Lumitya. Lumitya does not supervise work,
+            does not guarantee results, and is not responsible for any services provided.</p>
+          <h2 data-i18n="pagree_s2_t">2. Responsibility</h2>
+          <p data-i18n="pagree_s2_b">Provider is fully responsible for their work, holds any required licenses or permits, is responsible for
+            taxes and legal compliance, and will not represent themselves as employees or agents of Lumitya.</p>
+          <h2 data-i18n="pagree_s3_t">3. Platform Fees</h2>
+          <p data-i18n="pagree_s3_b">Monthly fees are non-refundable unless required by law. Payment grants listing visibility only — not a
+            guarantee of work, leads, or revenue. Subscription allows visibility only. Results depend on demand, location, and profile activity.</p>
+          <h2 data-i18n="pagree_s4_t">4. No Guarantee of Work</h2>
+          <p data-i18n="pagree_s4_b">Lumitya does not guarantee leads, revenue, project value, or customer selection. Platform access does not
+            ensure contracts.</p>
+          <h2 data-i18n="pagree_s5_t">5. Indemnification</h2>
+          <p data-i18n="pagree_s5_b">Provider agrees to indemnify and hold Lumitya harmless from any claims, damages, lawsuits, or legal
+            expenses arising from services performed by the Provider.</p>
+          <h2 data-i18n="pagree_s6_t">6. Reviews</h2>
+          <p data-i18n="pagree_s6_b">Customers may leave reviews based on their experience. Lumitya may publish, remove, or moderate reviews at its sole discretion. Providers who believe a review is false, defamatory, or retaliatory may submit a written dispute to contact@lumitya.com within 15 calendar days of the review appearing. Lumitya will review the dispute and may remove or retain the review at its sole discretion. Lumitya is not obligated to mediate between users and providers over review content.</p>
+          <h2 data-i18n="pagree_s7_t">7. Termination</h2>
+          <p data-i18n="pagree_s7_b">Lumitya may suspend, remove, or permanently ban listings at its sole discretion and without liability. Providers who are removed for cause — including fraud, misrepresentation, repeated no-shows, or abuse of platform users — may be prohibited from re-registering on the platform under the same or different identity. Lumitya reserves the right to retain relevant records to enforce this restriction in accordance with its Privacy Notice and applicable law.</p>
+          <h2 data-i18n="pagree_s8_t">8. Jurisdiction</h2>
+          <p data-i18n="pagree_s8_b">Disputes resolved in Guadalajara, Jalisco, Mexico under Mexican law.</p>
+          <div class="lbx" style="margin-top:26px"><strong data-i18n="pagree_ready">Ready to apply?</strong> <span data-i18n="pagree_ready_text">By submitting your application, you
+            confirm you have read and agree to this agreement.<br><br><button class="bh" onclick="openSupplier()"
+              data-feature="supplier_application"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-supplier-store.svg" alt=""> <span data-i18n="joinSupplier">Join as Supplier</span></button></div>
+        </div>
+      </div>
+      <footer>
+        <div class="fi">
+          <div>
+            <div class="flo">
+              <div class="fli"><img src="images/whiteLumityaLogo.svg" alt="Lumitya"
+                  style="height:50px;width:auto;object-fit:contain"></div>
+              <div class="flw"><span class="flt">Lumitya</span></div>
+            </div>
+          </div>
+          <div data-feature="footer_platform_column">
+            <h4 data-i18n="footer_platform">Platform</h4>
+            <ul>
+              <li data-feature="footer_link_home"><a onclick="go('home')" data-i18n="footer_home">Home</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 data-i18n="footer_legal">Legal</h4>
+            <ul>
+              <li data-feature="terms_page"><a href="/terms" onclick="go('terms'); return false;" data-i18n="footer_terms">Terms</a></li>
+              <li data-feature="privacy_page"><a href="/privacy" onclick="go('privacy'); return false;" data-i18n="footer_privacy">Privacy</a></li>
+              <li data-feature="dispute_guidance"><a href="/dispute" onclick="go('dispute'); return false;" data-i18n="footer_dispute_guidance">Dispute Guidance</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 data-i18n="footer_contact">Contact</h4>
+            <ul>
+              <li><a href="mailto:contact@lumitya.com">contact@lumitya.com</a></li>
+              <li><a href="https://wa.me/523347880249" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp +52 33 4788 0249" title="WhatsApp"><svg width="14" height="14" viewBox="0 0 32 32" fill="none" style="vertical-align:-2px"><circle cx="16" cy="16" r="16" fill="#25D366"/><path d="M24.2 20.5c-.3.8-1.7 1.6-2.3 1.7-.6.1-1.3.2-2.2-.1-.5-.2-1.2-.4-2.1-.8-3.6-1.6-6-5.4-6.2-5.7-.2-.3-1.5-2-.5-3.8.5-.9 1-1.1 1.4-1.1h1c.3 0 .6 0 .9.7.3.8 1 2.6 1.1 2.8.1.2.1.5 0 .7-.1.2-.2.4-.4.6-.2.2-.4.4-.5.5-.2.2-.3.4-.1.8.2.4.9 1.5 2 2.5 1.4 1.2 2.6 1.6 3 1.8.4.2.6.1.8-.1.2-.2.8-.9 1-1.2.2-.3.5-.3.8-.2.3.1 2 .9 2.3 1 .3.2.5.2.6.3.1.1.1.8-.2 1.6Z" fill="white"/></svg> <span>+52 33 4788 0249</span></a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="fbt"><span data-i18n="footer_rights">&#169; 2026 Lumitya. All rights reserved.</span></div>
+      </footer>
+    </div>
+
+    <!-- DISPUTE GUIDANCE PAGE -->
+    <div class="page" id="page-dispute" data-feature="dispute_guidance">
+      <div class="lpg">
+        <div class="si">
+          <button class="lbk" onclick="go('home')" data-i18n="legal_back"> Back</button>
+          <h1 data-i18n="dispute_title">DISPUTE GUIDANCE — LUMITYA</h1>
+          <p data-i18n="footer_dispute_subtitle">If something goes wrong</p>
+          <ul>
+            <li data-i18n="footer_dispute_l1">Contact the provider directly to resolve the issue</li>
+            <li data-i18n="footer_dispute_l2">Request a refund or correction if applicable</li>
+            <li data-i18n="footer_dispute_l3">Use Lumitya's report feature to notify us</li>
+            <li data-i18n="footer_dispute_l4">Consider formal legal options if necessary</li>
+          </ul>
+          <h3 data-i18n="terms_s8_arb_t">Arbitration Agreement</h3>
+          <p data-i18n="dispute_arb_summary">All disputes arising from the use of Lumitya shall be resolved through binding arbitration in Guadalajara, Jalisco, Mexico, in accordance with the rules of the Arbitration Center of Mexico (CAM). See our full Terms of Service for complete arbitration details.</p>
+          <p>
+            <span data-i18n="dispute_contact_line">For communication, contact:</span>
+            <strong><a href="mailto:contact@lumitya.com">contact@lumitya.com</a></strong>
+          </p>
+        </div>
+      </div>
+      <footer>
+        <div class="fi">
+          <div>
+            <div class="flo">
+              <div class="fli"><img src="images/whiteLumityaLogo.svg" alt="Lumitya"
+                  style="height:50px;width:auto;object-fit:contain"></div>
+              <div class="flw"><span class="flt">Lumitya</span></div>
+            </div>
+          </div>
+          <div data-feature="footer_platform_column">
+            <h4 data-i18n="footer_platform">Platform</h4>
+            <ul>
+              <li data-feature="footer_link_home"><a onclick="go('home')" data-i18n="footer_home">Home</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 data-i18n="footer_legal">Legal</h4>
+            <ul>
+              <li data-feature="terms_page"><a href="/terms" onclick="go('terms'); return false;" data-i18n="footer_terms">Terms &amp; Conditions</a></li>
+              <li data-feature="privacy_page"><a href="/privacy" onclick="go('privacy'); return false;" data-i18n="footer_privacy">Privacy Notice</a></li>
+              <li data-feature="dispute_guidance"><a href="/dispute" onclick="go('dispute'); return false;" data-i18n="footer_dispute_guidance">Dispute Guidance</a></li>
+              <li data-feature="provider_agreement_page"><a href="/provider-agreement" onclick="go('pagree'); return false;" data-i18n="footer_provider_agreement">Provider Agreement</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 data-i18n="footer_contact">Contact</h4>
+            <ul>
+              <li><a href="mailto:contact@lumitya.com">contact@lumitya.com</a></li>
+              <li><a href="https://wa.me/523347880249" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp +52 33 4788 0249" title="WhatsApp"><svg width="14" height="14" viewBox="0 0 32 32" fill="none" style="vertical-align:-2px"><circle cx="16" cy="16" r="16" fill="#25D366"/><path d="M24.2 20.5c-.3.8-1.7 1.6-2.3 1.7-.6.1-1.3.2-2.2-.1-.5-.2-1.2-.4-2.1-.8-3.6-1.6-6-5.4-6.2-5.7-.2-.3-1.5-2-.5-3.8.5-.9 1-1.1 1.4-1.1h1c.3 0 .6 0 .9.7.3.8 1 2.6 1.1 2.8.1.2.1.5 0 .7-.1.2-.2.4-.4.6-.2.2-.4.4-.5.5-.2.2-.3.4-.1.8.2.4.9 1.5 2 2.5 1.4 1.2 2.6 1.6 3 1.8.4.2.6.1.8-.1.2-.2.8-.9 1-1.2.2-.3.5-.3.8-.2.3.1 2 .9 2.3 1 .3.2.5.2.6.3.1.1.1.8-.2 1.6Z" fill="white"/></svg> <span>+52 33 4788 0249</span></a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="fbt"><span data-i18n="footer_rights">&#169; 2026 Lumitya. All rights reserved.</span></div>
+      </footer>
+    </div>
+
+    <!-- MODAL: HOMEOWNER REQUEST -->
+    <div class="mo" id="matchMo">
+      <div class="md">
+        <div class="mhd bl">
+          <div class="mtg"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""> <span data-i18n="req_tag">Free &amp; Quick</span></div>
+          <h3 data-i18n="requestTitle">Submit a Service Request</h3>
+          <p data-i18n="req_subtitle">We'll share your request with 1–3 listed independent service providers in your area.</p>
+          <button class="mcl" onclick="closeMatch()">&#10005;</button>
+        </div>
+        <div class="mb" id="mmbody">
+          <div class="uwarn uwarn--compact" data-feature="service_request_safety_notice">
+            <div class="uwarn-title"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-safety-warning.svg" alt=""> <span data-i18n="safety_tip_title">Safety Tip:</span></div>
+            <p data-i18n="safety_tip_body">Lumitya only connects you with independent providers. Always verify credentials, request written agreements, and avoid making advance payments without proper safeguards.</p>
+          </div>
+          <div class="uwarn uwarn--compact" data-feature="service_request_payment_risk_notice" style="border-color:#DC2626;background:#FEF2F2">
+            <div class="uwarn-title"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-important-alert.svg" alt=""> <span data-i18n="payment_risk_title">Important:</span></div>
+            <p data-i18n="payment_risk_body">Avoid making large advance payments without a written agreement and proper verification of the provider.</p>
+          </div>
+          <div class="merr" id="merr"></div>
+          <div class="fr">
+            <div class="fg"><label><span data-i18n="req_full_name">Full Name</span><span
+                  class="rq">*</span></label><input type="text" id="mnm" placeholder="e.g. Carlos Mendoza"></div>
+            <div class="fg"><label><span data-i18n="req_city">City</span><span class="rq">*</span></label>
+              <select id="mcity" onchange="updCol('mcol','mcity')">
+                <option value="" disabled selected data-i18n="req_select_city">Select city</option>
+                <option value="Guadalajara">Guadalajara</option>
+                <option value="Zapopan">Zapopan</option>
+              </select>
+              <div class="cnote"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-location-pin.svg" alt=""> <span data-i18n="req_city_location">Guadalajara &amp; Zapopan only.</span>
+              </div>
+            </div>
+          </div>
+          <div class="fr">
+            <div class="fg"><label><span data-i18n="req_neighbourhood">Neighbourhood</span><span
+                  class="rq">*</span></label><select id="mcol" disabled>
+                <option value="" disabled selected data-i18n="req_select_city_first">Select city first</option>
+              </select></div>
+            <div class="fg"><label><span data-i18n="req_service">Service Needed</span><span class="rq">*</span></label>
+              <select id="msvc">
+                <option value="" disabled selected data-i18n="req_select_service">Select service</option>
+                <option data-i18n="opt_architecture">Architecture &amp; Design</option>
+                <option data-i18n="opt_plumbing">Plumbing</option>
+                <option data-i18n="opt_electrical">Electrical</option>
+                <option data-i18n="opt_roofing">Roof &amp; Waterproofing</option>
+                <option data-i18n="opt_materials">Material Supply</option>
+                <option data-i18n="opt_renovation">Renovation &amp; Remodeling</option>
+                <option data-i18n="opt_painting">Painting</option>
+                <option data-i18n="opt_other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="fg"><label><span data-i18n="req_description">Project Description</span><span
+                class="rq">*</span></label><textarea id="mds" data-i18n-placeholder="req_description_placeholder"
+              placeholder="Briefly describe what you need..."></textarea></div>
+          <div class="fr">
+            <div class="fg"><label data-i18n="req_budget">Budget (approx.)</label>
+              <select id="mbg">
+                <option value="" disabled selected data-i18n="req_select_budget">Select range</option>
+                <option data-i18n="req_budget_under">Under MXN 10,000</option>
+                <option data-i18n="req_budget_1">MXN 10,000–30,000</option>
+                <option data-i18n="req_budget_2">MXN 30,000–80,000</option>
+                <option data-i18n="req_budget_3">MXN 80,000–200,000</option>
+                <option data-i18n="req_budget_over">Over MXN 200,000</option>
+                <option data-i18n="req_budget_unsure">Not sure yet</option>
+              </select>
+            </div>
+            <div class="fg"><label><span data-i18n="req_timeline">Timeline</span><span class="rq">*</span></label>
+              <select id="mug">
+                <option value="" disabled selected data-i18n="req_select_timeline">Select timeline</option>
+                <option data-i18n="req_timeline_urgent" data-feature="timeline_urgent_option">Urgent – within 1 week</option>
+                <option data-i18n="req_timeline_soon" data-feature="timeline_soon_option">Soon – within 1 month</option>
+                <option data-i18n="req_timeline_flexible">Flexible – 1–3 months</option>
+                <option data-i18n="req_timeline_planning">Planning – 3+ months</option>
+              </select>
+            </div>
+          </div>
+          <div class="fr">
+            <div class="fg"><label><span data-i18n="req_phone">Phone</span><span class="rq">*</span></label><input
+                type="tel" id="mph" placeholder="+52 33 1234 5678"></div>
+            <div class="fg"><label><span data-i18n="req_email">Email</span><span class="rq">*</span></label><input type="email" id="mem"
+                placeholder="you@email.com"></div>
+          </div>
+          <div class="agb" style="margin:12px 0 6px">
+            <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+              <div class="agc" id="matchTermsChk" onclick="tglTermsArb('match')"></div>
+              <div class="agt" style="font-size:.76rem"><span data-i18n="terms_arb_agree">I agree to the </span><a onclick="go('terms')" style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="footer_terms">Terms &amp; Conditions</a><span> &amp; </span><a onclick="go('terms')" style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="terms_s8_arb_t">Arbitration Agreement</a>.<span class="rq">*</span></div>
+            </label>
+            <div class="age" id="matchTermsErr" style="display:none" data-i18n="terms_arb_err">You must agree to the Terms &amp; Arbitration clause before submitting.</div>
+          </div>
+          <div style="margin:14px 0 6px">
+            <div id="turnstile-match" data-turnstile-form="match"></div>
+          </div>
+          <div class="fsr">
+            <span class="fn"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-lock-secure.svg" alt=""> <span data-i18n="req_private">Private &amp; secure.</span></span>
+            <button class="bsb" id="mbtn" onclick="submitMatch()"><span class="btn-lbl" data-i18n="sendRequest">Send
+                Request </span><span class="sp"></span></button>
+          </div>
+        </div>
+        <div class="msuc" id="mmsuc">
+          <div class="sico"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/icon-success-check.svg" alt="Success"></div>
+          <h3 data-i18n="req_success_title">Request Sent!</h3>
+          <p data-i18n="req_success_desc">Independent providers in your area will be in touch directly — typically within 24 to 48 hours. Always verify credentials and request a written agreement before hiring.</p>
+          <p style="font-size:0.76rem;color:var(--gr);margin-top:8px"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-contact-phone.svg" alt=""> <span data-i18n="req_whatsapp_note">You may receive contact via phone or WhatsApp from listed providers.</span></p>
+          <button class="bco" onclick="closeMatch()" data-i18n="cl">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== MODAL: PROVIDER APPLY ==================== -->
+    <div class="mo" id="provMo" data-feature="contractor_joining">
+      <div class="md">
+        <div class="mhd dk">
+          <div class="mtg"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-profile-user.svg" alt=""> <span data-i18n="pm_tg">Apply to List</span></div>
+          <h3 data-i18n="pm_h">Apply as a Service Provider</h3>
+          <p data-i18n="pm_s">Get listed in Guadalajara &amp; Zapopan.</p>
+          <button class="mcl" onclick="closeProv()">&#10005;</button>
+        </div>
+        <div class="mb" id="pmbody">
+          <div class="merr" id="perr"></div>
+          <div class="fst" data-i18n="pm_s1">Personal Information</div>
+          <div class="fr">
+            <div class="fg"><label><span data-i18n="f_nm">Full Name</span><span class="rq">*</span></label><input
+                type="text" id="pnm" placeholder="e.g. Carlos Mendoza"></div>
+            <div class="fg"><label><span data-i18n="f_bz">Business Name</span> <span
+                  style="font-size:.67rem;color:var(--gr)" data-i18n="f_optional">(optional)</span></label><input type="text" id="pbz"
+                placeholder="e.g. Construcciones CM"></div>
+          </div>
+          <div class="fr">
+            <div class="fg"><label><span data-i18n="f_ph">Phone</span><span class="rq">*</span></label><input type="tel"
+                id="pph" placeholder="+52 33 1234 5678"></div>
+            <div class="fg"><label><span data-i18n="f_em">Email</span><span class="rq">*</span></label><input
+                type="email" id="pem" placeholder="you@email.com"></div>
+          </div>
+          <div class="fr">
+            <div class="fg">
+              <label><span data-i18n="f_ct">City</span><span class="rq">*</span></label>
+              <select id="pcity" onchange="updCol('pcol','pcity')">
+                <option value="" disabled selected data-i18n="opt_select_city">Select city</option>
+                <option>Guadalajara</option>
+                <option>Zapopan</option>
+              </select>
+              <div class="cnote"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-location-pin.svg" alt=""> <span data-i18n="cov">Guadalajara &amp; Zapopan only.</span></div>
+            </div>
+            <div class="fg"><label><span data-i18n="f_col">Neighbourhood</span><span class="rq">*</span></label><select
+                id="pcol" disabled>
+                <option value="" disabled selected data-i18n="opt_select_city_first">Select city first</option>
+              </select></div>
+          </div>
+          <div class="fr">
+            <div class="fg"><label><span data-i18n="f_wb">Website / Social</span></label><input type="text" id="pwb"
+                placeholder="instagram.com/yourprofile"></div>
+            <div class="fg"><label><span data-i18n="f_tm">Team Size</span></label>
+              <select id="ptm">
+                <option value="" disabled selected data-i18n="opt_select">Select</option>
+                <option data-i18n="opt_solo">Solo / Freelancer</option>
+                <option data-i18n="opt_team_2_5">2&#8211;5 people</option>
+                <option data-i18n="opt_team_6_15">6&#8211;15 people</option>
+                <option data-i18n="opt_team_16_50">16&#8211;50 people</option>
+                <option data-i18n="opt_team_50plus">50+</option>
+              </select>
+            </div>
+          </div>
+          <div class="fdv"></div>
+          <div class="fst"><span data-i18n="pm_s2">Service Categories</span><span
+              style="color:var(--rd);font-size:.67rem;text-transform:none;letter-spacing:0;font-weight:400;margin-left:3px">
+              *</span></div>
+          <div class="cg">
+            <label class="ck" onclick="tglCk(this)"><input type="checkbox" value="Architecture"><span class="ckb"><svg
+                  width="9" height="7" viewBox="0 0 9 7" fill="none">
+                  <path d="M1 3.5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.7" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg></span><span><img class="ui-icon ui-icon-md" src="/images/lumitya-icons/category-architecture.svg" alt="Architecture"></span><span class="ckl"
+                data-i18n="s1t">Architecture</span></label>
+            <label class="ck" onclick="tglCk(this)"><input type="checkbox" value="Plumbing"><span class="ckb"><svg
+                  width="9" height="7" viewBox="0 0 9 7" fill="none">
+                  <path d="M1 3.5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.7" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg></span><span><img class="ui-icon ui-icon-md" src="/images/lumitya-icons/category-plumbing.svg" alt="Plumbing"></span><span class="ckl"
+                data-i18n="s2t">Plumbing</span></label>
+            <label class="ck" onclick="tglCk(this)"><input type="checkbox" value="Electrical"><span class="ckb"><svg
+                  width="9" height="7" viewBox="0 0 9 7" fill="none">
+                  <path d="M1 3.5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.7" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg></span><span><img class="ui-icon ui-icon-md" src="/images/lumitya-icons/category-electrical.svg" alt="Electrical"></span><span class="ckl"
+                data-i18n="s3t">Electrical</span></label>
+            <label class="ck" onclick="tglCk(this)"><input type="checkbox" value="Roofing"><span class="ckb"><svg
+                  width="9" height="7" viewBox="0 0 9 7" fill="none">
+                  <path d="M1 3.5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.7" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg></span><span><img class="ui-icon ui-icon-md" src="/images/lumitya-icons/category-roofing.svg" alt="Roofing"></span><span class="ckl" data-i18n="s4t">Roofing</span></label>
+            <label class="ck" onclick="tglCk(this)"><input type="checkbox" value="Renovation"><span class="ckb"><svg
+                  width="9" height="7" viewBox="0 0 9 7" fill="none">
+                  <path d="M1 3.5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.7" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg></span><span><img class="ui-icon ui-icon-md" src="/images/lumitya-icons/category-painting.svg" alt="Renovation"></span><span class="ckl"
+                data-i18n="s6t">Renovation</span></label>
+            <label class="ck" onclick="tglCk(this)"><input type="checkbox" value="Materials"><span class="ckb"><svg
+                  width="9" height="7" viewBox="0 0 9 7" fill="none">
+                  <path d="M1 3.5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.7" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg></span><span><img class="ui-icon ui-icon-md" src="/images/lumitya-icons/category-materials.svg" alt="Materials"></span><span class="ckl"
+                data-i18n="s5t">Materials</span></label>
+            <label class="ck" onclick="tglCk(this)"><input type="checkbox" value="Painting"><span class="ckb"><svg
+                  width="9" height="7" viewBox="0 0 9 7" fill="none">
+                  <path d="M1 3.5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.7" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg></span><span><img class="ui-icon ui-icon-md" src="/images/lumitya-icons/category-painting.svg" alt="Painting"></span><span class="ckl" data-i18n="s7t">Painting</span></label>
+            <label class="ck" onclick="tglCk(this)"><input type="checkbox" value="HVAC"><span class="ckb"><svg width="9"
+                  height="7" viewBox="0 0 9 7" fill="none">
+                  <path d="M1 3.5l2.5 2.5 4.5-5" stroke="white" stroke-width="1.7" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                </svg></span><span><img class="ui-icon ui-icon-md" src="/images/lumitya-icons/category-hvac.svg" alt="HVAC"></span><span class="ckl" data-i18n="s8t">HVAC</span></label>
+          </div>
+          <div style="display:none;font-size:.68rem;color:var(--rd);margin-top:4px" id="caterr" data-i18n="err_cat">
+            Select at least one category.</div>
+          <div class="fdv"></div>
+          <div class="fst" data-i18n="pm_s3">Experience &amp; Details</div>
+          <div class="fg">
+            <label><span data-i18n="f_yr">Years of Experience</span><span class="rq">*</span></label>
+            <div class="yr">
+              <span class="yc" onclick="pickYr(this)" data-v="lt1" data-i18n="yr0">Less than 1 yr</span>
+              <span class="yc" onclick="pickYr(this)" data-v="1-3" data-i18n="yr1">1&#8211;3 yrs</span>
+              <span class="yc" onclick="pickYr(this)" data-v="3-5" data-i18n="yr2">3&#8211;5 yrs</span>
+              <span class="yc" onclick="pickYr(this)" data-v="5-10" data-i18n="yr3">5&#8211;10 yrs</span>
+              <span class="yc" onclick="pickYr(this)" data-v="10+" data-i18n="yr4">10+ yrs</span>
+            </div>
+            <div style="display:none;font-size:.68rem;color:var(--rd);margin-top:4px" id="yrerr" data-i18n="err_yr">
+              Select experience level.</div>
+          </div>
+          <div class="fg"><label><span data-i18n="f_dsc">Description of Services</span><span
+                class="rq">*</span></label><textarea id="pdsc"
+              data-i18n-placeholder="f_dsc_placeholder" placeholder="Describe your services, area of operation, and past projects..."></textarea></div>
+          <div class="fg"><label><span data-i18n="f_zn">Service Coverage</span><span class="rq">*</span></label>
+            <select id="pzn">
+              <option value="" disabled selected data-i18n="opt_where_work">Where do you work?</option>
+              <option data-i18n="opt_gdl_only">Guadalajara only</option>
+              <option data-i18n="opt_zap_only">Zapopan only</option>
+              <option data-i18n="opt_both_cities">Both cities</option>
+            </select>
+          </div>
+          <div class="agb">
+            <label>
+              <div class="agc" id="agchk" onclick="tglAg()"></div>
+              <div class="agt"><strong data-i18n="ag_b">I confirm I am an independent service provider and fully
+                  responsible for my own services.</strong> <span data-i18n="ag_t">I understand that Lumitya is a
+                  listing platform only, does not supervise my work, and does not guarantee leads or revenue. I agree to
+                  the </span><a onclick="go('pagree');closeProv()"
+                  style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600"
+                  data-i18n="ag_l">Provider Agreement</a><span>, </span><a onclick="go('terms');closeProv()"
+                  style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="ag_tc">Terms
+                  &amp; Conditions</a><span> &amp; </span><a onclick="go('terms');closeProv()"
+                  style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="terms_s8_arb_t">Arbitration Agreement</a>.</div>
+            </label>
+            <div class="age" id="agerr" data-i18n="err_ag">You must confirm this before submitting.</div>
+          </div>
+          <div style="margin:14px 0 6px">
+            <div id="turnstile-provider" data-turnstile-form="provider"></div>
+          </div>
+          <div class="fsr">
+            <span class="fn"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-lock-secure.svg" alt=""> <span data-i18n="fn_p">Reviewed before publishing.</span></span>
+            <button class="bsb" id="pbtn" onclick="submitProv()"><span class="bl2" data-i18n="ps_b">Submit Application
+                </span><span class="sp"></span></button>
+          </div>
+        </div>
+        <div class="msuc" id="pmsuc">
+          <div class="sico"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/icon-success-confetti.svg" alt="Success"></div>
+          <h3 data-i18n="ps_h">Application Received!</h3>
+          <p data-i18n="ps_p">We'll review your details and send a payment link within 48 hours. Your profile goes live
+            after payment is confirmed.</p><button class="bco" onclick="closeProv()" data-i18n="cl">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: SUPPLIER / MATERIAL PROVIDER -->
+    <div class="mo" id="suppMo" data-feature="supplier_application">
+      <div class="md" style="max-width:680px">
+        <div class="mhd dk">
+          <div class="mtg"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-supplier-store.svg" alt=""> <span data-i18n="sm_tg">Join as Supplier</span></div>
+          <h3 data-i18n="sm_h">Register as a Material Supplier</h3>
+          <p data-i18n="sm_s">List your materials &amp; prices for homeowners in Guadalajara &amp; Zapopan.</p>
+          <button class="mcl" onclick="closeSupp()">&#10005;</button>
+        </div>
+        <div class="mb" id="smbody">
+          <div class="merr" id="serr"></div>
+          <div class="fst" data-i18n="sm_biz_title">Business Information</div>
+          <div class="fr">
+            <div class="fg"><label><span data-i18n="sm_contact_name">Contact Name</span><span
+                  class="rq">*</span></label><input type="text" id="snm" placeholder="e.g. Carlos Mendoza"></div>
+            <div class="fg"><label><span data-i18n="sm_business_name">Business / Company Name</span><span
+                  class="rq">*</span></label><input type="text" id="sbz" placeholder="e.g. Materiales del Bajío SA">
+            </div>
+          </div>
+          <div class="fr">
+            <div class="fg"><label><span data-i18n="sm_phone">Phone</span><span class="rq">*</span></label><input
+                type="tel" id="sph" placeholder="+52 33 1234 5678"></div>
+            <div class="fg"><label><span data-i18n="sm_email">Email</span><span class="rq">*</span></label><input
+                type="email" id="sem" placeholder="contacto@empresa.com"></div>
+          </div>
+          <div class="fr">
+            <div class="fg"><label><span data-i18n="sm_city">City</span><span class="rq">*</span></label>
+              <select id="scity" onchange="updCol('scol','scity')">
+                <option value="" disabled selected data-i18n="sm_select_city">Select city</option>
+                <option>Guadalajara</option>
+                <option>Zapopan</option>
+              </select>
+            </div>
+            <div class="fg"><label><span data-i18n="sm_neighbourhood">Neighbourhood</span><span
+                  class="rq">*</span></label><select id="scol" disabled>
+                <option value="" disabled selected data-i18n="sm_select_city_first">Select city first</option>
+              </select></div>
+          </div>
+          <div class="fg"><label data-i18n="sm_website">Website / Social (optional)</label><input type="text" id="swb"
+              placeholder="instagram.com/yourbusiness"></div>
+
+          <div class="fdv"></div>
+          <div class="fst" data-i18n="sm_materials_title">Materials &amp; Pricing</div>
+          <p style="font-size:.75rem;color:var(--gr);margin-bottom:10px" data-i18n="sm_materials_desc">Add the materials
+            you supply with current prices. Pre-filled with common materials — edit as needed.</p>
+          <div class="mat-hdr">
+            <span data-i18n="sm_mat_material">Material</span><span data-i18n="sm_mat_unit">Unit</span><span
+              data-i18n="sm_mat_price">Price (MXN)</span><span></span>
+          </div>
+          <div id="matRows"></div>
+          <button class="mat-add" onclick="addMatRow('','unit','')" data-i18n="sm_add_material">&#43; Add
+            material</button>
+          <div class="ferr" id="materr" data-i18n="sm_mat_error">Add at least one material with a price.</div>
+
+          <div class="fdv"></div>
+          <div class="fst" data-i18n="sm_delivery_title">Delivery Options</div>
+          <p style="font-size:.75rem;color:var(--gr);margin-bottom:10px" data-i18n="sm_delivery_desc">Do you offer
+            delivery to construction sites?</p>
+          <div class="del-grid">
+            <div class="del-opt" id="del-no" onclick="selDel('no')"><span class="del-opt-ic"><img class="ui-icon ui-icon-md" src="/images/lumitya-icons/icon-important-alert.svg" alt="No delivery"></span>
+              <div>
+                <div class="del-opt-t" data-i18n="sm_del_no_title">No delivery</div>
+                <div class="del-opt-d" data-i18n="sm_del_no_desc">Pickup only at our location</div>
+              </div>
+            </div>
+            <div class="del-opt" id="del-yes" onclick="selDel('yes')"><span class="del-opt-ic"><img class="ui-icon ui-icon-md" src="/images/lumitya-icons/icon-delivery-truck.svg" alt="Delivery"></span>
+              <div>
+                <div class="del-opt-t" data-i18n="sm_del_yes_title">Yes, we deliver</div>
+                <div class="del-opt-d" data-i18n="sm_del_yes_desc">We deliver to your site</div>
+              </div>
+            </div>
+          </div>
+          <div class="ferr" id="delerr" data-i18n="sm_del_error">Please select a delivery option.</div>
+          <div id="delDetails" style="display:none;margin-top:12px">
+            <div class="fr">
+              <div class="fg"><label><span data-i18n="sm_del_pricing">Delivery Pricing</span><span
+                    class="rq">*</span></label>
+                <select id="delCostType">
+                  <option value="" disabled selected data-i18n="sm_del_how_priced">How is delivery priced?</option>
+                  <option value="fixed" data-i18n="sm_del_fixed">Fixed rate (any distance)</option>
+                  <option value="distance" data-i18n="sm_del_distance">By distance (per km)</option>
+                  <option value="zone" data-i18n="sm_del_zone">By zone (local / metro / regional)</option>
+                  <option value="free" data-i18n="sm_del_free">Free delivery (min order required)</option>
+                  <option value="quote" data-i18n="sm_del_quote">Quote per order</option>
+                </select>
+              </div>
+              <div class="fg"><label><span data-i18n="sm_del_cost_details">Cost / Details</span><span
+                    class="rq">*</span></label><input type="text" id="delCostVal"
+                  placeholder="e.g. MXN 250 flat / MXN 15/km"></div>
+            </div>
+            <div class="fr">
+              <div class="fg"><label data-i18n="sm_del_max_distance">Max Distance (km)</label><input type="number"
+                  id="delMaxKm" placeholder="e.g. 30" min="1"></div>
+              <div class="fg"><label data-i18n="sm_del_min_order">Minimum Order</label><input type="text" id="delMinOrd"
+                  placeholder="e.g. MXN 2,000 or 1 ton"></div>
+            </div>
+          </div>
+
+          <div class="fdv"></div>
+          <div class="fst" data-i18n="sm_area_title">Service Area</div>
+          <div class="fg">
+            <select id="szn">
+              <option value="" disabled selected data-i18n="sm_area_where">Where do you supply?</option>
+              <option data-i18n="sm_area_gdl">Guadalajara only</option>
+              <option data-i18n="sm_area_zap">Zapopan only</option>
+              <option data-i18n="sm_area_both">Both cities</option>
+              <option data-i18n="sm_area_all">All Jalisco metro area</option>
+            </select>
+          </div>
+          <div class="fg" style="margin-top:8px"><label data-i18n="sm_notes">Additional Notes
+              (optional)</label><textarea id="sdsc" data-i18n-placeholder="sm_notes_placeholder"
+              placeholder="Minimum orders, stock availability, special materials..."></textarea></div>
+
+          <div class="agb">
+            <label>
+              <div class="agc" id="sagchk" onclick="tglSuppAg()"></div>
+              <div class="agt"><strong data-i18n="sm_agreement">I confirm I am an independent material supplier fully
+                  responsible for my own products and services.</strong> <span data-i18n="sm_agreement_desc">I
+                  understand that Lumitya is a listing platform only, does not supervise my operations, and does not
+                  guarantee leads or revenue. I agree to the</span> <a onclick="go('pagree');closeSupp()"
+                  style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600"
+                  data-i18n="sm_provider_agreement">Provider Agreement</a>, <a onclick="go('terms');closeSupp()"
+                  style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600"
+                  data-i18n="sm_terms">Terms &amp; Conditions</a> &amp; <a onclick="go('terms');closeSupp()"
+                  style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600"
+                  data-i18n="terms_s8_arb_t">Arbitration Agreement</a>.</div>
+            </label>
+            <div class="age" id="sagerr" data-i18n="sm_agreement_error">You must confirm this before submitting.</div>
+          </div>
+          <div style="margin:14px 0 6px">
+            <div id="turnstile-supplier" data-turnstile-form="supplier"></div>
+          </div>
+          <div class="fsr">
+            <span class="fn"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-lock-secure.svg" alt=""> <span data-i18n="sm_reviewed">Reviewed before publishing.</span></span>
+            <button class="bsb" id="sbtn" onclick="submitSupp()"><span class="btn-lbl" data-i18n="sm_submit_btn">Submit
+                Application </span><span class="sp"></span></button>
+          </div>
+        </div>
+        <div class="msuc" id="smsuc">
+          <div class="sico"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/icon-success-confetti.svg" alt="Success"></div>
+          <h3 data-i18n="sm_success_title">Application Received!</h3>
+          <p data-i18n="sm_success_desc">We'll review your details and send a payment link within 48 hours. Your listing
+            goes live after payment is confirmed.</p><button class="bco" onclick="closeSupp()"
+            data-i18n="cl">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: CONTACT PROVIDER -->
+    <div class="mo" id="contactMo" data-feature="provider_contact_button">
+      <div class="md" style="max-width:550px">
+        <div class="mhd dk">
+          <div class="mtg"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-contact-phone.svg" alt=""> <span data-i18n="cp_tg">Contact</span></div>
+          <h3 id="cpTitle" data-i18n="cp_h_title">Request Quote from Provider</h3>
+          <p data-i18n="cp_h_subtitle">We will send your request to the provider.</p>
+          <button class="mcl" onclick="closeCont()">&#10005;</button>
+        </div>
+        <div class="mb" id="cpbody">
+          <div class="uwarn uwarn--compact" data-feature="provider_contact_safety_notice">
+            <div class="uwarn-title"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-safety-warning.svg" alt=""> <span data-i18n="safety_tip_title">Safety Tip:</span></div>
+            <p data-i18n="safety_tip_body">Lumitya only connects you with independent providers. Always verify credentials, request written agreements, and avoid making advance payments without proper safeguards.</p>
+          </div>
+          <div class="uwarn uwarn--compact" data-feature="provider_contact_payment_risk_notice" style="border-color:#DC2626;background:#FEF2F2">
+            <div class="uwarn-title"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-important-alert.svg" alt=""> <span data-i18n="payment_risk_title">Important:</span></div>
+            <p data-i18n="payment_risk_body">Avoid making large advance payments without a written agreement and proper verification of the provider.</p>
+          </div>
+          <div class="merr" id="cperr"></div>
+          <div class="fr">
+            <div class="fg"><label><span data-i18n="f_nm">Your Name</span><span class="rq">*</span></label><input
+                type="text" id="cpnm" placeholder="e.g. Carlos Mendoza"></div>
+            <div class="fg"><label><span data-i18n="req_city">City</span><span class="rq">*</span></label>
+              <select id="cpcity" onchange="updCol('cpcol','cpcity')">
+                <option value="" disabled selected data-i18n="req_select_city">Select city</option>
+                <option value="Guadalajara">Guadalajara</option>
+                <option value="Zapopan">Zapopan</option>
+              </select>
+            </div>
+          </div>
+          <div class="fr">
+            <div class="fg"><label><span data-i18n="req_neighbourhood">Neighbourhood</span><span
+                  class="rq">*</span></label><select id="cpcol" disabled>
+                <option value="" disabled selected data-i18n="req_select_city_first">Select city first</option>
+              </select></div>
+            <div class="fg"><label><span data-i18n="req_service">Service Needed</span><span class="rq">*</span></label>
+              <select id="cpsvc">
+                <option value="" disabled selected data-i18n="req_select_service">Select service</option>
+                <option data-i18n="opt_architecture">Architecture &amp; Design</option>
+                <option data-i18n="opt_plumbing">Plumbing</option>
+                <option data-i18n="opt_electrical">Electrical</option>
+                <option data-i18n="opt_roofing">Roof &amp; Waterproofing</option>
+                <option data-i18n="opt_materials">Material Supply</option>
+                <option data-i18n="opt_renovation">Renovation &amp; Remodeling</option>
+                <option data-i18n="opt_painting">Painting</option>
+                <option data-i18n="opt_other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="fg"><label><span data-i18n="req_description">Project Description</span><span
+                class="rq">*</span></label><textarea id="cpmg" data-i18n-placeholder="req_description_placeholder"
+              placeholder="Briefly describe what you need..."></textarea></div>
+          <div class="fr">
+            <div class="fg"><label data-i18n="req_budget">Budget (approx.)</label>
+              <select id="cpbg">
+                <option value="" disabled selected data-i18n="req_select_budget">Select range</option>
+                <option data-i18n="req_budget_under">Under MXN 10,000</option>
+                <option data-i18n="req_budget_1">MXN 10,000–30,000</option>
+                <option data-i18n="req_budget_2">MXN 30,000–80,000</option>
+                <option data-i18n="req_budget_3">MXN 80,000–200,000</option>
+                <option data-i18n="req_budget_over">Over MXN 200,000</option>
+                <option data-i18n="req_budget_unsure">Not sure yet</option>
+              </select>
+            </div>
+            <div class="fg"><label><span data-i18n="req_timeline">Timeline</span></label>
+              <select id="cptimeline">
+                <option value="" disabled selected data-i18n="req_select_timeline">Select timeline</option>
+                <option data-i18n="req_timeline_urgent" data-feature="timeline_urgent_option">Urgent – within 1 week</option>
+                <option data-i18n="req_timeline_soon" data-feature="timeline_soon_option">Soon – within 1 month</option>
+                <option data-i18n="req_timeline_flexible">Flexible – 1–3 months</option>
+                <option data-i18n="req_timeline_planning">Planning – 3+ months</option>
+              </select>
+            </div>
+          </div>
+          <div class="fr">
+            <div class="fg"><label><span data-i18n="f_ph">Phone</span><span class="rq">*</span></label><input type="tel"
+                id="cpph" placeholder="+52 33 1234 5678"></div>
+            <div class="fg"><label><span data-i18n="f_em">Email</span><span class="rq">*</span></label><input type="email" id="cpem"
+                placeholder="you@email.com"></div>
+          </div>
+          <div class="agb" style="margin:12px 0 6px">
+            <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+              <div class="agc" id="contTermsChk" onclick="tglTermsArb('cont')"></div>
+              <div class="agt" style="font-size:.76rem"><span data-i18n="terms_arb_agree">I agree to the </span><a onclick="go('terms')" style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="footer_terms">Terms &amp; Conditions</a><span> &amp; </span><a onclick="go('terms')" style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="terms_s8_arb_t">Arbitration Agreement</a>.<span class="rq">*</span></div>
+            </label>
+            <div class="age" id="contTermsErr" style="display:none" data-i18n="terms_arb_err">You must agree to the Terms &amp; Arbitration clause before submitting.</div>
+          </div>
+          <div style="margin:14px 0 6px">
+            <div id="turnstile-contact" data-turnstile-form="contact"></div>
+          </div>
+          <div class="fsr">
+            <span class="fn"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-lock-secure.svg" alt=""> <span data-i18n="cp_private">Private.</span></span>
+            <button class="bsb" id="cpbtn" onclick="submitCont()"><span class="btn-lbl" data-i18n="cp_b">Send Request
+                </span><span class="sp"></span></button>
+          </div>
+        </div>
+        <div class="msuc" id="cpsuc">
+          <div class="sico"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/icon-success-check.svg" alt="Success"></div>
+          <h3 data-i18n="req_success_title">Request Sent!</h3>
+          <p data-i18n="req_success_desc">Listed providers in your area will be in touch directly. Always verify
+            credentials before hiring.</p>
+          <button class="bsb" onclick="closeCont()" style="margin-top:16px"><span class="btn-lbl"
+              data-i18n="cl">Close</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: SAFETY CONFIRMATION -->
+    <div class="mo" id="safetyConfirmMo">
+      <div class="md" style="max-width:560px">
+        <div class="mhd bl">
+          <div class="mtg" data-i18n="safety_confirm_tag">Review Before Sending</div>
+          <h3><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-safety-warning.svg" alt=""> <span data-i18n="safety_tip_title">Safety Tip:</span></h3>
+          <button class="mcl" onclick="closeSafetyConfirm()">&#10005;</button>
+        </div>
+        <div class="mb">
+          <div class="uwarn safety-ack-warn">
+            <div class="uwarn-title"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-safety-warning.svg" alt=""> <span data-i18n="safety_tip_title_text">Safety Tip</span></div>
+            <p data-i18n="safety_tip_body">Lumitya only connects you with independent providers. Always verify credentials, request written agreements, and avoid making advance payments without proper safeguards.</p>
+          </div>
+          <div class="agb safety-ack-box">
+            <label for="safetyAckChk">
+              <input type="checkbox" id="safetyAckChk" class="safety-ack-checkbox">
+              <div class="agt" data-i18n="safety_ack_text">I understand that Lumitya only connects me with independent providers and I am responsible for verifying them before hiring.</div>
+            </label>
+            <div class="age" id="safetyAckErr" data-i18n="safety_ack_error">Please check this box before submitting.</div>
+          </div>
+          <div class="fsr" style="margin-top:18px">
+            <button class="bco" onclick="closeSafetyConfirm()"><span data-i18n="safety_confirm_cancel">Cancel</span></button>
+            <button class="bsb" onclick="agreeSafetyConfirm()"><span class="btn-lbl" data-i18n="safety_confirm_agree">Agree &amp; Submit</span><span class="sp"></span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: REPORT PROVIDER -->
+    <div class="mo" id="reportMo">
+      <div class="md" style="max-width:560px">
+        <div class="mhd dk">
+          <div class="mtg"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-important-alert.svg" alt=""> <span data-i18n="report_modal_tag">Report</span></div>
+          <h3 data-i18n="report_modal_title">Report this provider</h3>
+          <p data-i18n="report_modal_subtitle">Submit a report for review. Lumitya may investigate misuse, no-shows, or misrepresentation.</p>
+          <button class="mcl" onclick="closeProviderReport()">&#10005;</button>
+        </div>
+        <div class="mb" id="rpbody">
+          <div class="uwarn uwarn--compact">
+            <div class="uwarn-title" data-i18n="report_modal_tip_title">For review only</div>
+            <p data-i18n="report_modal_tip_body">Reports help Lumitya review platform integrity issues. Submission of a report does not guarantee any specific outcome.</p>
+          </div>
+          <div class="merr" id="rperr"></div>
+          <div class="fg">
+            <label data-i18n="report_provider_label">Provider</label>
+            <div class="mdc"><strong id="rpProviderName">Independent provider</strong></div>
+          </div>
+          <div class="fg">
+            <label><span data-i18n="report_issue_field">Issue type</span><span class="rq">*</span></label>
+            <select id="rptype">
+              <option value="" disabled selected data-i18n="report_issue_select">Select issue type</option>
+              <option value="suspected_fraud" data-i18n="report_issue_fraud">Suspected fraud</option>
+              <option value="no_show" data-i18n="report_issue_noshow">No-show</option>
+              <option value="misrepresentation" data-i18n="report_issue_misrep">Misrepresentation</option>
+            </select>
+          </div>
+          <div class="fg"><label><span data-i18n="report_details_label">Details</span><span class="rq">*</span></label><textarea id="rpdetails" data-i18n-placeholder="report_details_placeholder" placeholder="Describe what happened and any relevant context..."></textarea></div>
+          <div class="fst" data-i18n="report_contact_section">Your contact details</div>
+          <div class="fr">
+            <div class="fg"><label><span data-i18n="f_nm">Full Name</span></label><input type="text" id="rpnm" placeholder="e.g. Carlos Mendoza"></div>
+            <div class="fg"><label><span data-i18n="f_ph">Phone</span><span class="rq">*</span></label><input type="tel" id="rpph" placeholder="+52 33 1234 5678"></div>
+          </div>
+          <div class="fg"><label><span data-i18n="f_em">Email</span><span class="rq">*</span></label><input type="email" id="rpem" placeholder="you@email.com"></div>
+          <div class="agb" style="margin:12px 0 6px">
+            <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+              <div class="agc" id="reportTermsChk" onclick="tglTermsArb('report')"></div>
+              <div class="agt" style="font-size:.76rem"><span data-i18n="terms_arb_agree">I agree to the </span><a onclick="go('terms')" style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="footer_terms">Terms &amp; Conditions</a><span> &amp; </span><a onclick="go('terms')" style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="terms_s8_arb_t">Arbitration Agreement</a>.<span class="rq">*</span></div>
+            </label>
+            <div class="age" id="reportTermsErr" style="display:none" data-i18n="terms_arb_err">You must agree to the Terms &amp; Arbitration clause before submitting.</div>
+          </div>
+          <div style="margin:14px 0 6px">
+            <div id="turnstile-report" data-turnstile-form="report"></div>
+          </div>
+          <div class="fsr">
+            <span class="fn"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-lock-secure.svg" alt=""> <span data-i18n="report_private_note">Submitted securely for internal review.</span></span>
+            <div style="font-size:0.70rem;color:var(--gr);margin-bottom:8px;padding-top:8px;border-top:1px solid #E5E7EB" data-i18n="report_fair_use_notice">Fair use notice: Submitting false or malicious reports violates the Provider Agreement and may result in suspension of your account.</div>
+            <button class="bsb" id="rpbtn" onclick="submitProviderReport()"><span class="btn-lbl" data-i18n="report_submit_btn">Submit report </span><span class="sp"></span></button>
+          </div>
+        </div>
+        <div class="msuc" id="rpsuc">
+          <div class="sico"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/icon-success-check.svg" alt="Success"></div>
+          <h3 data-i18n="report_success_title">Report submitted</h3>
+          <p data-i18n="report_success_desc">Your report has been recorded and will be reviewed within 5 business days. Lumitya is not obligated to take any specific action and will investigate at its discretion.</p>
+          <div style="font-size:0.76rem;color:var(--gr);margin-top:8px;background:#F3F4F6;padding:8px;border-radius:4px" data-i18n="report_disclaimer_note">Note: Submission of a report does not guarantee removal. Fair use: Submitting false or malicious reports is a violation of the Provider Agreement and may result in suspension of your own account.</div>
+          <button class="bco" onclick="closeProviderReport()" data-i18n="cl">Close</button>
+        </div>
+      </div>
+    </div>
+  <!-- MODAL: APPLY CHOICE (Supplier or Contractor) -->
+  <div class="mo" id="applyChoiceMo" data-feature="join_modal">
+    <div class="md" style="max-width:520px">
+      <div class="mhd bl">
+        <div class="mtg"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-get-listed-rocket.svg" alt=""> Get Listed</div>
+        <h3 data-i18n="apc_h">How would you like to join Lumitya?</h3>
+        <p data-i18n="apc_s">Compare options and choose the one that describes your business.</p>
+        <button class="mcl" onclick="closeApplyChoice()">&#10005;</button>
+      </div>
+      <div class="apc-grid">
+        <div class="apc-card" onclick="hideModal('applyChoiceMo');openProv()" data-feature="contractor_joining">
+          <span class="apc-ico"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/icon-profile-user.svg" alt="Contractor"></span>
+          <div class="apc-ttl" data-i18n="apc_con">Contractor</div>
+          <div class="apc-dsc" data-i18n="apc_con_d">I provide home services like plumbing, electrical, roofing,
+            renovation, painting, etc.</div>
+        </div>
+        <div class="apc-card" onclick="hideModal('applyChoiceMo');openSupplier()" data-feature="supplier_application">
+          <span class="apc-ico"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/icon-supplier-store.svg" alt="Supplier"></span>
+          <div class="apc-ttl" data-i18n="apc_sup">Supplier</div>
+          <div class="apc-dsc" data-i18n="apc_sup_d">I supply building materials like cement, steel, sand, concrete,
+            hardware, etc.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: NOTIFY ME WHEN AVAILABLE -->
+  <div class="mo" id="notifyMo" data-feature="premium_notifications">
+    <div class="md" style="max-width:520px">
+      <div class="mhd dk">
+        <div class="mtg"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-premium-bell.svg" alt=""> <span data-i18n="nf_tg">Premium Plan</span></div>
+        <h3 data-i18n="nf_h">Get Notified When Premium Launches</h3>
+        <p data-i18n="nf_s">Leave your details and we'll reach out as soon as it's available.</p>
+        <button class="mcl" onclick="closeNotify()">&#10005;</button>
+      </div>
+      <div class="nf-wrap" id="nfbody">
+        <div class="merr" id="nferr"></div>
+        <div class="nf-row">
+          <div class="fg"><label><span data-i18n="f_nm">Full Name</span><span class="rq">*</span></label><input
+              type="text" id="nfnm" placeholder="e.g. Carlos Mendoza"></div>
+          <div class="fg"><label><span data-i18n="f_ph">Phone</span><span class="rq">*</span></label><input type="tel"
+              id="nfph" placeholder="+52 33 1234 5678"></div>
+        </div>
+        <div class="nf-row">
+          <div class="fg"><label><span data-i18n="f_em">Email</span><span class="rq">*</span></label><input type="email"
+              id="nfem" placeholder="you@email.com"></div>
+          <div class="fg"><label><span data-i18n="nf_wa">WhatsApp Number</span><span class="rq">*</span></label><input
+              type="tel" id="nfwa" placeholder="+52 33 1234 5678"></div>
+        </div>
+        <div class="nf-full">
+          <div class="fg"><label><span data-i18n="nf_svc">Type of Service You Provide</span><span
+                class="rq">*</span></label>
+            <select id="nfsvc">
+              <option value="" disabled selected data-i18n="opt_select_service_type">Select your service type</option>
+              <option data-i18n="opt_architecture">Architecture &amp; Design</option>
+              <option data-i18n="opt_plumbing">Plumbing</option>
+              <option data-i18n="opt_electrical">Electrical</option>
+              <option data-i18n="opt_roofing">Roof &amp; Waterproofing</option>
+              <option data-i18n="opt_materials">Material Supply</option>
+              <option data-i18n="opt_renovation">Renovation &amp; Remodeling</option>
+              <option data-i18n="opt_painting">Painting</option>
+              <option data-i18n="opt_hvac">HVAC</option>
+              <option data-i18n="opt_other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="agb" style="margin:12px 0 6px">
+          <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+            <div class="agc" id="notifyTermsChk" onclick="tglTermsArb('notify')"></div>
+            <div class="agt" style="font-size:.76rem"><span data-i18n="terms_arb_agree">I agree to the </span><a onclick="go('terms')" style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="footer_terms">Terms &amp; Conditions</a><span> &amp; </span><a onclick="go('terms')" style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="terms_s8_arb_t">Arbitration Agreement</a>.<span class="rq">*</span></div>
+          </label>
+          <div class="age" id="notifyTermsErr" style="display:none" data-i18n="terms_arb_err">You must agree to the Terms &amp; Arbitration clause before submitting.</div>
+        </div>
+        <div style="margin:14px 0 6px">
+          <div id="turnstile-notify" data-turnstile-form="notify"></div>
+        </div>
+        <div class="nf-act">
+          <span class="fn"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-lock-secure.svg" alt=""> <span data-i18n="nf_privacy">We'll only use this to notify you.</span></span>
+          <button class="bsb" id="nfbtn" onclick="submitNotify()"><span class="btn-lbl" data-i18n="nf_submit">Submit </span><span
+              class="sp"></span></button>
+        </div>
+      </div>
+      <div class="msuc" id="nfsuc">
+        <div class="sico"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/icon-premium-bell.svg" alt="Premium"></div>
+        <h3 data-i18n="nf_success_title">You're on the List!</h3>
+        <p data-i18n="nf_success_desc">We'll notify you by email and WhatsApp as soon as the Premium plan is available.</p><button class="bco"
+          onclick="closeNotify()" data-i18n="cl">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="cookie-banner" id="cookieBanner" role="dialog" aria-live="polite" aria-modal="false" aria-label="Cookie consent">
+    <div class="cookie-inner">
+      <div class="cookie-copy">
+        <strong data-i18n="cookie_title">Your privacy choices</strong>
+        <p>
+          <span data-i18n="cookie_desc">We use essential cookies to run this site and optional cookies to improve experience. You can accept all cookies or keep essential only.</span>
+          <a class="cookie-link" onclick="go('privacy');hideCookieBanner()" data-i18n="cookie_policy_link">Privacy Notice</a>
+        </p>
+      </div>
+      <div class="cookie-actions">
+        <button class="cookie-btn cookie-btn-secondary" onclick="rejectCookies()" data-i18n="cookie_reject">Essential only</button>
+        <button class="cookie-btn cookie-btn-primary" onclick="acceptCookies()" data-i18n="cookie_accept">Accept all</button>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- Supabase JS Client v2.46+ (required for sb_publishable_ key format) -->
+  <!-- Optimized Lumitya Platform - API Keys secured in backend -->
+</body>
+
+</html>

@@ -1,0 +1,46 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# .gitignore for the PUBLIC frontend repo (sumitsuman47/dummyWebpage)
+#
+# This file lives inside public/ and is pushed along with the frontend.
+# It ensures that even if a secret file is accidentally dropped into public/,
+# it will never be committed to the public GitHub Pages repo.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Environment / secrets — most critical
+.env
+.env.*
+*.env
+*.secret
+*.secrets
+
+# Private keys / certificates
+*.pem
+*.key
+*.p12
+*.jks
+*.pfx
+*.crt
+*.cer
+
+# Node / package internals (shouldn't be here, but just in case)
+node_modules/
+package-lock.json
+package.json
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+
+# Editor artifacts
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Build outputs
+dist/
+build/

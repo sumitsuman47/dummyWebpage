@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Form Test - Lumitya</title>
+<link rel="stylesheet" href="css/complete-styles.css">
+<style>
+body { padding: 20px; background: #f9fafb; }
+.test-container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+h1 { color: #2B4DB3; margin-bottom: 20px; }
+.status { padding: 15px; margin: 15px 0; border-radius: 8px; font-size: 14px; }
+.status.info { background: #EEF2FF; border: 1px solid #C7D2FE; color: #3730A3; }
+.status.success { background: #F0FDF4; border: 1px solid #86EFAC; color: #16A34A; }
+.status.error { background: #FEF2F2; border: 1px solid #FECACA; color: #DC2626; }
+#console { margin-top: 20px; padding: 15px; background: #1f2937; color: #10b981; font-family: monospace; font-size: 12px; border-radius: 8px; max-height: 300px; overflow-y: auto; }
+.console-line { margin: 2px 0; }
+.console-error { color: #ef4444; }
+.console-warn { color: #f59e0b; }
+</style>
+</head>
+<body>
+<div class="test-container">
+  <h1>🧪 Service Request Form Test</h1>
+  
+  <div class="status info">
+    <strong>Test Instructions:</strong><br>
+    1. Fill out the form below<br>
+    2. Click "Send Request"<br>
+    3. Watch the console output below for debugging info
+  </div>
+
+  <div class="merr" id="merr" style="display:none;"></div>
+
+  <div class="fr">
+    <div class="fg">
+      <label>Full Name<span class="rq">*</span></label>
+      <input type="text" id="mnm" placeholder="e.g. Carlos Mendoza">
+    </div>
+    <div class="fg">
+      <label>City<span class="rq">*</span></label>
+      <select id="mcity" onchange="updCol('mcol','mcity')">
+        <option value="" disabled selected>Select city</option>
+        <option>Guadalajara</option>
+        <option>Zapopan</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="fr">
+    <div class="fg">
+      <label>Neighbourhood<span class="rq">*</span></label>
+      <select id="mcol" disabled>
+        <option value="" disabled selected>Select city first</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>Service Needed<span class="rq">*</span></label>
+      <select id="msvc">
+        <option value="" disabled selected>Select service</option>
+        <option>Architecture &amp; Design</option>
+        <option>Plumbing</option>
+        <option>Electrical</option>
+        <option>Roof &amp; Waterproofing</option>
+        <option>Material Supply</option>
+        <option>Renovation &amp; Remodeling</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="fg">
+    <label>Project Description<span class="rq">*</span></label>
+    <textarea id="mds" placeholder="Briefly describe what you need..."></textarea>
+  </div>
+
+  <div class="fr">
+    <div class="fg">
+      <label>Budget (approx.)</label>
+      <select id="mbg">
+        <option value="" disabled selected>Select range</option>
+        <option>Under MXN 10,000</option>
+        <option>MXN 10,000–30,000</option>
+        <option>MXN 30,000–80,000</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>Timeline<span class="rq">*</span></label>
+      <select id="mug">
+        <option value="" disabled selected>Select timeline</option>
+        <option>Urgent – within 1 week</option>
+        <option>Soon – within 1 month</option>
+        <option>Flexible – 1–3 months</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="fr">
+    <div class="fg">
+      <label>Phone<span class="rq">*</span></label>
+      <input type="tel" id="mph" placeholder="+52 33 1234 5678">
+    </div>
+    <div class="fg">
+      <label>Email</label>
+      <input type="email" id="mem" placeholder="you@email.com">
+    </div>
+  </div>
+
+  <button class="bsb" id="mbtn" onclick="submitMatch()" style="margin-top: 20px;">
+    <span class="btn-lbl">Send Request →</span>
+    <span class="sp"></span>
+  </button>
+
+  <div id="mmsuc" class="status success" style="display:none;">
+    ✅ <strong>Success!</strong> Request submitted successfully.
+  </div>
+
+  <div id="console">
+    <strong>Console Output:</strong>
+    <div id="console-output"></div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+// Intercept console methods
+const consoleOutput = document.getElementById('console-output');
+const originalLog = console.log;
+const originalError = console.error;
+const originalWarn = console.warn;
+
+function addToConsole(message, type = 'log') {
+  const line = document.createElement('div');
+  line.className = `console-line console-${type}`;
+  line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+  consoleOutput.appendChild(line);
+  consoleOutput.parentElement.scrollTop = consoleOutput.parentElement.scrollHeight;
+}
+
+console.log = function(...args) {
+  originalLog.apply(console, args);
+  addToConsole(args.join(' '), 'log');
+};
+
+console.error = function(...args) {
+  originalError.apply(console, args);
+  addToConsole('ERROR: ' + args.join(' '), 'error');
+};
+
+console.warn = function(...args) {
+  originalWarn.apply(console, args);
+  addToConsole('WARN: ' + args.join(' '), 'warn');
+};
+
+// Log initial state
+window.addEventListener('DOMContentLoaded', () => {
+  console.log('✅ Page loaded');
+  console.log('✅ Form elements found: ' + (document.getElementById('mnm') ? 'YES' : 'NO'));
+  console.log('✅ Submit function available: ' + (typeof window.submitMatch === 'function' ? 'YES' : 'NO'));
+  console.log('✅ API available: ' + (typeof api !== 'undefined' ? 'YES' : 'NO'));
+  console.log('');
+  console.log('👉 Fill out the form and click "Send Request"');
+});
+</script>
+</body>
+</html>
