@@ -116,18 +116,18 @@ const supabaseService = {
     }
 
     const payload = {
-      customer_name: data.name,
-      customer_email: data.email || '',
-      customer_phone: data.phone,
-      service_category: data.service,
-      service_description: data.description,
+      name: data.name,
+      email: data.email || '',
+      phone: data.phone,
+      service: data.service,
+      description: data.description,
       city: data.city || 'Guadalajara',
       neighbourhood: data.neighbourhood || '',
       provider_id: data.provider_id || null,
       provider_name: data.provider_name || null,
       budget: data.budget || '',
       preferred_date: preferredDate,
-      timeline_text: timelineText,
+      timeline: timelineText,
       attachment_urls: data.attachment_urls || [],
       status: 'pending'
     };
@@ -137,9 +137,9 @@ const supabaseService = {
     } catch (error) {
       const msg = String(error && error.message ? error.message : error);
 
-      // Backward compatibility: older deployments may not yet have timeline_text.
-      if (msg.includes("'timeline_text' column") || msg.includes('timeline_text')) {
-        const { timeline_text, ...legacyPayload } = payload;
+      // Backward compatibility: older deployments may not yet have timeline.
+      if (msg.includes("'timeline' column") || msg.includes('timeline')) {
+        const { timeline, ...legacyPayload } = payload;
         return supabaseRequest(getTableName('service_requests'), 'POST', legacyPayload);
       }
 
