@@ -91,12 +91,10 @@
       document.head.appendChild(preloadStyle);
     })();
   </script>
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileLoad" async defer></script>
   <script src="js/runtime-config.js"></script>
   <script src="js/feature-flags.js"></script>
   <script src="js/i18n.js"></script>
-  <script src="js/emailjs-config.js"></script>
   <script src="js/app.js" defer></script>
 </head>
 
@@ -1404,14 +1402,6 @@
           <button class="mcl" onclick="closeMatch()">&#10005;</button>
         </div>
         <div class="mb" id="mmbody">
-          <div class="uwarn uwarn--compact" data-feature="service_request_safety_notice">
-            <div class="uwarn-title"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-safety-warning.svg" alt=""> <span data-i18n="safety_tip_title">Safety Tip:</span></div>
-            <p data-i18n="safety_tip_body">Lumitya only connects you with independent providers. Always verify credentials, request written agreements, and avoid making advance payments without proper safeguards.</p>
-          </div>
-          <div class="uwarn uwarn--compact" data-feature="service_request_payment_risk_notice" style="border-color:#DC2626;background:#FEF2F2">
-            <div class="uwarn-title"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-important-alert.svg" alt=""> <span data-i18n="payment_risk_title">Important:</span></div>
-            <p data-i18n="payment_risk_body">Avoid making large advance payments without a written agreement and proper verification of the provider.</p>
-          </div>
           <div class="merr" id="merr"></div>
           <div class="fr">
             <div class="fg"><label><span data-i18n="req_full_name">Full Name</span><span
@@ -1428,9 +1418,9 @@
           </div>
           <div class="fr">
             <div class="fg"><label><span data-i18n="req_neighbourhood">Neighbourhood</span><span
-                  class="rq">*</span></label><select id="mcol" disabled>
-                <option value="" disabled selected data-i18n="req_select_city_first">Select city first</option>
-              </select></div>
+                  class="rq">*</span></label><input type="text" id="mcol" list="mcol-list" disabled placeholder="Select city first">
+                <datalist id="mcol-list"></datalist></div>
+            <div class="fg" id="mcol-other" style="display:none"><label>Specify Neighbourhood</label><input type="text" id="mcol-custom" placeholder="Enter your neighbourhood"></div>
             <div class="fg"><label><span data-i18n="req_service">Service Needed</span><span class="rq">*</span></label>
               <select id="msvc">
                 <option value="" disabled selected data-i18n="req_select_service">Select service</option>
@@ -1476,6 +1466,10 @@
             <div class="fg"><label><span data-i18n="req_email">Email</span><span class="rq">*</span></label><input type="email" id="mem"
                 placeholder="you@email.com"></div>
           </div>
+          <div class="uwarn uwarn--compact">
+            <div class="uwarn-title"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-important-alert.svg" alt=""> <span data-i18n="platform_notice_title">Platform Notice</span></div>
+            <p data-i18n="platform_notice">We connect you with independent service providers. We do not employ or verify providers and are not responsible for transactions, pricing, or service quality. Never make advance payments outside the platform. Providers are independent professionals. Lumitya does not guarantee pricing, availability, or service outcomes. Some providers may be verified, but users should still perform their own checks.</p>
+          </div>
           <div class="agb" style="margin:12px 0 6px">
             <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
               <div class="agc" id="matchTermsChk" onclick="tglTermsArb('match')"></div>
@@ -1488,14 +1482,15 @@
           </div>
           <div class="fsr">
             <span class="fn"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-lock-secure.svg" alt=""> <span data-i18n="req_private">Private &amp; secure.</span></span>
-            <button class="bsb" id="mbtn" onclick="submitMatch()"><span class="btn-lbl" data-i18n="sendRequest">Send
-                Request </span><span class="sp"></span></button>
+            <div style="font-size:0.76rem;color:var(--gr);margin:4px 0;text-align:center" data-i18n="data_privacy_notice">Your data will only be used to connect you with relevant providers.</div>
+            <a href="#" style="color:#78350F;text-decoration:underline;font-size:0.76rem;display:block;text-align:center;margin-bottom:8px" data-i18n="view_privacy_policy">View Privacy Policy</a>
+            <button class="bsb" id="mbtn" onclick="submitMatch()"><span class="btn-lbl" data-i18n="get_matched_cta">Get matched with providers</span><span class="sp"></span></button>
           </div>
         </div>
         <div class="msuc" id="mmsuc">
           <div class="sico"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/icon-success-check.svg" alt="Success"></div>
-          <h3 data-i18n="req_success_title">Request Sent!</h3>
-          <p data-i18n="req_success_desc">Independent providers in your area will be in touch directly — typically within 24 to 48 hours. Always verify credentials and request a written agreement before hiring.</p>
+          <h3 data-i18n="req_success_title_new">✅ Request sent</h3>
+          <p data-i18n="req_success_desc_new">Next steps:<br>• Providers will contact you directly<br>• Do NOT pay upfront without verification<br>• Always meet or verify before hiring</p>
           <p style="font-size:0.76rem;color:var(--gr);margin-top:8px"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-contact-phone.svg" alt=""> <span data-i18n="req_whatsapp_note">You may receive contact via phone or WhatsApp from listed providers.</span></p>
           <button class="bco" onclick="closeMatch()" data-i18n="cl">Close</button>
         </div>
@@ -1537,10 +1532,10 @@
               </select>
               <div class="cnote"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-location-pin.svg" alt=""> <span data-i18n="cov">Guadalajara &amp; Zapopan only.</span></div>
             </div>
-            <div class="fg"><label><span data-i18n="f_col">Neighbourhood</span><span class="rq">*</span></label><select
-                id="pcol" disabled>
-                <option value="" disabled selected data-i18n="opt_select_city_first">Select city first</option>
-              </select></div>
+            <div class="fg"><label><span data-i18n="f_col">Neighbourhood</span><span class="rq">*</span></label><input
+                type="text" id="pcol" list="pcol-list" disabled placeholder="Select city first">
+                <datalist id="pcol-list"></datalist></div>
+            <div class="fg" id="pcol-other" style="display:none"><label>Specify Neighbourhood</label><input type="text" id="pcol-custom" placeholder="Enter your neighbourhood"></div>
           </div>
           <div class="fr">
             <div class="fg"><label><span data-i18n="f_wb">Website / Social</span></label><input type="text" id="pwb"
@@ -1634,6 +1629,10 @@
               <option data-i18n="opt_both_cities">Both cities</option>
             </select>
           </div>
+          <div class="uwarn uwarn--compact">
+            <div class="uwarn-title"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-important-alert.svg" alt=""> <span data-i18n="platform_notice_title">Platform Notice</span></div>
+            <p data-i18n="platform_notice">We connect you with independent service providers. We do not employ or verify providers and are not responsible for transactions, pricing, or service quality. Never make advance payments outside the platform. Providers are independent professionals. Lumitya does not guarantee pricing, availability, or service outcomes. Some providers may be verified, but users should still perform their own checks.</p>
+          </div>
           <div class="agb">
             <label>
               <div class="agc" id="agchk" onclick="tglAg()"></div>
@@ -1654,6 +1653,8 @@
           </div>
           <div class="fsr">
             <span class="fn"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-lock-secure.svg" alt=""> <span data-i18n="fn_p">Reviewed before publishing.</span></span>
+            <div style="font-size:0.76rem;color:var(--gr);margin:4px 0;text-align:center" data-i18n="data_privacy_notice">Your data will only be used to connect you with relevant providers.</div>
+            <a href="#" style="color:#78350F;text-decoration:underline;font-size:0.76rem;display:block;text-align:center;margin-bottom:8px" data-i18n="view_privacy_policy">View Privacy Policy</a>
             <button class="bsb" id="pbtn" onclick="submitProv()"><span class="bl2" data-i18n="ps_b">Submit Application
                 </span><span class="sp"></span></button>
           </div>

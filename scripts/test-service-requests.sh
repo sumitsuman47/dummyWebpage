@@ -22,7 +22,8 @@ RESPONSE=$(curl -s -X POST http://localhost:3000/api/requests \
     "service": "Plomería",
     "description": "Necesito reparar una fuga de agua en el baño",
     "budget": "1000-2000",
-    "timeline": "2026-03-15"
+    "timeline": "2026-03-15",
+    "turnstileToken": "local-dev-bypass"
   }')
 
 echo "$RESPONSE" | jq '.'
@@ -43,7 +44,8 @@ RESPONSE2=$(curl -s -X POST http://localhost:3000/api/requests \
     "budget": "5000-8000",
     "timeline": "2026-03-20",
     "provider_id": 6,
-    "provider_name": "Ricardo López"
+    "provider_name": "Ricardo López",
+    "turnstileToken": "local-dev-bypass"
   }')
 
 echo "$RESPONSE2" | jq '.'

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const supabaseService = require('../services/supabase');
 const featureUsage = require('../services/feature-usage');
+const emailService = require('../services/email');
 
 const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 const TURNSTILE_SECRET_KEY = process.env.TURNSTILE_SECRET_KEY || '';
@@ -180,7 +181,20 @@ router.post('/requests', requireCaptcha, async (req, res) => {
       });
     }
 
-    const result = await supabaseService.createRequest(req.body);
+    const result = await supabaseService.createRequest(req.body, req.ip);
+    
+    // Send email notification
+    try {
+      await emailService.sendServiceRequest({
+        ...req.body,
+        ip_address: req.ip
+      });
+      console.log('📧 Service request email sent successfully');
+    } catch (emailError) {
+      console.error('❌ Email notification failed:', emailError.message);
+      // Don't fail the request if email fails
+    }
+    
     res.json({ success: true, data: result });
   } catch (error) {
     console.error('Request submission error:', error);
@@ -204,6 +218,16 @@ router.post('/providers', requireCaptcha, validateRequest([
     }
 
     const result = await supabaseService.createProvider(req.body);
+    
+    // Send email notification
+    try {
+      await emailService.sendProviderApplication(req.body);
+      console.log('📧 Provider application email sent successfully');
+    } catch (emailError) {
+      console.error('❌ Provider application email failed:', emailError.message);
+      // Don't fail the request if email fails
+    }
+    
     res.json({ success: true, data: result });
   } catch (error) {
     console.error('Provider application error:', error);
@@ -227,6 +251,16 @@ router.post('/suppliers', requireCaptcha, validateRequest([
     }
 
     const result = await supabaseService.createSupplier(req.body);
+    
+    // Send email notification
+    try {
+      await emailService.sendSupplierApplication(req.body);
+      console.log('📧 Supplier application email sent successfully');
+    } catch (emailError) {
+      console.error('❌ Supplier application email failed:', emailError.message);
+      // Don't fail the request if email fails
+    }
+    
     res.json({ success: true, data: result });
   } catch (error) {
     console.error('Supplier application error:', error);

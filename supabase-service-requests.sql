@@ -34,6 +34,11 @@ CREATE TABLE IF NOT EXISTS public.service_requests (
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
+-- Add new columns for compliance
+ALTER TABLE service_requests ADD COLUMN IF NOT EXISTS ip_address INET;
+ALTER TABLE service_requests ADD COLUMN IF NOT EXISTS accepted_terms_version TEXT DEFAULT '1.0';
+ALTER TABLE service_requests ADD COLUMN IF NOT EXISTS checkbox_states JSONB DEFAULT '{"terms": true}';
+
 -- Add foreign key constraint to providers table
 ALTER TABLE service_requests
 ADD CONSTRAINT fk_provider
