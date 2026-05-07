@@ -693,6 +693,18 @@
             <div class="ccst" style="opacity:.4">Jalisco</div>
             <div class="ccb sn2"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-coming-soon-hourglass.svg" alt=""> <span data-i18n="city_soon">Soon</span></div>
           </div>
+          <div class="cc off">
+            <div class="ccic" style="opacity:.4"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/icon-city-soon.svg" alt="Soon city"></div>
+            <div class="ccn" style="opacity:.5">Chapala</div>
+            <div class="ccst" style="opacity:.4">Jalisco</div>
+            <div class="ccb sn2"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-coming-soon-hourglass.svg" alt=""> <span data-i18n="city_soon">Soon</span></div>
+          </div>
+          <div class="cc off">
+            <div class="ccic" style="opacity:.4"><img class="ui-icon ui-icon-lg" src="/images/lumitya-icons/icon-city-soon.svg" alt="Soon city"></div>
+            <div class="ccn" style="opacity:.5">Ajijic</div>
+            <div class="ccst" style="opacity:.4">Jalisco</div>
+            <div class="ccb sn2"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-coming-soon-hourglass.svg" alt=""> <span data-i18n="city_soon">Soon</span></div>
+          </div>
         </div>
         <div class="expb"><span><img class="ui-icon ui-icon-md" src="/images/lumitya-icons/icon-get-listed-rocket.svg" alt=""></span>
           <div><strong style="color:var(--bl);font-size:.85rem" data-i18n="expand_title">Growing city by city.</strong>
@@ -1399,7 +1411,7 @@
           <div class="mtg"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-success-check.svg" alt=""> <span data-i18n="req_tag">Free &amp; Quick</span></div>
           <h3 data-i18n="requestTitle">Submit a Service Request</h3>
           <p data-i18n="req_subtitle">We'll share your request with 1–3 listed independent service providers in your area.</p>
-          <button class="mcl" onclick="closeMatch()">&#10005;</button>
+          <button class="mcl" onclick="confirmCloseMatch()">&#10005;</button>
         </div>
         <div class="mb" id="mmbody">
           <div class="merr" id="merr"></div>
@@ -1467,24 +1479,26 @@
                 placeholder="you@email.com"></div>
           </div>
           <div class="uwarn uwarn--compact">
-            <div class="uwarn-title"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-important-alert.svg" alt=""> <span data-i18n="platform_notice_title">Platform Notice</span></div>
+            <div class="uwarn-title"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-safety-warning.svg" alt=""> <span data-i18n="platform_notice_title">Platform Notice</span></div>
             <p data-i18n="platform_notice">We connect you with independent service providers. We do not employ or verify providers and are not responsible for transactions, pricing, or service quality. Never make advance payments outside the platform. Providers are independent professionals. Lumitya does not guarantee pricing, availability, or service outcomes. Some providers may be verified, but users should still perform their own checks.</p>
           </div>
           <div class="agb" style="margin:12px 0 6px">
             <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer">
               <div class="agc" id="matchTermsChk" onclick="tglTermsArb('match')"></div>
-              <div class="agt" style="font-size:.76rem"><span data-i18n="terms_arb_agree">I agree to the </span><a onclick="go('terms')" style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="footer_terms">Terms &amp; Conditions</a><span> &amp; </span><a onclick="go('terms')" style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="terms_s8_arb_t">Arbitration Agreement</a>.<span class="rq">*</span></div>
+              <div class="agt" style="font-size:.76rem"><span data-i18n="terms_arb_agree">I agree to the </span><a href="/terms" target="_blank" rel="noopener noreferrer" style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="footer_terms">Terms &amp; Conditions</a><span> &amp; </span><a href="/terms#arbitration" target="_blank" rel="noopener noreferrer" style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="terms_s8_arb_t">Arbitration Agreement</a>.<span class="rq">*</span></div>
             </label>
             <div class="age" id="matchTermsErr" style="display:none" data-i18n="terms_arb_err">You must agree to the Terms &amp; Arbitration clause before submitting.</div>
           </div>
           <div style="margin:14px 0 6px">
             <div id="turnstile-match" data-turnstile-form="match"></div>
           </div>
-          <div class="fsr">
-            <span class="fn"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-lock-secure.svg" alt=""> <span data-i18n="req_private">Private &amp; secure.</span></span>
-            <div style="font-size:0.76rem;color:var(--gr);margin:4px 0;text-align:center" data-i18n="data_privacy_notice">Your data will only be used to connect you with relevant providers.</div>
-            <a href="#" style="color:#78350F;text-decoration:underline;font-size:0.76rem;display:block;text-align:center;margin-bottom:8px" data-i18n="view_privacy_policy">View Privacy Policy</a>
-            <button class="bsb" id="mbtn" onclick="submitMatch()"><span class="btn-lbl" data-i18n="get_matched_cta">Get matched with providers</span><span class="sp"></span></button>
+          <div class="fsr" style="display:flex;flex-direction:column;align-items:center;gap:6px">
+            <span class="fn" style="margin-bottom:2px"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-lock-secure.svg" alt=""> <span data-i18n="req_private">Private &amp; secure.</span></span>
+            <div style="font-size:0.72rem;color:var(--gr);text-align:center;line-height:1.4" data-i18n="data_privacy_notice">Your data will only be used to connect you with relevant providers.</div>
+            <a href="/privacy" target="_blank" rel="noopener noreferrer" style="color:#78350F;text-decoration:underline;font-size:0.72rem" data-i18n="view_privacy_policy">View Privacy Policy</a>
+          </div>
+          <div style="margin-top:16px">
+            <button class="bsb" id="mbtn" onclick="submitMatch()" style="width:100%;display:flex;justify-content:center;align-items:center"><span class="btn-lbl" data-i18n="get_matched_cta">Get matched with providers</span><span class="sp"></span></button>
           </div>
         </div>
         <div class="msuc" id="mmsuc">
@@ -1629,21 +1643,17 @@
               <option data-i18n="opt_both_cities">Both cities</option>
             </select>
           </div>
-          <div class="uwarn uwarn--compact">
-            <div class="uwarn-title"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-important-alert.svg" alt=""> <span data-i18n="platform_notice_title">Platform Notice</span></div>
-            <p data-i18n="platform_notice">We connect you with independent service providers. We do not employ or verify providers and are not responsible for transactions, pricing, or service quality. Never make advance payments outside the platform. Providers are independent professionals. Lumitya does not guarantee pricing, availability, or service outcomes. Some providers may be verified, but users should still perform their own checks.</p>
-          </div>
           <div class="agb">
             <label>
               <div class="agc" id="agchk" onclick="tglAg()"></div>
               <div class="agt"><strong data-i18n="ag_b">I confirm I am an independent service provider and fully
                   responsible for my own services.</strong> <span data-i18n="ag_t">I understand that Lumitya is a
                   listing platform only, does not supervise my work, and does not guarantee leads or revenue. I agree to
-                  the </span><a onclick="go('pagree');closeProv()"
+                  the </span><a href="/provider-agreement" target="_blank" rel="noopener noreferrer"
                   style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600"
-                  data-i18n="ag_l">Provider Agreement</a><span>, </span><a onclick="go('terms');closeProv()"
+                  data-i18n="ag_l">Provider Agreement</a><span>, </span><a href="/terms" target="_blank" rel="noopener noreferrer"
                   style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="ag_tc">Terms
-                  &amp; Conditions</a><span> &amp; </span><a onclick="go('terms');closeProv()"
+                  &amp; Conditions</a><span> &amp; </span><a href="/terms#arbitration" target="_blank" rel="noopener noreferrer"
                   style="color:#78350F;cursor:pointer;text-decoration:underline;font-weight:600" data-i18n="terms_s8_arb_t">Arbitration Agreement</a>.</div>
             </label>
             <div class="age" id="agerr" data-i18n="err_ag">You must confirm this before submitting.</div>
@@ -1651,12 +1661,13 @@
           <div style="margin:14px 0 6px">
             <div id="turnstile-provider" data-turnstile-form="provider"></div>
           </div>
-          <div class="fsr">
-            <span class="fn"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-lock-secure.svg" alt=""> <span data-i18n="fn_p">Reviewed before publishing.</span></span>
-            <div style="font-size:0.76rem;color:var(--gr);margin:4px 0;text-align:center" data-i18n="data_privacy_notice">Your data will only be used to connect you with relevant providers.</div>
-            <a href="#" style="color:#78350F;text-decoration:underline;font-size:0.76rem;display:block;text-align:center;margin-bottom:8px" data-i18n="view_privacy_policy">View Privacy Policy</a>
-            <button class="bsb" id="pbtn" onclick="submitProv()"><span class="bl2" data-i18n="ps_b">Submit Application
-                </span><span class="sp"></span></button>
+          <div class="fsr" style="display:flex;flex-direction:column;align-items:center;gap:6px">
+            <span class="fn" style="margin-bottom:2px"><img class="ui-icon ui-icon-sm" src="/images/lumitya-icons/icon-lock-secure.svg" alt=""> <span data-i18n="fn_p">Reviewed before publishing.</span></span>
+            <div style="font-size:0.72rem;color:var(--gr);text-align:center;line-height:1.4" data-i18n="provider_privacy_notice">Your data is used to connect you with available service requests, authenticate your identity, and prevent fraud.</div>
+            <a href="/privacy" target="_blank" rel="noopener noreferrer" style="color:#78350F;text-decoration:underline;font-size:0.72rem" data-i18n="view_privacy_policy">View Privacy Policy</a>
+          </div>
+          <div style="margin-top:16px">
+            <button class="bsb" id="pbtn" onclick="submitProv()" style="width:100%;display:flex;justify-content:center;align-items:center"><span class="bl2" data-i18n="ps_b">Submit Application</span><span class="sp"></span></button>
           </div>
         </div>
         <div class="msuc" id="pmsuc">

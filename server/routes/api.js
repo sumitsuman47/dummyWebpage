@@ -183,7 +183,7 @@ router.post('/requests', requireCaptcha, async (req, res) => {
 
     const result = await supabaseService.createRequest(req.body, req.ip);
     
-    // Send email notification
+    // Send email notification to admin
     try {
       await emailService.sendServiceRequest({
         ...req.body,
@@ -192,6 +192,15 @@ router.post('/requests', requireCaptcha, async (req, res) => {
       console.log('📧 Service request email sent successfully');
     } catch (emailError) {
       console.error('❌ Email notification failed:', emailError.message);
+      // Don't fail the request if email fails
+    }
+
+    // Send confirmation email to the user
+    try {
+      await emailService.sendServiceRequestConfirmation(req.body);
+      console.log('📧 Service request confirmation sent to user');
+    } catch (emailError) {
+      console.error('❌ User confirmation email failed:', emailError.message);
       // Don't fail the request if email fails
     }
     
@@ -219,12 +228,24 @@ router.post('/providers', requireCaptcha, validateRequest([
 
     const result = await supabaseService.createProvider(req.body);
     
-    // Send email notification
+    // Send email notification to admin
     try {
       await emailService.sendProviderApplication(req.body);
       console.log('📧 Provider application email sent successfully');
     } catch (emailError) {
       console.error('❌ Provider application email failed:', emailError.message);
+      // Don't fail the request if email fails
+    }
+
+    // Send confirmation email to the provider
+    try {
+      await emailService.sendProviderApplicationConfirmation({
+        ...req.body,
+        categories: Array.isArray(req.body.services) ? req.body.services.join(', ') : req.body.services
+      });
+      console.log('📧 Provider application confirmation sent');
+    } catch (emailError) {
+      console.error('❌ Provider confirmation email failed:', emailError.message);
       // Don't fail the request if email fails
     }
     
@@ -252,12 +273,24 @@ router.post('/suppliers', requireCaptcha, validateRequest([
 
     const result = await supabaseService.createSupplier(req.body);
     
-    // Send email notification
+    // Send email notification to admin
     try {
       await emailService.sendSupplierApplication(req.body);
       console.log('📧 Supplier application email sent successfully');
     } catch (emailError) {
       console.error('❌ Supplier application email failed:', emailError.message);
+      // Don't fail the request if email fails
+    }
+
+    // Send confirmation email to the supplier
+    try {
+      await emailService.sendProviderApplicationConfirmation({
+        ...req.body,
+        categories: Array.isArray(req.body.materials) ? req.body.materials.join(', ') : req.body.materials
+      });
+      console.log('📧 Supplier application confirmation sent');
+    } catch (emailError) {
+      console.error('❌ Supplier confirmation email failed:', emailError.message);
       // Don't fail the request if email fails
     }
     

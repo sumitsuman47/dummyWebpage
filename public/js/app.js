@@ -931,6 +931,36 @@ const serviceRequest = {
     if (mtErr) mtErr.style.display = 'none';
   },
 
+  hasFormData() {
+    const fields = ['mnm', 'mds', 'mph', 'mem'];
+    for (const id of fields) {
+      const el = document.getElementById(id);
+      if (el && el.value && el.value.trim() !== '') {
+        return true;
+      }
+    }
+    const cityEl = document.getElementById('mcity');
+    if (cityEl && cityEl.value && cityEl.value !== '') {
+      return true;
+    }
+    const svcEl = document.getElementById('msvc');
+    if (svcEl && svcEl.value && svcEl.value !== '') {
+      return true;
+    }
+    return false;
+  },
+
+  confirmClose() {
+    if (this.hasFormData()) {
+      const confirmMsg = i18n.get('confirm_close_form') || 'Are you sure you want to quit the service request? Your entered data will be lost.';
+      if (confirm(confirmMsg)) {
+        this.close();
+      }
+    } else {
+      this.close();
+    }
+  },
+
   open(provName, provId) {
     console.log('📝 serviceRequest.open() called with:', { provName, provId });
     this.providerName = provName || '';
@@ -2257,6 +2287,7 @@ const providerSubmit = {
       years_experience: data.experience,
       description: data.description,
       coverage: data.coverage,
+      language_code: utils.getLanguageCode(),
       turnstileToken: captcha.getToken('provider')
     };
 
@@ -3000,6 +3031,7 @@ window.openMatch = (name, id) => {
   serviceRequest.open(name, id);
 };
 window.closeMatch = () => serviceRequest.close();
+window.confirmCloseMatch = () => serviceRequest.confirmClose();
 window.submitMatch = () => serviceRequest.submit();
 window.go = (page) => pageNavigation.go(page);
 window.openSupplier = () => {
