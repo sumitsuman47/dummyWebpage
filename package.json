@@ -6,7 +6,13 @@
   "scripts": {
     "start": "node server/index.js",
     "dev": "nodemon server/index.js",
-    "serve": "python3 -m http.server 3000"
+    "stop": "pkill -f 'node.*server/index.js' 2>/dev/null; lsof -ti :3000 | xargs kill -9 2>/dev/null; echo '✅ Server stopped'",
+    "restart": "npm run stop && npm run dev",
+    "ui-test": "node scripts/ui-test.js",
+    "test:auto": "node server/index.js & sleep 2 && node scripts/ui-test.js; pkill -f 'node.*server/index.js'",
+    "serve": "python3 -m http.server 3000",
+    "test": "node scripts/ui-test.js",
+    "test:verbose": "node scripts/ui-test.js --verbose"
   },
   "keywords": [
     "home-services",
@@ -20,7 +26,10 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-rate-limit": "^6.7.0",
-    "helmet": "^7.0.0"
+    "handlebars": "^4.7.9",
+    "helmet": "^7.0.0",
+    "nodemailer": "^8.0.5",
+    "zeptomail": "^7.0.2"
   },
   "devDependencies": {
     "cheerio": "^1.2.0",

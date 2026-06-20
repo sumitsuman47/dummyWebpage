@@ -931,6 +931,36 @@ const serviceRequest = {
     if (mtErr) mtErr.style.display = 'none';
   },
 
+  hasFormData() {
+    const fields = ['mnm', 'mds', 'mph', 'mem'];
+    for (const id of fields) {
+      const el = document.getElementById(id);
+      if (el && el.value && el.value.trim() !== '') {
+        return true;
+      }
+    }
+    const cityEl = document.getElementById('mcity');
+    if (cityEl && cityEl.value && cityEl.value !== '') {
+      return true;
+    }
+    const svcEl = document.getElementById('msvc');
+    if (svcEl && svcEl.value && svcEl.value !== '') {
+      return true;
+    }
+    return false;
+  },
+
+  confirmClose() {
+    if (this.hasFormData()) {
+      const confirmMsg = i18n.get('confirm_close_form') || 'Are you sure you want to quit the service request? Your entered data will be lost.';
+      if (confirm(confirmMsg)) {
+        this.close();
+      }
+    } else {
+      this.close();
+    }
+  },
+
   open(provName, provId) {
     console.log('📝 serviceRequest.open() called with:', { provName, provId });
     this.providerName = provName || '';
@@ -982,7 +1012,7 @@ const serviceRequest = {
     const data = {
       name: nameEl.value.trim(),
       city: cityEl.value,
-      neighbourhood: colEl.value,
+      neighbourhood: colEl.value === 'Other' ? document.getElementById('mcol-custom').value.trim() : colEl.value,
       service: svcEl.value,
       description: dsEl.value.trim(),
       budget: bgEl?.value || null,
@@ -1007,7 +1037,11 @@ const serviceRequest = {
 
     if (!data.neighbourhood) {
       utils.showError('merr', i18n.get('err_select_neighbourhood'));
-      colEl.focus();
+      if (colEl.value === 'Other') {
+        document.getElementById('mcol-custom').focus();
+      } else {
+        colEl.focus();
+      }
       return;
     }
 
@@ -1078,16 +1112,6 @@ const serviceRequest = {
     try {
       const result = await api.submitServiceRequest(data);
       console.log('Service request submitted successfully:', result);
-
-      // Also send email notification if EmailJS is configured
-      try {
-        if (window.EmailJSConfig) {
-          await EmailJSConfig.sendServiceRequest(data);
-          console.log('Email notification sent');
-        }
-      } catch (emailError) {
-        console.warn('Email notification failed (non-critical):', emailError.message);
-      }
 
       document.getElementById('mmbody').style.display = 'none';
       document.getElementById('mmsuc').style.display = 'block';
@@ -1280,8 +1304,10 @@ const formHelpers = {
   updateNeighbourhood(colId, cityId) {
     const cityEl = document.getElementById(cityId);
     const colEl = document.getElementById(colId);
+    const listId = colId + '-list';
+    const listEl = document.getElementById(listId);
 
-    if (!cityEl || !colEl) return;
+    if (!cityEl || !colEl || !listEl) return;
 
     const cityRaw = (cityEl.value || '').trim();
     const city = Object.keys(this.cityNeighborhoodMap).find(key => key.toLowerCase() === cityRaw.toLowerCase());
@@ -1289,17 +1315,36 @@ const formHelpers = {
     if (city && this.cityNeighborhoodMap[city]) {
       const previousValue = colEl.value;
       colEl.disabled = false;
-      colEl.innerHTML = '<option value="" disabled selected>' + i18n.get('opt_select_neighbourhood') + '</option>';
+      colEl.placeholder = i18n.get('opt_select_neighbourhood');
+      listEl.innerHTML = '';
       this.cityNeighborhoodMap[city].forEach(n => {
-        colEl.innerHTML += `<option>${n}</option>`;
+        listEl.innerHTML += `<option value="${n}">`;
       });
+      listEl.innerHTML += '<option value="Other">';
 
-      if (previousValue && this.cityNeighborhoodMap[city].includes(previousValue)) {
+      if (previousValue && (this.cityNeighborhoodMap[city].includes(previousValue) || previousValue === 'Other')) {
         colEl.value = previousValue;
+        this.toggleOtherField(colId, previousValue);
       }
     } else {
       colEl.disabled = true;
-      colEl.innerHTML = '<option value="" disabled selected>' + i18n.get('opt_select_city_first') + '</option>';
+      colEl.placeholder = i18n.get('opt_select_city_first');
+      listEl.innerHTML = '';
+    }
+  },
+
+  toggleOtherField(colId, value) {
+    const otherDiv = document.getElementById(colId + '-other');
+    const customInput = document.getElementById(colId + '-custom');
+    if (otherDiv && customInput) {
+      if (value === 'Other') {
+        otherDiv.style.display = 'block';
+        customInput.required = true;
+      } else {
+        otherDiv.style.display = 'none';
+        customInput.required = false;
+        customInput.value = '';
+      }
     }
   },
 
@@ -1326,6 +1371,8 @@ const formHelpers = {
       colEl.addEventListener('focus', refresh);
       colEl.addEventListener('click', refresh);
       colEl.addEventListener('touchstart', refresh, { passive: true });
+      colEl.addEventListener('input', () => this.toggleOtherField(colId, colEl.value));
+      colEl.addEventListener('change', () => this.toggleOtherField(colId, colEl.value));
     });
   },
 
@@ -1959,16 +2006,6 @@ const contactProvider = {
       // Submit as service request with provider_id
       await api.submitServiceRequest(data);
 
-      // Also send email notification if EmailJS is configured
-      try {
-        if (window.EmailJSConfig) {
-          await EmailJSConfig.sendServiceRequest(data);
-          console.log('Email notification sent');
-        }
-      } catch (emailError) {
-        console.warn('Email notification failed (non-critical):', emailError.message);
-      }
-
       document.getElementById('cpbody').style.display = 'none';
       document.getElementById('cpsuc').style.display = 'block';
     } catch (error) {
@@ -2130,16 +2167,6 @@ const notifySubmit = {
     try {
       await api.subscribeNotification(data);
 
-      // Also send email notification if EmailJS is configured
-      try {
-        if (window.EmailJSConfig) {
-          await EmailJSConfig.sendNotifyRequest(data);
-          console.log('Email notification sent');
-        }
-      } catch (emailError) {
-        console.warn('Email notification failed (non-critical):', emailError.message);
-      }
-
       document.getElementById('nfbody').style.display = 'none';
       document.getElementById('nfsuc').style.display = 'block';
     } catch (error) {
@@ -2166,7 +2193,10 @@ const providerSubmit = {
       phone: document.getElementById('pph')?.value.trim(),
       email: document.getElementById('pem')?.value.trim(),
       city: document.getElementById('pcity')?.value,
-      neighbourhood: document.getElementById('pcol')?.value,
+      neighbourhood: (() => {
+        const colEl = document.getElementById('pcol');
+        return colEl?.value === 'Other' ? document.getElementById('pcol-custom').value.trim() : colEl?.value;
+      })(),
       website: document.getElementById('pwb')?.value.trim(),
       teamSize: document.getElementById('ptm')?.value,
       categories: [],
@@ -2187,8 +2217,34 @@ const providerSubmit = {
     if (expEl) data.experience = expEl.dataset.v;
 
     // Basic validation
-    if (!data.name || !data.phone || !data.email || !data.city || !data.neighbourhood) {
-      utils.showFormError(errEl, i18n.get('err_fill_required'));
+    if (!data.name) {
+      utils.showFormError(errEl, i18n.get('err_enter_name'));
+      document.getElementById('pnm')?.focus();
+      return;
+    }
+    if (!data.phone) {
+      utils.showFormError(errEl, i18n.get('err_enter_phone'));
+      document.getElementById('pph')?.focus();
+      return;
+    }
+    if (!data.email) {
+      utils.showFormError(errEl, i18n.get('err_enter_email'));
+      document.getElementById('pem')?.focus();
+      return;
+    }
+    if (!data.city) {
+      utils.showFormError(errEl, i18n.get('err_select_city'));
+      document.getElementById('pcity')?.focus();
+      return;
+    }
+    if (!data.neighbourhood) {
+      utils.showFormError(errEl, i18n.get('err_select_neighbourhood'));
+      const colEl = document.getElementById('pcol');
+      if (colEl?.value === 'Other') {
+        document.getElementById('pcol-custom')?.focus();
+      } else {
+        colEl?.focus();
+      }
       return;
     }
 
@@ -2231,21 +2287,12 @@ const providerSubmit = {
       years_experience: data.experience,
       description: data.description,
       coverage: data.coverage,
+      language_code: utils.getLanguageCode(),
       turnstileToken: captcha.getToken('provider')
     };
 
     try {
       await api.submitProviderApplication(payload);
-
-      // Also send email notification if EmailJS is configured
-      try {
-        if (window.EmailJSConfig) {
-          await EmailJSConfig.sendProviderApplication(data);
-          console.log('Email notification sent');
-        }
-      } catch (emailError) {
-        console.warn('Email notification failed (non-critical):', emailError.message);
-      }
 
       document.getElementById('pmbody').style.display = 'none';
       document.getElementById('pmsuc').style.display = 'block';
@@ -2357,16 +2404,6 @@ const supplierSubmit = {
     try {
       await api.submitSupplierApplication(payload);
 
-      // Also send email notification if EmailJS is configured
-      try {
-        if (window.EmailJSConfig) {
-          await EmailJSConfig.sendSupplierApplication(data);
-          console.log('Email notification sent');
-        }
-      } catch (emailError) {
-        console.warn('Email notification failed (non-critical):', emailError.message);
-      }
-
       document.getElementById('smbody').style.display = 'none';
       document.getElementById('smsuc').style.display = 'block';
     } catch (error) {
@@ -2431,7 +2468,6 @@ document.addEventListener('DOMContentLoaded', () => {
     fpSyncTimer = setTimeout(syncFeaturedProviderList, 120);
   });
 
-  // Initialize EmailJS
   // Initialize material rows for supplier form
   const matContainer = document.getElementById('matRows');
   if (matContainer) {
@@ -2995,6 +3031,7 @@ window.openMatch = (name, id) => {
   serviceRequest.open(name, id);
 };
 window.closeMatch = () => serviceRequest.close();
+window.confirmCloseMatch = () => serviceRequest.confirmClose();
 window.submitMatch = () => serviceRequest.submit();
 window.go = (page) => pageNavigation.go(page);
 window.openSupplier = () => {

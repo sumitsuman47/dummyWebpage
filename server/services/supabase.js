@@ -102,7 +102,7 @@ const supabaseAdminRequest = async (table, method = 'GET', body = null, query = 
 // Service methods
 const supabaseService = {
   // Create service request (using service_requests table)
-  async createRequest(data) {
+  async createRequest(data, ipAddress) {
     // Store the timeline text string and leave preferred_date as null for text timelines
     let preferredDate = null;
     let timelineText = '';
@@ -115,21 +115,34 @@ const supabaseService = {
       }
     }
 
+    // Use the standard schema for both dev and prod (with backward compatibility for existing tables)
     const payload = {
+      // Old columns (NOT NULL in existing schema)
       name: data.name,
-      email: data.email || '',
-      phone: data.phone,
-      service: data.service,
-      description: data.description,
       city: data.city || 'Guadalajara',
       neighbourhood: data.neighbourhood || '',
+      service: data.service,
+      description: data.description,
+      timeline: timelineText,
+      phone: data.phone,
+      email: data.email || '',
+      
+      // New columns (nullable, for future use)
+      customer_name: data.name,
+      customer_email: data.email || '',
+      customer_phone: data.phone,
+      service_category: data.service,
+      service_description: data.description,
       provider_id: data.provider_id || null,
       provider_name: data.provider_name || null,
       budget: data.budget || '',
       preferred_date: preferredDate,
-      timeline: timelineText,
+      timeline_text: timelineText,
       attachment_urls: data.attachment_urls || [],
-      status: 'pending'
+      status: 'pending',
+      ip_address: ipAddress,
+      accepted_terms_version: '1.0',
+      checkbox_states: { terms: true }
     };
 
     try {
@@ -137,9 +150,9 @@ const supabaseService = {
     } catch (error) {
       const msg = String(error && error.message ? error.message : error);
 
-      // Backward compatibility: older deployments may not yet have timeline.
-      if (msg.includes("'timeline' column") || msg.includes('timeline')) {
-        const { timeline, ...legacyPayload } = payload;
+      // Backward compatibility: older deployments may not yet have timeline_text.
+      if (msg.includes("'timeline_text' column") || msg.includes('timeline_text')) {
+        const { timeline_text, ...legacyPayload } = payload;
         return supabaseRequest(getTableName('service_requests'), 'POST', legacyPayload);
       }
 
